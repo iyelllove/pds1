@@ -12,6 +12,7 @@ namespace pds1
     {
         /// <summary>
         /// Punto di ingresso principale dell'applicazione.
+        /// modificare da qui
         /// </summary>
         [STAThread]
         static void Main()
