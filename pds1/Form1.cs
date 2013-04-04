@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
 using System.Text;
+using System.Threading; 
 
 
 namespace pds1
@@ -22,12 +23,6 @@ namespace pds1
             Resize += new EventHandler(Form1_Resize);
         }
 
-
-        private void Form1_Resize(object sender, System.EventArgs e)
-        {
-            if (FormWindowState.Minimized == WindowState)
-                Hide();
-        }
 
         private void notifyIcon1_DoubleClick(object sender,
                                      System.EventArgs e)
@@ -62,7 +57,55 @@ namespace pds1
             
         }
 
-      
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void showWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+                Hide();
+        }
+
+        private void notifyIcon1_MouseDoubleClick_1(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void exitToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+                {                                               
+                    Hide();
+                    notifyIcon1.Visible = true;
+                    Thread.Sleep(3000);//pause for 3 seconds
+                    //shows a balloon for 1 sec with a title, some text, and the info icon
+                    //other possibilities are: TooltipIcon.None, Tooltipicon.Error, and TooltipIcon.Warning
+                    notifyIcon1.ShowBalloonTip(1000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
+                }
+        }
+
 
       
     }
