@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
+using System.Text;
 
 namespace pds1
 {
@@ -18,7 +19,15 @@ namespace pds1
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-            WlanClient wlan = new WlanClient();
+            
+
+
+          
+
+             
+
+
         }
     }
 }
+
