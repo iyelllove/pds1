@@ -18,6 +18,22 @@ namespace pds1
         public Form1()
         {
             InitializeComponent();
+            notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
+            Resize += new EventHandler(Form1_Resize);
+        }
+
+
+        private void Form1_Resize(object sender, System.EventArgs e)
+        {
+            if (FormWindowState.Minimized == WindowState)
+                Hide();
+        }
+
+        private void notifyIcon1_DoubleClick(object sender,
+                                     System.EventArgs e)
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
         }
 
         private void button1_Click(object sender, EventArgs e)
