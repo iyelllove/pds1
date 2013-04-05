@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
-using System.Text;
 using System.Threading;
 
 
@@ -46,6 +45,7 @@ namespace pds1
                     Console.Out.WriteLine();
                     Label name = new Label();
                     Label power = new Label();
+
                     Label strenght = new Label();
                     name.Text = new String(Encoding.ASCII.GetChars(ssid.SSID, 0, (int)ssid.SSIDLength));
                     power.Text = network.wlanSignalQuality.ToString();
@@ -90,6 +90,12 @@ namespace pds1
                         strenght.Text = rss.ToString();
                         bss.Text = network.dot11BssType.ToString();
                         mac.Text = tMac;
+                        /*
+                        var db = new BloggingContext();
+                        var m = new Measure { SSID = name.Text, timestamp = DateTime.Now };
+                        db.Measures.Add(m);
+                        db.SaveChanges();
+                        */
 
                         tlp.Controls.Add(name, 0, j);
                         tlp.Controls.Add(signal, 1, j);
@@ -158,6 +164,7 @@ namespace pds1
                     notifyIcon1.ShowBalloonTip(1000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
                 }
         }
+
 
         private void label1_Click(object sender, EventArgs e)
         {

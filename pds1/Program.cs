@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
 using System.Text;
-using System.Data.SQLite;
+using pds1.Migrations;
 using System.Data.Entity;
 
 namespace pds1
@@ -23,12 +23,15 @@ namespace pds1
         [STAThread]
         static void Main()
         {
-            /*
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<BloggingContext, Configuration>());
+            
             var db = new BloggingContext();
-            var m = new Measure { SSID = "dsa2", timestamp = DateTime.Now };
-            db.Measures.Add(m);
-            db.SaveChanges();
+            /*
+                        var m = new Measure { SSID = "dsa", timestamp = DateTime.Now };
+                        db.Measures.Add(m);
+                        db.SaveChanges();
             // Display all Blogs from the database
+             *  */
             var query = from b in db.Measures
                         orderby b.SSID
                         select b;
@@ -39,13 +42,13 @@ namespace pds1
                 Console.WriteLine(item.SSID);
             }
 
+           
 
-            */
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
 
-                Application.Run(new Form1());
+            Application.Run(new Form1());
 
 
 
@@ -79,8 +82,6 @@ namespace pds1
 
     public class BloggingContext : DbContext
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
         public DbSet<Measure> Measures { get; set; }
     }
 
