@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
 using System.Text;
-using System.Threading; 
+using System.Threading;
 
 
 namespace pds1
@@ -31,7 +31,7 @@ namespace pds1
             WindowState = FormWindowState.Normal;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+       /* private void button1_Click(object sender, EventArgs e)
         {
             WlanClient wlan = new WlanClient();
             int i = 0;
@@ -46,8 +46,10 @@ namespace pds1
                     Console.Out.WriteLine();
                     Label name = new Label();
                     Label power = new Label();
+                    Label strenght = new Label();
                     name.Text = new String(Encoding.ASCII.GetChars(ssid.SSID, 0, (int)ssid.SSIDLength));
                     power.Text = network.wlanSignalQuality.ToString();
+                    strenght.Text = network.rssi.ToString();
                     tlp.Controls.Add(name,0,i);
                     tlp.Controls.Add(power, 1, i);
                     i++;
@@ -55,7 +57,58 @@ namespace pds1
                 }
             }
             
+        }*/
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            WlanClient client = new WlanClient();
+            // Wlan = new WlanClient();
+            int j = 0;
+            try
+            {
+                foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                {
+                    Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
+                    foreach (Wlan.WlanBssEntry network in wlanBssEntries)
+                    {
+                        int rss = network.rssi;
+                        byte[] macAddr = network.dot11Bssid;
+                        string tMac = "";
+                        for (int i = 0; i < macAddr.Length; i++)
+                        {
+                            tMac += macAddr[i].ToString("x2").PadLeft(2, '0').ToUpper();
+                        }
+
+                        Label name = new Label();
+                        Label signal = new Label();
+                        Label strenght = new Label();
+                        Label bss = new Label();
+                        Label mac = new Label();
+
+                        name.Text = System.Text.ASCIIEncoding.ASCII.GetString(network.dot11Ssid.SSID).ToString();
+                        signal.Text = network.linkQuality.ToString();
+                        strenght.Text = rss.ToString();
+                        bss.Text = network.dot11BssType.ToString();
+                        mac.Text = tMac;
+
+                        tlp.Controls.Add(name, 0, j);
+                        tlp.Controls.Add(signal, 1, j);
+                        tlp.Controls.Add(strenght, 2, j);
+                        tlp.Controls.Add(bss, 3, j);
+                        tlp.Controls.Add(mac, 4, j);
+
+                        j++;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
         }
+
+
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
@@ -104,6 +157,11 @@ namespace pds1
                     //other possibilities are: TooltipIcon.None, Tooltipicon.Error, and TooltipIcon.Warning
                     notifyIcon1.ShowBalloonTip(1000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
                 }
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
 
 
