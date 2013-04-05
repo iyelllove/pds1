@@ -90,12 +90,15 @@ namespace pds1
                         strenght.Text = rss.ToString();
                         bss.Text = network.dot11BssType.ToString();
                         mac.Text = tMac;
-                        /*
-                        var db = new BloggingContext();
-                        var m = new Measure { SSID = name.Text, timestamp = DateTime.Now };
+
+
+                        Console.WriteLine("dfd");
+                        var db = new MeasureContext();
+                        var m = new Measure { SSID = name.Text, MAC = mac.Text, strenght = Convert.ToInt32(strenght.Text), signal = Convert.ToInt32(signal.Text), timestamp = DateTime.Now };
                         db.Measures.Add(m);
                         db.SaveChanges();
-                        */
+                        
+
 
                         tlp.Controls.Add(name, 0, j);
                         tlp.Controls.Add(signal, 1, j);
@@ -111,7 +114,19 @@ namespace pds1
             {
                 MessageBox.Show(ex.Message);
             }
-            
+            using (var db = new MeasureContext())
+            {
+                var query = from b in db.Measures
+                        
+                            select b;
+
+                Console.WriteLine("All Measures in the database:");
+                /*foreach (var item in query)
+                {
+                    Console.WriteLine("SSID: " + item.SSID + " " + item.MAC + " " + item.signal.ToString() + " " + item.strenght.ToString());
+                }
+                 */
+            }
         }
 
 

@@ -21,7 +21,7 @@ namespace pds1
         [STAThread]
         static void Main()
         {
-
+            /*
             using (var db = new MeasureContext())
             {
                 var m = new Measure { SSID = "dsa", timestamp = DateTime.Now };
@@ -31,12 +31,13 @@ namespace pds1
                             orderby b.SSID
                             select b;
 
-                Console.WriteLine("All blogs in the database:");
+                Console.WriteLine("All Measures in the database:");
                 foreach (var item in query)
                 {
                     Console.WriteLine(item.SSID);
                 }
             }
+             * */
            // Database.SetInitializer(new MigrateDatabaseToLatestVersion<BloggingContext, Configuration>());
             /*
             var db = new BloggingContext();

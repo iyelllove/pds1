@@ -71,11 +71,25 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Measure.cs" />
+    <Compile Include="Migrations\201304050905372_signal.cs" />
+    <Compile Include="Migrations\201304050905372_signal.Designer.cs">
+      <DependentUpon>201304050905372_signal.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201304050907344_signal1.cs" />
+    <Compile Include="Migrations\201304050907344_signal1.Designer.cs">
+      <DependentUpon>201304050907344_signal1.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201304050905372_signal.resx">
+      <DependentUpon>201304050905372_signal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201304050907344_signal1.resx">
+      <DependentUpon>201304050907344_signal1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

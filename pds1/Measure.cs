@@ -23,6 +23,13 @@ namespace pds1
     {
         public int MeasureId { get; set; }
         public string SSID { get; set; }
+        public string MAC { get; set; }
+        public int signal { get; set; }
+        public int strenght { get; set; }
         public DateTime timestamp { get; set; }
+
+        public Measure() {
+            signal = 0;
+        }
     }
 }
