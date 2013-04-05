@@ -31,7 +31,7 @@ namespace pds1
                         db.Measures.Add(m);
                         db.SaveChanges();
             // Display all Blogs from the database
-             *  */
+             * 
             var query = from b in db.Measures
                         orderby b.SSID
                         select b;
@@ -41,7 +41,7 @@ namespace pds1
             {
                 Console.WriteLine(item.SSID);
             }
-
+            /*/
            
 
             Application.EnableVisualStyles();
