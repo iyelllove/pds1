@@ -5,14 +5,14 @@ namespace pds1.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<pds1.BloggingContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<pds1.MeasureContext>
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
         }
 
-        protected override void Seed(pds1.BloggingContext context)
+        protected override void Seed(pds1.MeasureContext context)
         {
             //  This method will be called after migrating to the latest version.
 

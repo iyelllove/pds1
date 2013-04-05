@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
 using System.Text;
-using pds1.Migrations;
-using System.Data.Entity;
 
 namespace pds1
 {
@@ -23,13 +21,28 @@ namespace pds1
         [STAThread]
         static void Main()
         {
-            Database.SetInitializer(new MigrateDatabaseToLatestVersion<BloggingContext, Configuration>());
-            
-            var db = new BloggingContext();
+
+            using (var db = new MeasureContext())
+            {
+                var m = new Measure { SSID = "dsa", timestamp = DateTime.Now };
+                db.Measures.Add(m);
+                db.SaveChanges();
+                var query = from b in db.Measures
+                            orderby b.SSID
+                            select b;
+
+                Console.WriteLine("All blogs in the database:");
+                foreach (var item in query)
+                {
+                    Console.WriteLine(item.SSID);
+                }
+            }
+           // Database.SetInitializer(new MigrateDatabaseToLatestVersion<BloggingContext, Configuration>());
             /*
-                        var m = new Measure { SSID = "dsa", timestamp = DateTime.Now };
-                        db.Measures.Add(m);
-                        db.SaveChanges();
+            var db = new BloggingContext();
+            
+                        
+                       
             // Display all Blogs from the database
              * 
             var query = from b in db.Measures
@@ -60,31 +73,7 @@ namespace pds1
 
     }
 
-    public class Blog
-    {
-        public int BlogId { get; set; }
-        public string Name { get; set; }
-
-        public virtual List<Post> Posts { get; set; }
-    }
-
-
-
-    public class Post
-    {
-        public int PostId { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-
-        public int BlogId { get; set; }
-        public virtual Blog Blog { get; set; }
-    }
-
-    public class BloggingContext : DbContext
-    {
-        public DbSet<Measure> Measures { get; set; }
-    }
-
+   
     
 
 }
