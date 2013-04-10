@@ -12,14 +12,18 @@ using System.Collections.Generic;
 
 namespace pds1
 {
-    public partial class Measure
+    public partial class Networks
     {
+        public Networks()
+        {
+            this.PlacesNetworsValues = new HashSet<PlacesNetworsValues>();
+        }
+    
         public int ID { get; set; }
-        public System.DateTime timestamp { get; set; }
-        public short signal { get; set; }
-        public short strength { get; set; }
-        public string MAC { get; set; }
         public string SSID { get; set; }
+        public string MAC { get; set; }
+    
+        public virtual ICollection<PlacesNetworsValues> PlacesNetworsValues { get; set; }
     }
     
 }

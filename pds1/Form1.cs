@@ -68,6 +68,8 @@ namespace pds1
             {
                 foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
                 {
+
+                    
                     Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
                     foreach (Wlan.WlanBssEntry network in wlanBssEntries)
                     {
@@ -91,14 +93,30 @@ namespace pds1
                         bss.Text = network.dot11BssType.ToString();
                         mac.Text = tMac;
 
-
-                        Console.WriteLine("dfd");
-                        var db = new MeasureContext();
-                        var m = new Measure { SSID = name.Text, MAC = mac.Text, strenght = Convert.ToInt32(strenght.Text), signal = Convert.ToInt32(signal.Text), timestamp = DateTime.Now };
-                        db.Measures.Add(m);
-                        db.SaveChanges();
                         
+                        var db = new Model1Container1();
 
+  
+                       
+                        var m = db.Networks.Where(c=>c.SSID==name.Text).FirstOrDefault();
+
+                        if (m == null)
+                        {
+                            System.Console.WriteLine("La rete non esiste");
+                            m = new Networks { SSID = name.Text, MAC = mac.Text };
+                            db.Networks.Add(m);
+                            db.SaveChanges();
+                        }
+                        else {
+                            System.Console.WriteLine("La rete  esiste");
+                        }
+
+                        var ms = new Measures {SSID =name.Text, MAC=mac.Text,  timestamp = DateTime.Now, signal = Convert.ToInt16(signal.Text), strength=Convert.ToInt16(strenght.Text) };
+                        db.Measures.Add(ms);
+                        db.SaveChanges();
+
+                        
+                       
 
                         tlp.Controls.Add(name, 0, j);
                         tlp.Controls.Add(signal, 1, j);
@@ -114,6 +132,7 @@ namespace pds1
             {
                 MessageBox.Show(ex.Message);
             }
+            /*
             using (var db = new MeasureContext())
             {
                 var query = from b in db.Measures
@@ -125,8 +144,8 @@ namespace pds1
                 {
                     Console.WriteLine("SSID: " + item.SSID + " " + item.MAC + " " + item.signal.ToString() + " " + item.strenght.ToString());
                 }
-                 */
-            }
+                 * /
+            }*/
         }
 
 

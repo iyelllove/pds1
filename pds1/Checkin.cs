@@ -12,14 +12,13 @@ using System.Collections.Generic;
 
 namespace pds1
 {
-    public partial class Measure
+    public partial class Checkin
     {
         public int ID { get; set; }
-        public System.DateTime timestamp { get; set; }
-        public short signal { get; set; }
-        public short strength { get; set; }
-        public string MAC { get; set; }
-        public string SSID { get; set; }
+        public System.DateTime @in { get; set; }
+        public Nullable<System.DateTime> @out { get; set; }
+    
+        public virtual Places Place { get; set; }
     }
     
 }

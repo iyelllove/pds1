@@ -12,14 +12,14 @@ using System.Collections.Generic;
 
 namespace pds1
 {
-    public partial class Measure
+    public partial class Measures
     {
         public int ID { get; set; }
+        public string SSID { get; set; }
         public System.DateTime timestamp { get; set; }
         public short signal { get; set; }
         public short strength { get; set; }
         public string MAC { get; set; }
-        public string SSID { get; set; }
     }
     
 }

@@ -1,0 +1,200 @@
+
+-- --------------------------------------------------
+-- Entity Designer DDL Script for SQL Server Compact Edition
+-- --------------------------------------------------
+-- Date Created: 04/10/2013 22:39:38
+-- Generated from EDMX file: C:\Users\Nico\documents\visual studio 2012\Projects\pds1\pds1\Model1.edmx
+-- --------------------------------------------------
+
+
+-- --------------------------------------------------
+-- Dropping existing FOREIGN KEY constraints
+-- NOTE: if the constraint does not exist, an ignorable error will be reported.
+-- --------------------------------------------------
+
+    ALTER TABLE [PlacesNetworsValues] DROP CONSTRAINT [FK_PlacesPlacesNetworsValues];
+GO
+    ALTER TABLE [PlacesNetworsValues] DROP CONSTRAINT [FK_NetworksPlacesNetworsValues];
+GO
+    ALTER TABLE [Places] DROP CONSTRAINT [FK_PlacesPlaces];
+GO
+    ALTER TABLE [Checkins1] DROP CONSTRAINT [FK_CheckinPlaces];
+GO
+
+-- --------------------------------------------------
+-- Dropping existing tables
+-- NOTE: if the table does not exist, an ignorable error will be reported.
+-- --------------------------------------------------
+
+    DROP TABLE [Places];
+GO
+    DROP TABLE [Networks];
+GO
+    DROP TABLE [Measures];
+GO
+    DROP TABLE [PlacesNetworsValues];
+GO
+    DROP TABLE [Checkins1];
+GO
+    DROP TABLE [Measures1];
+GO
+
+-- --------------------------------------------------
+-- Creating all tables
+-- --------------------------------------------------
+
+-- Creating table 'Places'
+CREATE TABLE [Places] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [name] nvarchar(4000)  NOT NULL,
+    [measures_num] bit  NOT NULL,
+    [Parent_ID] int  NULL
+);
+GO
+
+-- Creating table 'Networks'
+CREATE TABLE [Networks] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [SSID] nvarchar(4000)  NOT NULL,
+    [MAC] nvarchar(4000)  NOT NULL
+);
+GO
+
+-- Creating table 'Measures'
+CREATE TABLE [Measures] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [SSID] nvarchar(4000)  NOT NULL,
+    [timestamp] datetime  NOT NULL,
+    [signal] smallint  NOT NULL,
+    [strength] smallint  NOT NULL,
+    [MAC] nvarchar(4000)  NOT NULL
+);
+GO
+
+-- Creating table 'PlacesNetworsValues'
+CREATE TABLE [PlacesNetworsValues] (
+    [PlacesID] int  NOT NULL,
+    [NetworksID] int  NOT NULL,
+    [signal] smallint  NOT NULL,
+    [strength] smallint  NOT NULL
+);
+GO
+
+-- Creating table 'Checkins1'
+CREATE TABLE [Checkins1] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [in] datetime  NOT NULL,
+    [out] datetime  NULL,
+    [Place_ID] int  NOT NULL
+);
+GO
+
+-- Creating table 'Measures1'
+CREATE TABLE [Measures1] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [timestamp] datetime  NOT NULL,
+    [signal] smallint  NOT NULL,
+    [strength] smallint  NOT NULL,
+    [MAC] nvarchar(100)  NULL,
+    [SSID] nvarchar(100)  NULL
+);
+GO
+
+-- --------------------------------------------------
+-- Creating all PRIMARY KEY constraints
+-- --------------------------------------------------
+
+-- Creating primary key on [ID] in table 'Places'
+ALTER TABLE [Places]
+ADD CONSTRAINT [PK_Places]
+    PRIMARY KEY ([ID] );
+GO
+
+-- Creating primary key on [ID] in table 'Networks'
+ALTER TABLE [Networks]
+ADD CONSTRAINT [PK_Networks]
+    PRIMARY KEY ([ID] );
+GO
+
+-- Creating primary key on [ID] in table 'Measures'
+ALTER TABLE [Measures]
+ADD CONSTRAINT [PK_Measures]
+    PRIMARY KEY ([ID] );
+GO
+
+-- Creating primary key on [PlacesID], [NetworksID] in table 'PlacesNetworsValues'
+ALTER TABLE [PlacesNetworsValues]
+ADD CONSTRAINT [PK_PlacesNetworsValues]
+    PRIMARY KEY ([PlacesID], [NetworksID] );
+GO
+
+-- Creating primary key on [ID] in table 'Checkins1'
+ALTER TABLE [Checkins1]
+ADD CONSTRAINT [PK_Checkins1]
+    PRIMARY KEY ([ID] );
+GO
+
+-- Creating primary key on [ID], [timestamp], [signal], [strength] in table 'Measures1'
+ALTER TABLE [Measures1]
+ADD CONSTRAINT [PK_Measures1]
+    PRIMARY KEY ([ID], [timestamp], [signal], [strength] );
+GO
+
+-- --------------------------------------------------
+-- Creating all FOREIGN KEY constraints
+-- --------------------------------------------------
+
+-- Creating foreign key on [PlacesID] in table 'PlacesNetworsValues'
+ALTER TABLE [PlacesNetworsValues]
+ADD CONSTRAINT [FK_PlacesPlacesNetworsValues]
+    FOREIGN KEY ([PlacesID])
+    REFERENCES [Places]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating foreign key on [NetworksID] in table 'PlacesNetworsValues'
+ALTER TABLE [PlacesNetworsValues]
+ADD CONSTRAINT [FK_NetworksPlacesNetworsValues]
+    FOREIGN KEY ([NetworksID])
+    REFERENCES [Networks]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_NetworksPlacesNetworsValues'
+CREATE INDEX [IX_FK_NetworksPlacesNetworsValues]
+ON [PlacesNetworsValues]
+    ([NetworksID]);
+GO
+
+-- Creating foreign key on [Parent_ID] in table 'Places'
+ALTER TABLE [Places]
+ADD CONSTRAINT [FK_PlacesPlaces]
+    FOREIGN KEY ([Parent_ID])
+    REFERENCES [Places]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PlacesPlaces'
+CREATE INDEX [IX_FK_PlacesPlaces]
+ON [Places]
+    ([Parent_ID]);
+GO
+
+-- Creating foreign key on [Place_ID] in table 'Checkins1'
+ALTER TABLE [Checkins1]
+ADD CONSTRAINT [FK_CheckinPlaces]
+    FOREIGN KEY ([Place_ID])
+    REFERENCES [Places]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_CheckinPlaces'
+CREATE INDEX [IX_FK_CheckinPlaces]
+ON [Checkins1]
+    ([Place_ID]);
+GO
+
+-- --------------------------------------------------
+-- Script has ended
+-- --------------------------------------------------

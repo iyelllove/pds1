@@ -1,0 +1,376 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Model1.Store" Alias="Self" Provider="System.Data.SqlServerCe.4.0" ProviderManifestToken="4.0" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="Model1StoreContainer">
+    <EntitySet Name="Places" EntityType="Model1.Store.Places" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Networks" EntityType="Model1.Store.Networks" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Measures" EntityType="Model1.Store.Measures" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="PlacesNetworsValues" EntityType="Model1.Store.PlacesNetworsValues" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Checkins1" EntityType="Model1.Store.Checkins1" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Measures1" EntityType="Model1.Store.Measures1" store:Type="Tables" Schema="dbo" />
+    <AssociationSet Name="PlacesPlacesNetworsValues" Association="Model1.Store.PlacesPlacesNetworsValues">
+      <End Role="Places" EntitySet="Places" />
+      <End Role="PlacesNetworsValues" EntitySet="PlacesNetworsValues" />
+    </AssociationSet>
+    <AssociationSet Name="NetworksPlacesNetworsValues" Association="Model1.Store.NetworksPlacesNetworsValues">
+      <End Role="Networks" EntitySet="Networks" />
+      <End Role="PlacesNetworsValues" EntitySet="PlacesNetworsValues" />
+    </AssociationSet>
+    <AssociationSet Name="PlacesPlaces" Association="Model1.Store.PlacesPlaces">
+      <End Role="Places" EntitySet="Places" />
+      <End Role="Places1" EntitySet="Places" />
+    </AssociationSet>
+    <AssociationSet Name="CheckinPlaces" Association="Model1.Store.CheckinPlaces">
+      <End Role="Checkin" EntitySet="Checkins1" />
+      <End Role="Places" EntitySet="Places" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Places">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="name" Type="nvarchar" Nullable="false" />
+    <Property Name="measures_num" Type="bit" Nullable="false" />
+    <Property Name="Parent_ID" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="Networks">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SSID" Type="nvarchar" Nullable="false" />
+    <Property Name="MAC" Type="nvarchar" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Measures">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SSID" Type="nvarchar" Nullable="false" />
+    <Property Name="timestamp" Type="datetime" Nullable="false" />
+    <Property Name="signal" Type="smallint" Nullable="false" />
+    <Property Name="strength" Type="smallint" Nullable="false" />
+    <Property Name="MAC" Type="nvarchar" Nullable="false" />
+  </EntityType>
+  <EntityType Name="PlacesNetworsValues">
+    <Key>
+      <PropertyRef Name="PlacesID" />
+      <PropertyRef Name="NetworksID" />
+    </Key>
+    <Property Name="PlacesID" Type="int" Nullable="false" />
+    <Property Name="NetworksID" Type="int" Nullable="false" />
+    <Property Name="signal" Type="smallint" Nullable="false" />
+    <Property Name="strength" Type="smallint" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Checkins1">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="in" Type="datetime" Nullable="false" />
+    <Property Name="out" Type="datetime" Nullable="true" />
+    <Property Name="Place_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Measures1">
+    <Key>
+      <PropertyRef Name="ID" />
+      <PropertyRef Name="timestamp" />
+      <PropertyRef Name="signal" />
+      <PropertyRef Name="strength" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="timestamp" Type="datetime" Nullable="false" />
+    <Property Name="signal" Type="smallint" Nullable="false" />
+    <Property Name="strength" Type="smallint" Nullable="false" />
+    <Property Name="MAC" Type="nvarchar" Nullable="true" MaxLength="100" />
+    <Property Name="SSID" Type="nvarchar" Nullable="true" MaxLength="100" />
+  </EntityType>
+  <Association Name="PlacesPlacesNetworsValues">
+    <End Role="Places" Type="Model1.Store.Places" Multiplicity="1" />
+    <End Role="PlacesNetworsValues" Type="Model1.Store.PlacesNetworsValues" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Places">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="PlacesNetworsValues">
+        <PropertyRef Name="PlacesID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="NetworksPlacesNetworsValues">
+    <End Role="Networks" Type="Model1.Store.Networks" Multiplicity="1" />
+    <End Role="PlacesNetworsValues" Type="Model1.Store.PlacesNetworsValues" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Networks">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="PlacesNetworsValues">
+        <PropertyRef Name="NetworksID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PlacesPlaces">
+    <End Role="Places" Type="Model1.Store.Places" Multiplicity="*" />
+    <End Role="Places1" Type="Model1.Store.Places" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Places1">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Places">
+        <PropertyRef Name="Parent_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CheckinPlaces">
+    <End Role="Checkin" Type="Model1.Store.Checkins1" Multiplicity="*" />
+    <End Role="Places" Type="Model1.Store.Places" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Places">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Checkin">
+        <PropertyRef Name="Place_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:cg="http://schemas.microsoft.com/ado/2006/04/codegeneration" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" Namespace="Model1" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" annotation:UseStrongSpatialTypes="false">
+        <EntityContainer Name="Model1Container1" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Places" EntityType="Model1.Places" />
+          <EntitySet Name="Networks" EntityType="Model1.Networks" />
+          <EntitySet Name="Measures" EntityType="Model1.Measures" />
+          <EntitySet Name="PlacesNetworsValues" EntityType="Model1.PlacesNetworsValues" />
+          
+          <AssociationSet Name="PlacesPlacesNetworsValues" Association="Model1.PlacesPlacesNetworsValues">
+            <End Role="Places" EntitySet="Places" />
+            <End Role="PlacesNetworsValues" EntitySet="PlacesNetworsValues" />
+          </AssociationSet>
+          <AssociationSet Name="NetworksPlacesNetworsValues" Association="Model1.NetworksPlacesNetworsValues">
+            <End Role="Networks" EntitySet="Networks" />
+            <End Role="PlacesNetworsValues" EntitySet="PlacesNetworsValues" />
+          </AssociationSet>
+          <AssociationSet Name="PlacesPlaces" Association="Model1.PlacesPlaces">
+            <End Role="Places" EntitySet="Places" />
+            <End Role="Places1" EntitySet="Places" />
+          </AssociationSet>
+          <EntitySet Name="Checkins1" EntityType="Model1.Checkin" />
+          <EntitySet Name="Measures1" EntityType="Model1.Measure" />
+          <AssociationSet Name="CheckinPlaces" Association="Model1.CheckinPlaces">
+            <End Role="Checkin" EntitySet="Checkins1" />
+            <End Role="Places" EntitySet="Places" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Places">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="name" Nullable="false" />
+          <NavigationProperty Name="PlacesNetworsValues" Relationship="Model1.PlacesPlacesNetworsValues" FromRole="Places" ToRole="PlacesNetworsValues" />
+          <Property Type="Boolean" Name="measures_num" Nullable="false" />
+          <NavigationProperty Name="Parent" Relationship="Model1.PlacesPlaces" FromRole="Places" ToRole="Places1" />
+          <NavigationProperty Name="children" Relationship="Model1.PlacesPlaces" FromRole="Places1" ToRole="Places" />
+          <NavigationProperty Name="Checkins" Relationship="Model1.CheckinPlaces" FromRole="Places" ToRole="Checkin" />
+        </EntityType>
+        <EntityType Name="Networks">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="SSID" Nullable="false" />
+          <Property Type="String" Name="MAC" Nullable="false" />
+          <NavigationProperty Name="PlacesNetworsValues" Relationship="Model1.NetworksPlacesNetworsValues" FromRole="Networks" ToRole="PlacesNetworsValues" />
+        </EntityType>
+        <EntityType Name="Measures">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="SSID" Nullable="false" />
+          <Property Type="DateTime" Name="timestamp" Nullable="false" />
+          <Property Type="Int16" Name="signal" Nullable="false" />
+          <Property Type="Int16" Name="strength" Nullable="false" />
+          <Property Type="String" Name="MAC" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PlacesNetworsValues" >
+          
+          <Key>
+            <PropertyRef Name="PlacesID" />
+            <PropertyRef Name="NetworksID" />
+          </Key>
+          <NavigationProperty Name="Place" Relationship="Model1.PlacesPlacesNetworsValues" FromRole="PlacesNetworsValues" ToRole="Places" />
+          <Property Name="PlacesID" Nullable="false" Type="Int32" />
+          <NavigationProperty Name="Network" Relationship="Model1.NetworksPlacesNetworsValues" FromRole="PlacesNetworsValues" ToRole="Networks" />
+          <Property Name="NetworksID" Nullable="false" Type="Int32" />
+          <Property Type="Int16" Name="signal" Nullable="false" />
+          <Property Type="Int16" Name="strength" Nullable="false" />
+        </EntityType>
+        <Association Name="PlacesPlacesNetworsValues">
+          <End Type="Model1.Places" Role="Places" Multiplicity="1" />
+          <End Type="Model1.PlacesNetworsValues" Role="PlacesNetworsValues" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Places">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="PlacesNetworsValues">
+              <PropertyRef Name="PlacesID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="NetworksPlacesNetworsValues">
+          <End Type="Model1.Networks" Role="Networks" Multiplicity="1" />
+          <End Type="Model1.PlacesNetworsValues" Role="PlacesNetworsValues" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Networks">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="PlacesNetworsValues">
+              <PropertyRef Name="NetworksID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="PlacesPlaces">
+          <End Type="Model1.Places" Role="Places" Multiplicity="*" />
+          <End Type="Model1.Places" Role="Places1" Multiplicity="0..1" />
+        </Association>
+        <EntityType Name="Checkin">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="DateTime" Name="in" Nullable="false" />
+          <Property Type="DateTime" Name="out" Nullable="true" />
+          <NavigationProperty Name="Place" Relationship="Model1.CheckinPlaces" FromRole="Checkin" ToRole="Places" />
+        </EntityType>
+        <EntityType Name="Measure">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="timestamp" />
+            <PropertyRef Name="signal" />
+            <PropertyRef Name="strength" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="DateTime" Name="timestamp" Nullable="false" Precision="3" />
+          <Property Type="Int16" Name="signal" Nullable="false" />
+          <Property Type="Int16" Name="strength" Nullable="false" />
+          <Property Type="String" Name="MAC" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="SSID" MaxLength="100" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="CheckinPlaces">
+          <End Type="Model1.Checkin" Role="Checkin" Multiplicity="*" />
+          <End Type="Model1.Places" Role="Places" Multiplicity="1" />
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+    <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="Model1StoreContainer" CdmEntityContainer="Model1Container1">
+    <EntitySetMapping Name="Places">
+      <EntityTypeMapping TypeName="IsTypeOf(Model1.Places)">
+        <MappingFragment StoreEntitySet="Places">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="measures_num" ColumnName="measures_num" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Networks">
+      <EntityTypeMapping TypeName="IsTypeOf(Model1.Networks)">
+        <MappingFragment StoreEntitySet="Networks">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="SSID" ColumnName="SSID" />
+          <ScalarProperty Name="MAC" ColumnName="MAC" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Measures">
+      <EntityTypeMapping TypeName="IsTypeOf(Model1.Measures)">
+        <MappingFragment StoreEntitySet="Measures">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="SSID" ColumnName="SSID" />
+          <ScalarProperty Name="timestamp" ColumnName="timestamp" />
+          <ScalarProperty Name="signal" ColumnName="signal" />
+          <ScalarProperty Name="strength" ColumnName="strength" />
+          <ScalarProperty Name="MAC" ColumnName="MAC" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="PlacesNetworsValues">
+      <EntityTypeMapping TypeName="IsTypeOf(Model1.PlacesNetworsValues)">
+        <MappingFragment StoreEntitySet="PlacesNetworsValues">
+          <ScalarProperty Name="PlacesID" ColumnName="PlacesID" />
+          <ScalarProperty Name="NetworksID" ColumnName="NetworksID" />
+          <ScalarProperty Name="signal" ColumnName="signal" />
+          <ScalarProperty Name="strength" ColumnName="strength" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Checkins1">
+      <EntityTypeMapping TypeName="IsTypeOf(Model1.Checkin)">
+        <MappingFragment StoreEntitySet="Checkins1">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="in" ColumnName="in" />
+          <ScalarProperty Name="out" ColumnName="out" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Measures1">
+      <EntityTypeMapping TypeName="IsTypeOf(Model1.Measure)">
+        <MappingFragment StoreEntitySet="Measures1">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="timestamp" ColumnName="timestamp" />
+          <ScalarProperty Name="signal" ColumnName="signal" />
+          <ScalarProperty Name="strength" ColumnName="strength" />
+          <ScalarProperty Name="MAC" ColumnName="MAC" />
+          <ScalarProperty Name="SSID" ColumnName="SSID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="PlacesPlaces" TypeName="Model1.PlacesPlaces" StoreEntitySet="Places">
+      <EndProperty Name="Places1">
+        <ScalarProperty Name="ID" ColumnName="Parent_ID" />
+      </EndProperty>
+      <EndProperty Name="Places">
+        <ScalarProperty Name="ID" ColumnName="ID" />
+      </EndProperty>
+      <Condition ColumnName="Parent_ID" IsNull="false" />
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CheckinPlaces" TypeName="Model1.CheckinPlaces" StoreEntitySet="Checkins1">
+      <EndProperty Name="Places">
+        <ScalarProperty Name="ID" ColumnName="Place_ID" />
+      </EndProperty>
+      <EndProperty Name="Checkin">
+        <ScalarProperty Name="ID" ColumnName="ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <edmx:Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </edmx:Connection>
+    <edmx:Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Nessuno" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </edmx:Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
