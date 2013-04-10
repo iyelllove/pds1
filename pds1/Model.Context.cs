@@ -29,7 +29,6 @@ namespace pds1
         public DbSet<Networks> Networks { get; set; }
         public DbSet<Measures> Measures { get; set; }
         public DbSet<PlacesNetworsValues> PlacesNetworsValues { get; set; }
-        public DbSet<Checkin> Checkins1 { get; set; }
-        public DbSet<Measure> Measures1 { get; set; }
+        public DbSet<Checkin> Checkins { get; set; }
     }
 }
