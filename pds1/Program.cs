@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
 using System.Text;
-
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+    
 namespace pds1
 {
 
@@ -38,6 +40,8 @@ namespace pds1
                 }
             }
              * */
+            //new db_pdsEntities();
+            //var db = new db_pdsEntities();
            // Database.SetInitializer(new MigrateDatabaseToLatestVersion<BloggingContext, Configuration>());
             /*
             var db = new BloggingContext();
@@ -45,19 +49,11 @@ namespace pds1
                         
                        
             // Display all Blogs from the database
-             * 
-            var query = from b in db.Measures
-                        orderby b.SSID
-                        select b;
+             */
 
-            Console.WriteLine("All blogs in the database:");
-            foreach (var item in query)
-            {
-                Console.WriteLine(item.SSID);
-            }
-            /*/
-           
 
+            Helper.printAllNetworks();
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
