@@ -23,34 +23,7 @@ namespace pds1
         [STAThread]
         static void Main()
         {
-            /*
-            using (var db = new MeasureContext())
-            {
-                var m = new Measure { SSID = "dsa", timestamp = DateTime.Now };
-                db.Measures.Add(m);
-                db.SaveChanges();
-                var query = from b in db.Measures
-                            orderby b.SSID
-                            select b;
-
-                Console.WriteLine("All Measures in the database:");
-                foreach (var item in query)
-                {
-                    Console.WriteLine(item.SSID);
-                }
-            }
-             * */
-            //new db_pdsEntities();
-            //var db = new db_pdsEntities();
-           // Database.SetInitializer(new MigrateDatabaseToLatestVersion<BloggingContext, Configuration>());
-            /*
-            var db = new BloggingContext();
             
-                        
-                       
-            // Display all Blogs from the database
-             */
-
 
             Helper.printAllNetworks();
             
