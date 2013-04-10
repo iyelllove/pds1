@@ -64,6 +64,8 @@ namespace pds1
             WlanClient client = new WlanClient();
             // Wlan = new WlanClient();
             int j = 0;
+           
+
             try
             {
                 foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
@@ -71,8 +73,52 @@ namespace pds1
 
                     
                     Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
+                    tlp.Controls.Clear();
+
+
+
                     foreach (Wlan.WlanBssEntry network in wlanBssEntries)
                     {
+
+
+
+
+
+
+                        if (j == 0)
+                        {
+                            Label name1 = new Label();
+                            Label signal1 = new Label();
+                            Label strenght1 = new Label();
+                            Label bss1 = new Label();
+                            Label mac1 = new Label();
+
+                            name1.Text = "SSID";
+                            
+                            signal1.Text = "Signal";
+                            strenght1.Text = "strenght";
+                            bss1.Text = "bss";
+                            mac1.Text = "MAC";
+
+                            tlp.Controls.Add(name1, 0, j);
+                            tlp.Controls.Add(signal1, 1, j);
+                            tlp.Controls.Add(strenght1, 2, j);
+                            tlp.Controls.Add(bss1, 3, j);
+                            tlp.Controls.Add(mac1, 4, j);
+                            j = 1;
+                            Log.trace("hjkl");
+
+                            
+                        }
+
+
+                        Label name = new Label();
+                        Label signal = new Label();
+                        Label strenght = new Label();
+                        Label bss = new Label();
+                        Label mac = new Label();
+                       
+
                         int rss = network.rssi;
                         byte[] macAddr = network.dot11Bssid;
                         string tMac = "";
@@ -81,11 +127,7 @@ namespace pds1
                             tMac += macAddr[i].ToString("x2").PadLeft(2, '0').ToUpper();
                         }
 
-                        Label name = new Label();
-                        Label signal = new Label();
-                        Label strenght = new Label();
-                        Label bss = new Label();
-                        Label mac = new Label();
+
 
                         name.Text = System.Text.ASCIIEncoding.ASCII.GetString(network.dot11Ssid.SSID).ToString();
                         signal.Text = network.linkQuality.ToString();
@@ -115,9 +157,8 @@ namespace pds1
                         db.Measures.Add(ms);
                         db.SaveChanges();
 
-                        
-                       
 
+                        
                         tlp.Controls.Add(name, 0, j);
                         tlp.Controls.Add(signal, 1, j);
                         tlp.Controls.Add(strenght, 2, j);
@@ -201,6 +242,11 @@ namespace pds1
 
 
         private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tlp_Paint(object sender, PaintEventArgs e)
         {
 
         }

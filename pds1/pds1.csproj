@@ -78,9 +78,6 @@
     </Compile>
     <Compile Include="Helper.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="Measure.cs">
-      <DependentUpon>Model.tt</DependentUpon>
-    </Compile>
     <Compile Include="Measures.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>

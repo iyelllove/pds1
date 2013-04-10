@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server Compact Edition
 -- --------------------------------------------------
--- Date Created: 04/10/2013 23:27:59
+-- Date Created: 04/10/2013 23:38:31
 -- Generated from EDMX file: C:\Users\Nico\documents\visual studio 2012\Projects\pds1\pds1\Model1.edmx
 -- --------------------------------------------------
 
@@ -25,15 +25,15 @@ GO
 -- Dropping existing tables
 -- NOTE: if the table does not exist, an ignorable error will be reported.
 -- --------------------------------------------------
-    DROP TABLE [PlacesNetworsValues];
-GO
+
     DROP TABLE [Places];
 GO
     DROP TABLE [Networks];
 GO
     DROP TABLE [Measures];
 GO
-
+    DROP TABLE [PlacesNetworsValues];
+GO
     DROP TABLE [Checkins];
 GO
 
@@ -46,6 +46,8 @@ CREATE TABLE [Places] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [name] nvarchar(4000)  NOT NULL,
     [measures_num] bit  NOT NULL,
+    [file_in] nvarchar(4000)  NOT NULL,
+    [file_out] nvarchar(4000)  NOT NULL,
     [Parent_ID] int  NULL
 );
 GO
@@ -54,7 +56,8 @@ GO
 CREATE TABLE [Networks] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [SSID] nvarchar(4000)  NOT NULL,
-    [MAC] nvarchar(4000)  NOT NULL
+    [MAC] nvarchar(4000)  NOT NULL,
+    [tethering] bit  NOT NULL
 );
 GO
 
@@ -73,8 +76,7 @@ GO
 CREATE TABLE [PlacesNetworsValues] (
     [PlacesID] int  NOT NULL,
     [NetworksID] int  NOT NULL,
-    [signal] smallint  NOT NULL,
-    [strength] smallint  NOT NULL,
+    [rilevance] smallint  NOT NULL,
     [media] smallint  NOT NULL,
     [variance] smallint  NOT NULL
 );

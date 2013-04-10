@@ -24,6 +24,8 @@ namespace pds1
         public int ID { get; set; }
         public string name { get; set; }
         public bool measures_num { get; set; }
+        public string file_in { get; set; }
+        public string file_out { get; set; }
     
         public virtual ICollection<PlacesNetworsValues> PlacesNetworsValues { get; set; }
         public virtual Places Parent { get; set; }

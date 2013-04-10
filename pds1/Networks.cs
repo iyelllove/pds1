@@ -22,6 +22,7 @@ namespace pds1
         public int ID { get; set; }
         public string SSID { get; set; }
         public string MAC { get; set; }
+        public bool tethering { get; set; }
     
         public virtual ICollection<PlacesNetworsValues> PlacesNetworsValues { get; set; }
     }

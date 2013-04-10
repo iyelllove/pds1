@@ -43,7 +43,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(713, 234);
+            this.button1.Location = new System.Drawing.Point(704, 26);
             this.button1.Name = "button1";
             this.button1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.button1.Size = new System.Drawing.Size(75, 23);
@@ -57,6 +57,9 @@
             this.tlp.AccessibleDescription = "";
             this.tlp.AccessibleName = "";
             this.tlp.AllowDrop = true;
+            this.tlp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tlp.AutoScroll = true;
             this.tlp.AutoSize = true;
             this.tlp.BackColor = System.Drawing.SystemColors.ControlLightLight;
@@ -67,13 +70,15 @@
             this.tlp.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tlp.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tlp.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.tlp.Location = new System.Drawing.Point(12, 59);
+            this.tlp.Location = new System.Drawing.Point(12, 55);
+            this.tlp.Margin = new System.Windows.Forms.Padding(3, 3, 3, 30);
             this.tlp.Name = "tlp";
             this.tlp.RowCount = 2;
-            this.tlp.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 44.82759F));
-            this.tlp.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55.17241F));
-            this.tlp.Size = new System.Drawing.Size(776, 42);
+            this.tlp.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlp.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlp.Size = new System.Drawing.Size(775, 203);
             this.tlp.TabIndex = 1;
+            this.tlp.Paint += new System.Windows.Forms.PaintEventHandler(this.tlp_Paint);
             // 
             // notifyIcon1
             // 

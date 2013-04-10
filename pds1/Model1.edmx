@@ -35,6 +35,8 @@
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="name" Type="nvarchar" Nullable="false" />
     <Property Name="measures_num" Type="bit" Nullable="false" />
+    <Property Name="file_in" Type="nvarchar" Nullable="false" />
+    <Property Name="file_out" Type="nvarchar" Nullable="false" />
     <Property Name="Parent_ID" Type="int" Nullable="true" />
   </EntityType>
   <EntityType Name="Networks">
@@ -44,6 +46,7 @@
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="SSID" Type="nvarchar" Nullable="false" />
     <Property Name="MAC" Type="nvarchar" Nullable="false" />
+    <Property Name="tethering" Type="bit" Nullable="false" />
   </EntityType>
   <EntityType Name="Measures">
     <Key>
@@ -63,8 +66,7 @@
     </Key>
     <Property Name="PlacesID" Type="int" Nullable="false" />
     <Property Name="NetworksID" Type="int" Nullable="false" />
-    <Property Name="signal" Type="smallint" Nullable="false" />
-    <Property Name="strength" Type="smallint" Nullable="false" />
+    <Property Name="rilevance" Type="smallint" Nullable="false" DefaultValue="0" />
     <Property Name="media" Type="smallint" Nullable="false" />
     <Property Name="variance" Type="smallint" Nullable="false" />
   </EntityType>
@@ -164,6 +166,8 @@
           <NavigationProperty Name="Parent" Relationship="Model1.PlacesPlaces" FromRole="Places" ToRole="Places1" />
           <NavigationProperty Name="children" Relationship="Model1.PlacesPlaces" FromRole="Places1" ToRole="Places" />
           <NavigationProperty Name="Checkins" Relationship="Model1.CheckinPlaces" FromRole="Places" ToRole="Checkin" />
+          <Property Type="String" Name="file_in" Nullable="false" />
+          <Property Type="String" Name="file_out" Nullable="false" />
         </EntityType>
         <EntityType Name="Networks">
           <Key>
@@ -173,6 +177,7 @@
           <Property Type="String" Name="SSID" Nullable="false" />
           <Property Type="String" Name="MAC" Nullable="false" />
           <NavigationProperty Name="PlacesNetworsValues" Relationship="Model1.NetworksPlacesNetworsValues" FromRole="Networks" ToRole="PlacesNetworsValues" />
+          <Property Type="Boolean" Name="tethering" Nullable="false" />
         </EntityType>
         <EntityType Name="Measures">
           <Key>
@@ -195,8 +200,7 @@
           <Property Name="PlacesID" Nullable="false" Type="Int32" />
           <NavigationProperty Name="Network" Relationship="Model1.NetworksPlacesNetworsValues" FromRole="PlacesNetworsValues" ToRole="Networks" />
           <Property Name="NetworksID" Nullable="false" Type="Int32" />
-          <Property Type="Int16" Name="signal" Nullable="false" />
-          <Property Type="Int16" Name="strength" Nullable="false" />
+          <Property Type="Int16" Name="rilevance" Nullable="false" DefaultValue="0" />
           <Property Type="Int16" Name="media" Nullable="false" />
           <Property Type="Int16" Name="variance" Nullable="false" />
         </EntityType>
@@ -253,6 +257,8 @@
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="name" ColumnName="name" />
           <ScalarProperty Name="measures_num" ColumnName="measures_num" />
+          <ScalarProperty Name="file_in" ColumnName="file_in" />
+          <ScalarProperty Name="file_out" ColumnName="file_out" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -262,6 +268,7 @@
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="SSID" ColumnName="SSID" />
           <ScalarProperty Name="MAC" ColumnName="MAC" />
+          <ScalarProperty Name="tethering" ColumnName="tethering" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -282,8 +289,7 @@
         <MappingFragment StoreEntitySet="PlacesNetworsValues">
           <ScalarProperty Name="PlacesID" ColumnName="PlacesID" />
           <ScalarProperty Name="NetworksID" ColumnName="NetworksID" />
-          <ScalarProperty Name="signal" ColumnName="signal" />
-          <ScalarProperty Name="strength" ColumnName="strength" />
+          <ScalarProperty Name="rilevance" ColumnName="rilevance" />
           <ScalarProperty Name="media" ColumnName="media" />
           <ScalarProperty Name="variance" ColumnName="variance" />
         </MappingFragment>

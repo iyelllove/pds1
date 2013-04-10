@@ -14,10 +14,14 @@ namespace pds1
 {
     public partial class PlacesNetworsValues
     {
+        public PlacesNetworsValues()
+        {
+            this.rilevance = 0;
+        }
+    
         public int PlacesID { get; set; }
         public int NetworksID { get; set; }
-        public short signal { get; set; }
-        public short strength { get; set; }
+        public short rilevance { get; set; }
         public short media { get; set; }
         public short variance { get; set; }
     
