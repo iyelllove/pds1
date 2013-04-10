@@ -18,6 +18,8 @@ namespace pds1
         public int NetworksID { get; set; }
         public short signal { get; set; }
         public short strength { get; set; }
+        public short media { get; set; }
+        public short variance { get; set; }
     
         public virtual Places Place { get; set; }
         public virtual Networks Network { get; set; }
