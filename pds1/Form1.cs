@@ -167,9 +167,7 @@ namespace pds1
                             db.Networks.Add(m);
                             db.SaveChanges();
                         }
-                        else {
-                            System.Console.WriteLine("La rete  esiste");
-                        }
+                      
 
                         var ms = new Measures {SSID =name.Text, MAC=mac.Text,  timestamp = DateTime.Now, signal = Convert.ToInt16(signal.Text), strength=Convert.ToInt16(strenght.Text) };
                         db.Measures.Add(ms);
