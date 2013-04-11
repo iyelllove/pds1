@@ -17,8 +17,12 @@ namespace pds1
 {
     public partial class Form1 : Form
     {
+        CurrentState oldstate;
+
         public Form1()
         {
+            oldstate = new CurrentState();
+           
             InitializeComponent();
             notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
             Resize += new EventHandler(Form1_Resize);
@@ -81,7 +85,9 @@ namespace pds1
             WlanClient client = new WlanClient();
             // Wlan = new WlanClient();
             int j = 0;
-           
+
+            
+            oldstate.Equals(new CurrentState());
 
             try
             {
