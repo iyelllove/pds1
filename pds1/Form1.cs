@@ -236,10 +236,10 @@ namespace pds1
                 {                                               
                     Hide();
                     notifyIcon1.Visible = true;
-                    Thread.Sleep(3000);//pause for 3 seconds
+                    //Thread.Sleep(3000);//pause for 3 seconds
                     //shows a balloon for 1 sec with a title, some text, and the info icon
                     //other possibilities are: TooltipIcon.None, Tooltipicon.Error, and TooltipIcon.Warning
-                    notifyIcon1.ShowBalloonTip(1000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
+                    notifyIcon1.ShowBalloonTip(2000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
                 }
         }
 
