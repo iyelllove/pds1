@@ -341,6 +341,17 @@
     </edmx:Options>
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
+      <Diagram DiagramId="669f4501b365404691d5566e5576781e" Name="Diagramma1">
+        <EntityTypeShape EntityType="Model1.Places" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model1.Networks" Width="1.5" PointX="3" PointY="5.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model1.Measures" Width="1.5" PointX="5.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model1.PlacesNetworsValues" Width="1.5" PointX="5.25" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model1.Checkin" Width="1.5" PointX="0.75" PointY="1.5" IsExpanded="true" />
+        <AssociationConnector Association="Model1.PlacesPlacesNetworsValues" ManuallyRouted="false" />
+        <AssociationConnector Association="Model1.NetworksPlacesNetworsValues" ManuallyRouted="false" />
+        <AssociationConnector Association="Model1.PlacesPlaces" ManuallyRouted="false" />
+        <AssociationConnector Association="Model1.CheckinPlaces" ManuallyRouted="false" />
+      </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>
