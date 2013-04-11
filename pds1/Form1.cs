@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
 using System.Threading;
+using System.Net.NetworkInformation;
+using System.Collections.ObjectModel;
 
 
 namespace pds1
@@ -20,6 +22,21 @@ namespace pds1
             InitializeComponent();
             notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
             Resize += new EventHandler(Form1_Resize);
+            NetworkChange.NetworkAddressChanged += new
+            NetworkAddressChangedEventHandler(AddressChangedCallback);
+        }
+
+        static void AddressChangedCallback(object sender, EventArgs e)
+        {
+
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface n in adapters)
+            {
+                //Console.WriteLine("   {0} is {1}", n.Name, n.OperationalStatus);
+                Log.trace("indirizzo ip cambiato");
+                WlanClient wlan = new WlanClient();
+            }
+
         }
 
 
@@ -80,12 +97,7 @@ namespace pds1
                     foreach (Wlan.WlanBssEntry network in wlanBssEntries)
                     {
 
-
-
-
-
-
-                        if (j == 0)
+                     if (j == 0)
                         {
                             Label name1 = new Label();
                             Label signal1 = new Label();
@@ -250,6 +262,9 @@ namespace pds1
         {
 
         }
+        
+
+
 
 
       

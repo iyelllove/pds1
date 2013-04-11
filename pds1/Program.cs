@@ -7,6 +7,7 @@ using NativeWifi;
 using System.Text;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+
     
 namespace pds1
 {
@@ -30,15 +31,12 @@ namespace pds1
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-
+           
             Application.Run(new Form1());
-
-
-
-
+            
 
         }
-
+        
         
 
     }
