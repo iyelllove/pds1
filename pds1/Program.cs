@@ -32,19 +32,17 @@ namespace pds1
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
+            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
            
             Application.Run(new Form1());
-            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
+           
 
         }
 
         static void AddressChangedCallback(object sender, EventArgs e)
         {
-
                 //Console.WriteLine("   {0} is {1}", n.Name, n.OperationalStatus);
                 Log.trace("indirizzo ip cambiato");
-            
         }
         
         

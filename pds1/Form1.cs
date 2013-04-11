@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeWifi;
 using System.Threading;
+using System.Net.NetworkInformation;
 
 
 namespace pds1
