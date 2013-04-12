@@ -16,6 +16,7 @@ namespace pds1
     {
         public Places()
         {
+            this.measures_num = false;
             this.PlacesNetworsValues = new HashSet<PlacesNetworsValues>();
             this.children = new HashSet<Places>();
             this.Checkins = new HashSet<Checkin>();
@@ -23,9 +24,10 @@ namespace pds1
     
         public int ID { get; set; }
         public string name { get; set; }
-        public bool measures_num { get; set; }
+        public Nullable<bool> measures_num { get; set; }
         public string file_in { get; set; }
         public string file_out { get; set; }
+        public short m_num { get; set; }
     
         public virtual ICollection<PlacesNetworsValues> PlacesNetworsValues { get; set; }
         public virtual Places Parent { get; set; }

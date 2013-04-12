@@ -34,9 +34,10 @@
     </Key>
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="name" Type="nvarchar" Nullable="false" />
-    <Property Name="measures_num" Type="bit" Nullable="false" />
+    <Property Name="measures_num" Type="bit" Nullable="true" DefaultValue="false" />
     <Property Name="file_in" Type="nvarchar" Nullable="false" />
     <Property Name="file_out" Type="nvarchar" Nullable="false" />
+    <Property Name="m_num" Type="smallint" Nullable="false" />
     <Property Name="Parent_ID" Type="int" Nullable="true" />
   </EntityType>
   <EntityType Name="Networks">
@@ -162,12 +163,13 @@
           <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="name" Nullable="false" />
           <NavigationProperty Name="PlacesNetworsValues" Relationship="Model1.PlacesPlacesNetworsValues" FromRole="Places" ToRole="PlacesNetworsValues" />
-          <Property Type="Boolean" Name="measures_num" Nullable="false" />
+          <Property Type="Boolean" Name="measures_num" Nullable="true" DefaultValue="false" />
           <NavigationProperty Name="Parent" Relationship="Model1.PlacesPlaces" FromRole="Places" ToRole="Places1" />
           <NavigationProperty Name="children" Relationship="Model1.PlacesPlaces" FromRole="Places1" ToRole="Places" />
           <NavigationProperty Name="Checkins" Relationship="Model1.CheckinPlaces" FromRole="Places" ToRole="Checkin" />
           <Property Type="String" Name="file_in" Nullable="false" />
           <Property Type="String" Name="file_out" Nullable="false" />
+          <Property Type="Int16" Name="m_num" Nullable="false" />
         </EntityType>
         <EntityType Name="Networks">
           <Key>
@@ -259,6 +261,7 @@
           <ScalarProperty Name="measures_num" ColumnName="measures_num" />
           <ScalarProperty Name="file_in" ColumnName="file_in" />
           <ScalarProperty Name="file_out" ColumnName="file_out" />
+          <ScalarProperty Name="m_num" ColumnName="m_num" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

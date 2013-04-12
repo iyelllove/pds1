@@ -38,6 +38,8 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
+            this.placeName = new System.Windows.Forms.TextBox();
+            this.addPlace = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -129,11 +131,33 @@
             this.label1.Text = "name  / signal / strenght / bss / mac ";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
+            // placeName
+            // 
+            this.placeName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.placeName.Location = new System.Drawing.Point(414, 28);
+            this.placeName.Name = "placeName";
+            this.placeName.Size = new System.Drawing.Size(100, 20);
+            this.placeName.TabIndex = 3;
+            this.placeName.TextChanged += new System.EventHandler(this.placeName_TextChanged);
+            // 
+            // addPlace
+            // 
+            this.addPlace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.addPlace.Location = new System.Drawing.Point(520, 26);
+            this.addPlace.Name = "addPlace";
+            this.addPlace.Size = new System.Drawing.Size(99, 23);
+            this.addPlace.TabIndex = 4;
+            this.addPlace.Text = "Nuovo Posto";
+            this.addPlace.UseVisualStyleBackColor = true;
+            this.addPlace.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 269);
+            this.Controls.Add(this.addPlace);
+            this.Controls.Add(this.placeName);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tlp);
             this.Controls.Add(this.button1);
@@ -156,6 +180,8 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox placeName;
+        private System.Windows.Forms.Button addPlace;
     }
 }
 

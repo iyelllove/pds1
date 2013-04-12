@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server Compact Edition
 -- --------------------------------------------------
--- Date Created: 04/10/2013 23:38:31
+-- Date Created: 04/12/2013 10:06:28
 -- Generated from EDMX file: C:\Users\Nico\documents\visual studio 2012\Projects\pds1\pds1\Model1.edmx
 -- --------------------------------------------------
 
@@ -45,9 +45,10 @@ GO
 CREATE TABLE [Places] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [name] nvarchar(4000)  NOT NULL,
-    [measures_num] bit  NOT NULL,
+    [measures_num] bit  NULL,
     [file_in] nvarchar(4000)  NOT NULL,
     [file_out] nvarchar(4000)  NOT NULL,
+    [m_num] smallint  NOT NULL,
     [Parent_ID] int  NULL
 );
 GO

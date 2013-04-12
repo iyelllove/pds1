@@ -37,7 +37,6 @@ namespace pds1
         }
 
         static public string getMacAddress(Wlan.WlanBssEntry network) {
-            int rss = network.rssi;
             byte[] macAddr = network.dot11Bssid;
             string tMac = "";
             for (int i = 0; i < macAddr.Length; i++)
@@ -45,6 +44,12 @@ namespace pds1
                 tMac += macAddr[i].ToString("x2").PadLeft(2, '0').ToUpper();
             }
             return tMac;
+        }
+
+        static public string getSSIDName(Wlan.WlanBssEntry network)
+        {
+
+            return System.Text.ASCIIEncoding.ASCII.GetString(network.dot11Ssid.SSID).ToString();
         }
 
     }

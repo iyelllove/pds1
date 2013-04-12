@@ -125,21 +125,17 @@ namespace pds1
                         Label strenght = new Label();
                         Label bss = new Label();
                         Label mac = new Label();
-                       
 
-                        int rss = network.rssi;
-                        byte[] macAddr = network.dot11Bssid;
-                        string tMac = "";
-                        for (int i = 0; i < macAddr.Length; i++)
-                        {
-                            tMac += macAddr[i].ToString("x2").PadLeft(2, '0').ToUpper();
-                        }
+
+                       string tMac = Helper.getMacAddress(network);
 
 
 
-                        name.Text = System.Text.ASCIIEncoding.ASCII.GetString(network.dot11Ssid.SSID).ToString();
+
+                       name.Text = Helper.getSSIDName(network);
                         signal.Text = network.linkQuality.ToString();
-                        strenght.Text = rss.ToString();
+
+                        strenght.Text = network.rssi.ToString();
                         bss.Text = network.dot11BssType.ToString();
                         mac.Text = tMac;
 
@@ -261,6 +257,69 @@ namespace pds1
         
         public void showMessage(string s1, string s2){
              notifyIcon1.ShowBalloonTip(2000, s1, s2, ToolTipIcon.Info);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+            using (var db = new Model1Container1())
+            {
+                Places p = new Places();
+                p.name = placeName.Text;
+                p.Parent = null;
+                p.m_num = 0;
+                p.measures_num = false;
+                
+
+
+                WlanClient client = new WlanClient();
+                try
+                {
+
+                    foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                    {
+                        Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
+                        foreach (Wlan.WlanBssEntry network in wlanBssEntries)
+                        {
+                            string thename = Helper.getSSIDName(network);
+                            var m = db.Networks.Where(c => c.SSID == thename).FirstOrDefault();
+
+                            if (m == null)
+                            {
+                                continue;
+                            }
+
+                            PlacesNetworsValues pnv = new PlacesNetworsValues();
+                            pnv.Network = m;
+                            pnv.Place = p;
+                            pnv.media = Convert.ToInt16(network.linkQuality.ToString());
+                            pnv.variance = 0;
+                            pnv.rilevance = 0;
+                            
+                            db.PlacesNetworsValues.Add(pnv);
+
+                            //p.PlacesNetworsValues.Add(pnv);
+                           
+
+                        }
+                    }
+
+                    //db.Places.Add(p);
+                    Log.trace(placeName.Text + " Aggiunto");
+                    db.SaveChanges();
+                    
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        private void placeName_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
 
