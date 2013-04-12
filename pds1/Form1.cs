@@ -264,31 +264,31 @@ namespace pds1
 
             using (var db = new Model1Container1())
             {
-                Places p = new Places();
-                p.name = placeName.Text;
-                p.Parent = null;
-                p.m_num = 0;
-                p.measures_num = false;
-                p.file_in = "";
-                p.file_out = "";
-
-
+                
 
                 WlanClient client = new WlanClient();
                 try
                 {
-                    /*
+                    Places p = new Places();
+                    p.name = placeName.Text;
+                    db.Places.Add(p);
+                    db.SaveChanges();
+                    
+                    
                     foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
                     {
                         Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
                         foreach (Wlan.WlanBssEntry network in wlanBssEntries)
                         {
                             string thename = Helper.getSSIDName(network);
+                            
                             var m = db.Networks.Where(c => c.SSID == thename).FirstOrDefault();
 
                             if (m == null)
                             {
-                                continue;
+                                m = new Networks { SSID = thename, MAC = Helper.getMacAddress(network) };
+                                db.Networks.Add(m);
+                                db.SaveChanges();
                             }
 
                             PlacesNetworsValues pnv = new PlacesNetworsValues();
@@ -299,24 +299,20 @@ namespace pds1
                             pnv.rilevance = 0;
                             
                             db.PlacesNetworsValues.Add(pnv);
-
-                            //p.PlacesNetworsValues.Add(pnv);
+                            p.PlacesNetworsValues.Add(pnv);
                            
-
                         }
                     }
-                    */
-                    db.Places.Add(p);
-                    Log.trace(placeName.Text + " Aggiunto");
                     db.SaveChanges();
-                    
-
                 }
-                catch (Exception ex)
+               catch (Exception ex)
                 {
                     Log.error(ex.Message);
                 }
+                
             }
+
+            
         }
 
         private void placeName_TextChanged(object sender, EventArgs e)
