@@ -49,17 +49,27 @@ namespace pds1
                 Log.trace("indirizzo ip cambiato");
         }
 
-        static void SystemEvents_SessionEnded(object sender, EventArgs e)
+        static void SystemEvents_SessionEnded(object sender, SessionEndedEventArgs e)
         {
             Log.trace("user is trying to log off or shut down the system");
         }
 
-        static void SystemEvents_SessionSwitch(object sender, EventArgs e)
+        static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             Log.trace("currently logged-in user has changed");
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {
+                Log.trace("locked at {0}");
+                Log.trace(DateTime.Now.ToString());
+            }
+            if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                Log.trace("unlocked at {0}");
+                Log.trace(DateTime.Now.ToString());
+            } 
         }
 
-        static void SystemEvents_PowerModeChanged(object sender, EventArgs e)
+        static void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             Log.trace("user suspends or resumes the system");
         }
