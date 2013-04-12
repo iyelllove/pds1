@@ -167,9 +167,9 @@
           <NavigationProperty Name="Parent" Relationship="Model1.PlacesPlaces" FromRole="Places" ToRole="Places1" />
           <NavigationProperty Name="children" Relationship="Model1.PlacesPlaces" FromRole="Places1" ToRole="Places" />
           <NavigationProperty Name="Checkins" Relationship="Model1.CheckinPlaces" FromRole="Places" ToRole="Checkin" />
-          <Property Type="String" Name="file_in" Nullable="false" />
-          <Property Type="String" Name="file_out" Nullable="false" />
-          <Property Type="Int16" Name="m_num" Nullable="false" />
+          <Property Type="String" Name="file_in" Nullable="true" DefaultValue="" />
+          <Property Type="String" Name="file_out" Nullable="true" DefaultValue="" />
+          <Property Type="Int16" Name="m_num" Nullable="true" DefaultValue="0" />
         </EntityType>
         <EntityType Name="Networks">
           <Key>
@@ -207,16 +207,8 @@
           <Property Type="Int16" Name="variance" Nullable="false" />
         </EntityType>
         <Association Name="PlacesPlacesNetworsValues">
-          <End Type="Model1.Places" Role="Places" Multiplicity="1" />
+          <End Type="Model1.Places" Role="Places" Multiplicity="0..1" />
           <End Type="Model1.PlacesNetworsValues" Role="PlacesNetworsValues" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Places">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="PlacesNetworsValues">
-              <PropertyRef Name="PlacesID" />
-            </Dependent>
-          </ReferentialConstraint>
         </Association>
         <Association Name="NetworksPlacesNetworsValues">
           <End Type="Model1.Networks" Role="Networks" Multiplicity="1" />
@@ -245,7 +237,7 @@
         </EntityType>
         <Association Name="CheckinPlaces">
           <End Type="Model1.Checkin" Role="Checkin" Multiplicity="*" />
-          <End Type="Model1.Places" Role="Places" Multiplicity="1" />
+          <End Type="Model1.Places" Role="Places" Multiplicity="0..1" />
         </Association>
       </Schema>
     </edmx:ConceptualModels>
@@ -323,6 +315,7 @@
       <EndProperty Name="Checkin">
         <ScalarProperty Name="ID" ColumnName="ID" />
       </EndProperty>
+            <Condition ColumnName="Place_ID" IsNull="false" />
     </AssociationSetMapping>
   </EntityContainerMapping>
 </Mapping></edmx:Mappings>
