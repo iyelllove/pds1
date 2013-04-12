@@ -41,15 +41,12 @@ namespace pds1.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("70")]
         public int min_perc_same_place {
             get {
                 return ((int)(this["min_perc_same_place"]));
-            }
-            set {
-                this["min_perc_same_place"] = value;
             }
         }
     }

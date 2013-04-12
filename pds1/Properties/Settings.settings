@@ -8,7 +8,7 @@
     <Setting Name="delta_signal_value" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">25</Value>
     </Setting>
-    <Setting Name="min_perc_same_place" Type="System.Int32" Scope="User">
+    <Setting Name="min_perc_same_place" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">70</Value>
     </Setting>
   </Settings>
