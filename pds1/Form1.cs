@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using NativeWifi;
 using System.Threading;
 using System.Net.NetworkInformation;
+using Progetto.TransDlg;
 
 
 namespace pds1
@@ -237,11 +238,13 @@ namespace pds1
             if (this.WindowState == FormWindowState.Minimized)
                 {                                               
                     Hide();
-                    notifyIcon1.Visible = true;
+                    //notifyIcon1.Visible = true;
                     //Thread.Sleep(3000);//pause for 3 seconds
                     //shows a balloon for 1 sec with a title, some text, and the info icon
                     //other possibilities are: TooltipIcon.None, Tooltipicon.Error, and TooltipIcon.Warning
-                    notifyIcon1.ShowBalloonTip(2000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
+                    //notifyIcon1.ShowBalloonTip(2000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
+                    Notification notifForm = new Notification();
+                    notifForm.Show();
                 }
         }
 
