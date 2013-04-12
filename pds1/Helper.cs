@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using NativeWifi;
 
 namespace pds1
 {
@@ -35,5 +35,17 @@ namespace pds1
             }
 
         }
+
+        static public string getMacAddress(Wlan.WlanBssEntry network) {
+            int rss = network.rssi;
+            byte[] macAddr = network.dot11Bssid;
+            string tMac = "";
+            for (int i = 0; i < macAddr.Length; i++)
+            {
+                tMac += macAddr[i].ToString("x2").PadLeft(2, '0').ToUpper();
+            }
+            return tMac;
+        }
+
     }
 }
