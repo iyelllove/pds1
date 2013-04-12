@@ -39,9 +39,8 @@ namespace pds1
             SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
 
-            Application.Run(new Form1());
-           
-            
+
+            Application.Run(new Form1());          
         }
 
         static void AddressChangedCallback(object sender, EventArgs e)

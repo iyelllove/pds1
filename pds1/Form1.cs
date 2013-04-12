@@ -240,7 +240,7 @@ namespace pds1
                     //other possibilities are: TooltipIcon.None, Tooltipicon.Error, and TooltipIcon.Warning
                     //notifyIcon1.ShowBalloonTip(2000, "Attenzione", "doppio click per riaprire!", ToolTipIcon.Info);
                     Notification notifForm = new Notification();
-                    notifForm.Show();
+                    notifForm.Show("doppio click per riaprire");
                 }
         }
 

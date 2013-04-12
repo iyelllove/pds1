@@ -16,6 +16,20 @@ namespace pds1
 			InitializeComponent();
 		}
 
+        public void Show(String s)
+        {
+            // 
+            // label1
+            //
+            this.label1.Location = new System.Drawing.Point(101, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(100, 30);
+            this.label1.TabIndex = 2;
+            this.label1.Text = s;
+
+            this.Show();
+        }
+
 		protected override void Dispose( bool disposing )
 		{
 			if( disposing )
@@ -36,7 +50,7 @@ namespace pds1
             int screenHeight = Screen.PrimaryScreen.WorkingArea.Height;
             this.Left = screenWidth - this.Width;
             this.Top = screenHeight - this.Height;
-
+            
             timer1.Enabled = true;
 
            
@@ -67,7 +81,6 @@ namespace pds1
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -93,19 +106,11 @@ namespace pds1
             this.timer1.Interval = 3000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // linkLabel1
-            // 
-            this.linkLabel1.Location = new System.Drawing.Point(0, 0);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(100, 23);
-            this.linkLabel1.TabIndex = 0;
-            // 
             // Notification
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(234, 88);
-            this.Controls.Add(this.linkLabel1);
+            this.ClientSize = new System.Drawing.Size(208, 92);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -123,7 +128,6 @@ namespace pds1
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.LinkLabel linkLabel1;
         private System.ComponentModel.IContainer components;
         #endregion
 
