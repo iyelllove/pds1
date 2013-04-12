@@ -20,8 +20,10 @@ namespace pds1
             {
                 foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
                 {
+                 //   wlanIface.Scan();
+                  //  System.Threading.Thread.Sleep(5000);
                     foreach (Wlan.WlanBssEntry network in wlanIface.GetNetworkBssList()) {
-                        if (network.linkQuality > 15)
+                        if (network.linkQuality > Properties.Settings.Default.min_signal_value)
                         {
                             byte[] macAddr = network.dot11Bssid;
                             string tMac = "";
@@ -59,15 +61,20 @@ namespace pds1
                 int d = 0;
                 List<string> used = new List<string>();
                 foreach (var pair in p.network_list){
-                    if (this.network_list.ContainsKey(pair.Key))
-                    {
-                        used.Add(pair.Key);
-                        e++;
-                    }
+
+
+
+                    if (this.network_list.ContainsKey(pair.Key)
+     //                 &&  (Encoding.ASCII.GetChars(pair.Value.dot11Ssid.SSID, 0, (int)pair.Value.dot11Ssid.SSID.Length)).Equals(Encoding.ASCII.GetChars(this.network_list[pair.Key].dot11Ssid.SSID, 0, (int)this.network_list[pair.Key].dot11Ssid.SSID.Length))
+                        && (pair.Value.linkQuality <= this.network_list[pair.Key].linkQuality + Properties.Settings.Default.delta_signal_value) &&
+                        (pair.Value.linkQuality >= this.network_list[pair.Key].linkQuality - Properties.Settings.Default.delta_signal_value)
+                       ){
+                            used.Add(pair.Key);
+                            e++;
+                        }
                     else {
                         d++;
-                        Log.trace("La situa è cambiata");
-                    }
+                     }
                 }
 
                 foreach (var pair in this.network_list)
@@ -78,8 +85,14 @@ namespace pds1
                     }
                     
                 }
-
-                Log.trace("Uguali:\t"+e.ToString()+"\tdiverse:"+d.ToString());
+                Log.trace("Uguali:\t" + e.ToString() + "\tdiverse:" + d.ToString() + "\tpercentuale:" + (100 * e / (d + e)).ToString() + " VS " + Properties.Settings.Default.min_perc_same_place.ToString());
+                if((100*e/(d+e)) > Properties.Settings.Default.min_perc_same_place){
+                    return true;
+                }else{
+                    Log.trace("Necessario aggiornamento valori");
+                    return false;
+                }
+                
             }
             return true;
         }

@@ -22,5 +22,35 @@ namespace pds1.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int min_signal_value {
+            get {
+                return ((int)(this["min_signal_value"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        public int delta_signal_value {
+            get {
+                return ((int)(this["delta_signal_value"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        public int min_perc_same_place {
+            get {
+                return ((int)(this["min_perc_same_place"]));
+            }
+            set {
+                this["min_perc_same_place"] = value;
+            }
+        }
     }
 }

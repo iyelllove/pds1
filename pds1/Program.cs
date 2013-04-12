@@ -24,12 +24,13 @@ namespace pds1
         /// Punto di ingresso principale dell'applicazione.
         /// modificare da qui
         /// </summary>
+        /// 
         [STAThread]
+       
         static void Main()
         {
-            
 
-            Helper.printAllNetworks();
+           Helper.printAllNetworks();
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

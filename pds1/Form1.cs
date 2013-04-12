@@ -20,8 +20,8 @@ namespace pds1
 
         public Form1()
         {
+
             oldstate = new CurrentState();
-           
             InitializeComponent();
             notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
             Resize += new EventHandler(Form1_Resize);
@@ -73,14 +73,16 @@ namespace pds1
             // Wlan = new WlanClient();
             int j = 0;
 
-            
-            oldstate.Equals(new CurrentState());
-
+            CurrentState newstate = new CurrentState();
+            oldstate.Equals(newstate);
+            oldstate = newstate;
             try
             {
+              
                 foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
                 {
 
+                    
                     
                     Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
                     tlp.Controls.Clear();
