@@ -269,13 +269,15 @@ namespace pds1
                 p.Parent = null;
                 p.m_num = 0;
                 p.measures_num = false;
-                
+                p.file_in = "";
+                p.file_out = "";
+
 
 
                 WlanClient client = new WlanClient();
                 try
                 {
-
+                    /*
                     foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
                     {
                         Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
@@ -303,8 +305,8 @@ namespace pds1
 
                         }
                     }
-
-                    //db.Places.Add(p);
+                    */
+                    db.Places.Add(p);
                     Log.trace(placeName.Text + " Aggiunto");
                     db.SaveChanges();
                     
@@ -312,7 +314,7 @@ namespace pds1
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    Log.error(ex.Message);
                 }
             }
         }
