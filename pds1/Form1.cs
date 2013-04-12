@@ -259,7 +259,9 @@ namespace pds1
 
         }
         
-
+        public void showMessage(string s1, string s2){
+             notifyIcon1.ShowBalloonTip(2000, s1, s2, ToolTipIcon.Info);
+        }
 
 
 
