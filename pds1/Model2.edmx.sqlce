@@ -2,8 +2,8 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server Compact Edition
 -- --------------------------------------------------
--- Date Created: 04/20/2013 15:30:22
--- Generated from EDMX file: C:\Users\Nico\documents\visual studio 2012\Projects\pds1\pds1\Model1.edmx
+-- Date Created: 04/20/2013 15:02:28
+-- Generated from EDMX file: C:\Users\Nico\documents\visual studio 2012\Projects\pds1\pds1\Model2.edmx
 -- --------------------------------------------------
 
 
@@ -12,12 +12,6 @@
 -- NOTE: if the constraint does not exist, an ignorable error will be reported.
 -- --------------------------------------------------
 
-    ALTER TABLE [Checkins] DROP CONSTRAINT [FK_CheckinPlace];
-GO
-    ALTER TABLE [PlacesNetworsValues] DROP CONSTRAINT [FK_PlacesNetworsValuePlace];
-GO
-    ALTER TABLE [PlacesNetworsValues] DROP CONSTRAINT [FK_PlacesNetworsValueNetwork];
-GO
 
 -- --------------------------------------------------
 -- Dropping existing tables
@@ -81,10 +75,10 @@ GO
 
 -- Creating table 'PlacesNetworsValues'
 CREATE TABLE [PlacesNetworsValues] (
-    [ID] int IDENTITY(1,1) NOT NULL,
     [rilevance] smallint  NOT NULL,
     [media] smallint  NOT NULL,
     [variance] smallint  NOT NULL,
+    [ID] nvarchar(4000)  NOT NULL,
     [Place_ID] int  NULL,
     [Network_ID] int  NULL
 );
@@ -142,6 +136,20 @@ ON [Checkins]
     ([Place_ID]);
 GO
 
+-- Creating foreign key on [Parent_ID] in table 'Places'
+ALTER TABLE [Places]
+ADD CONSTRAINT [FK_PlacePlace]
+    FOREIGN KEY ([Parent_ID])
+    REFERENCES [Places]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PlacePlace'
+CREATE INDEX [IX_FK_PlacePlace]
+ON [Places]
+    ([Parent_ID]);
+GO
+
 -- Creating foreign key on [Place_ID] in table 'PlacesNetworsValues'
 ALTER TABLE [PlacesNetworsValues]
 ADD CONSTRAINT [FK_PlacesNetworsValuePlace]
@@ -168,20 +176,6 @@ ADD CONSTRAINT [FK_PlacesNetworsValueNetwork]
 CREATE INDEX [IX_FK_PlacesNetworsValueNetwork]
 ON [PlacesNetworsValues]
     ([Network_ID]);
-GO
-
--- Creating foreign key on [Parent_ID] in table 'Places'
-ALTER TABLE [Places]
-ADD CONSTRAINT [FK_PlacePlace]
-    FOREIGN KEY ([Parent_ID])
-    REFERENCES [Places]
-        ([ID])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
-
--- Creating non-clustered index for FOREIGN KEY 'FK_PlacePlace'
-CREATE INDEX [IX_FK_PlacePlace]
-ON [Places]
-    ([Parent_ID]);
 GO
 
 -- --------------------------------------------------
