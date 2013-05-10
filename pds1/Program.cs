@@ -26,7 +26,8 @@ namespace pds1
         /// </summary>
         /// 
         [STAThread]
-
+       
+        
         static void Main()
         {
 
@@ -38,19 +39,20 @@ namespace pds1
             SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
             SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
-
-            //ListenThreadForm.hndl = args[0];
+            
+            
             Thread InstanceCaller = new Thread(
             new ThreadStart(ListenThreadForm.InstanceMethod));
-
-            // Start the thread.
             InstanceCaller.Start();
             Application.Run(new Form1());          
         }
 
         static void AddressChangedCallback(object sender, EventArgs e)
-        {              
-                Log.trace("indirizzo ip cambiato");
+        {
+
+           
+
+            Log.trace("indirizzo ip cambiato");
         }
 
         static void SystemEvents_SessionEnded(object sender, SessionEndedEventArgs e)
@@ -77,8 +79,16 @@ namespace pds1
         {
             Log.trace("user suspends or resumes the system");
         }
-        
 
+
+        public static void update(){
+             CurrentState cs; 
+            cs = new CurrentState();
+            cs.searchPlace();
+        }
+
+
+        
 
        
     }
