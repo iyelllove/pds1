@@ -11,18 +11,21 @@ using NativeWifi;
 using System.Threading;
 using System.Net.NetworkInformation;
 using Progetto.TransDlg;
-
+using System.Diagnostics;
+using System.IO;
 
 namespace pds1
 {
     public partial class Form1 : Form
     {
         CurrentState oldstate;
+        Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
 
         public Form1()
         {
 
-            oldstate = new CurrentState();
+
+
             InitializeComponent();
             notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
             Resize += new EventHandler(Form1_Resize);
@@ -70,29 +73,61 @@ namespace pds1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            WlanClient client = new WlanClient();
-            // Wlan = new WlanClient();
             int j = 0;
+            Log.trace("start Update");
 
-            CurrentState newstate = new CurrentState();
-            oldstate.Equals(newstate);
-            oldstate = newstate;
-            try
-            {
-              
-                foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                
+
+                this.comboBox1.Enabled = false;
+                this.button2.Enabled = false;
+
+                this.comboBox1.Items.Clear();
+                this.comboBox1.Items.Add("- Seleziona -");
+                this.comboBox1.Text = "- Seleziona -";
+           
+                
+
+                if (oldstate == null)
+                {
+                    oldstate = new CurrentState();
+                }
+                oldstate.searchPlace();
+
+                if (oldstate.getCurrentPlace() != null)
                 {
 
+                    execFunction();
                     
-                    
-                    Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
-                    tlp.Controls.Clear();
+                    foreach(Place p in oldstate.getPossiblePlaces()) {
+                       
+                        this.comboBox1.Items.Add(p);
+                        if (p.Equals(oldstate.getCurrentPlace()))
+                        {
+                             this.comboBox1.Text = oldstate.getCurrentPlace().name;
+                        }
+                        
+                    }
+                    this.comboBox1.Enabled = true;
+                    this.button2.Enabled = true;
+                    this.showMessage("POSTO CORRENTE" + oldstate.getCurrentPlace().name, "");
 
+                   
+                }
+               
+            //}
 
-
-                    foreach (Wlan.WlanBssEntry network in wlanBssEntries)
+            //oldstate = newstate;
+            
+            try
+            {
+                tlp.Controls.Clear();
+                
+//                    foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+//                    {
+//                    Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
+//                    foreach (Wlan.WlanBssEntry network in wlanBssEntries)
+                        foreach (Wlan.WlanBssEntry network in Helper.getCurrentNetworks())
                     {
-
                      if (j == 0)
                         {
                             Label name1 = new Label();
@@ -114,8 +149,6 @@ namespace pds1
                             tlp.Controls.Add(bss1, 3, j);
                             tlp.Controls.Add(mac1, 4, j);
                             j = 1;
-                            Log.trace("hjkl");
-
                             
                         }
 
@@ -139,23 +172,23 @@ namespace pds1
                         bss.Text = network.dot11BssType.ToString();
                         mac.Text = tMac;
 
-                        
-                        var db = new Model1Container1();
+
+                        var db = new datapds1Entities2();
 
   
-                       
+                       /*
                         var m = db.Networks.Where(c=>c.SSID==name.Text).FirstOrDefault();
 
                         if (m == null)
                         {
-                            System.Console.WriteLine("La rete non esiste");
+                            Log.trace("Trovata una nuova rete");
                             m = new Networks { SSID = name.Text, MAC = mac.Text };
                             db.Networks.Add(m);
                             db.SaveChanges();
                         }
-                      
+                      */
 
-                        var ms = new Measures {SSID =name.Text, MAC=mac.Text,  timestamp = DateTime.Now, signal = Convert.ToInt16(signal.Text), strength=Convert.ToInt16(strenght.Text) };
+                        var ms = new Measure {SSID =name.Text, MAC=mac.Text,  timestamp = DateTime.Now, signal = Convert.ToInt16(signal.Text), strength=Convert.ToInt16(strenght.Text) };
                         db.Measures.Add(ms);
                         db.SaveChanges();
 
@@ -169,11 +202,11 @@ namespace pds1
 
                         j++;
                     }
-                }
+//                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                Log.error(ex.Message);
             }
             /*
             using (var db = new MeasureContext())
@@ -188,7 +221,10 @@ namespace pds1
                     Console.WriteLine("SSID: " + item.SSID + " " + item.MAC + " " + item.signal.ToString() + " " + item.strenght.ToString());
                 }
                  * /
-            }*/
+            }
+             Log.trace("end update");
+             */
+
         }
 
 
@@ -256,54 +292,72 @@ namespace pds1
         }
         
         public void showMessage(string s1, string s2){
-             notifyIcon1.ShowBalloonTip(2000, s1, s2, ToolTipIcon.Info);
+            Notification notifForm = new Notification();
+            notifForm.Show(s1);
+             //notifyIcon1.ShowBalloonTip(2000, s1, s2, ToolTipIcon.Info);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
 
-            using (var db = new Model1Container1())
+            using (var db = new datapds1Entities2())
             {
                 
-
+                
                 WlanClient client = new WlanClient();
                 try
                 {
-                    Places p = new Places();
+                    Place p = new Place();
                     p.name = placeName.Text;
+                    p.m_num = 1;
                     db.Places.Add(p);
                     db.SaveChanges();
-                    
-                    
-                    foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
-                    {
-                        Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
-                        foreach (Wlan.WlanBssEntry network in wlanBssEntries)
-                        {
-                            string thename = Helper.getSSIDName(network);
-                            
-                            var m = db.Networks.Where(c => c.SSID == thename).FirstOrDefault();
 
-                            if (m == null)
+       //             for (int k = 0; k < 10; k++){
+       //                  foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+       //                 {
+       //                     wlanIface.Scan();
+       //                     System.Threading.Thread.Sleep(5000);
+                    
+       //                     Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
+       //                     foreach (Wlan.WlanBssEntry network in wlanBssEntries)
+                           foreach (Wlan.WlanBssEntry network in Helper.getCurrentNetworks())
                             {
-                                m = new Networks { SSID = thename, MAC = Helper.getMacAddress(network) };
-                                db.Networks.Add(m);
-                                db.SaveChanges();
-                            }
+                                if (network.linkQuality >= Properties.Settings.Default.delta_signal_value)
+                                {
+                                    string thename = Helper.getSSIDName(network);
+                                    string themac = Helper.getMacAddress(network);
+                                    var m = db.Networks.Where(c => c.SSID == thename).Where(c => c.MAC == themac).FirstOrDefault();
+                                    if (m == null)
+                                    {
+                                        m = new Network { SSID = thename, MAC = Helper.getMacAddress(network) };
+                                        db.Networks.Add(m);
+                                        db.SaveChanges();
+                                    }
+                                    var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == p.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
+                                    if (already_exist == null)
+                                    {
+                                        Log.trace("Aggiungo nuovo posto ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") a " + p.name);
+                                        PlacesNetworsValue pnv = new PlacesNetworsValue();
+                                        pnv.Network = m;
+                                        pnv.Place = p;
+                                        pnv.media = Convert.ToInt16(network.rssi.ToString());
+                                        pnv.variance = (short)Properties.Settings.Default.delta_signal_value;
+                                        pnv.rilevance = 1; //Convert.ToInt16(network.linkQuality.ToString());
 
-                            PlacesNetworsValues pnv = new PlacesNetworsValues();
-                            pnv.Network = m;
-                            pnv.Place = p;
-                            pnv.media = Convert.ToInt16(network.linkQuality.ToString());
-                            pnv.variance = 0;
-                            pnv.rilevance = 0;
-                            
-                            db.PlacesNetworsValues.Add(pnv);
-                            p.PlacesNetworsValues.Add(pnv);
-                           
-                        }
-                    }
-                    db.SaveChanges();
+                                        db.PlacesNetworsValues.Add(pnv);
+                                        p.PlacesNetworsValues.Add(pnv);
+                                    }
+                                }
+                            }
+                           db.SaveChanges();
+             //           }
+                           for (int k = 0; k < 10; k++) {
+                               this.oldstate.forceCurrentPlace(p);
+                               this.oldstate.searchPlace();
+                           }    
+   
+
                 }
                catch (Exception ex)
                 {
@@ -320,6 +374,65 @@ namespace pds1
 
         }
 
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            if (this.comboBox1.SelectedIndex > 0)
+            {
+                this.oldstate.forceCurrentPlace(oldstate.getPossiblePlaces()[this.comboBox1.SelectedIndex-1]);
+            }
+            this.oldstate.wrongPlace();    
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void execFunction()
+        {
+            string filename = @"C:\\Users\\Nico\\Desktop\\test.bat"; 
+            if (File.Exists(filename)) {
+
+/*
+                try
+                {
+                    Process.Start(@"dsd");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString(), "Batch file failed", MessageBoxButtons.OK);
+                }*/
+
+                /*
+
+                Process proc = new System.Diagnostics.Process();
+                proc.StartInfo.FileName = filename;
+                //proc.StartInfo.CreateNoWindow = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.UseShellExecute = false;
+                proc.Start();
+                proc.WaitForExit();
+
+                string output = proc.StandardOutput.ReadToEnd();
+                string error = proc.StandardError.ReadToEnd();
+
+                int exitCode = proc.ExitCode;
+
+                Console.WriteLine("output>>" + (String.IsNullOrEmpty(output) ? "(none)" : output));
+                Console.WriteLine("error>>" + (String.IsNullOrEmpty(error) ? "(none)" : error));
+                // Console.WriteLine("ExitCode: " + proc.ToString(), "ExecuteCommand");
+                proc.Close();
+                 * */
+            }
+
+        }
 
 
       

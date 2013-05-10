@@ -37,9 +37,10 @@
             this.showWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
             this.placeName = new System.Windows.Forms.TextBox();
             this.addPlace = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -122,44 +123,61 @@
             this.exitToolStripMenuItem1.Text = "exit";
             this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem1_Click);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(48, 26);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(184, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "name  / signal / strenght / bss / mac ";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
-            // 
             // placeName
             // 
             this.placeName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.placeName.Location = new System.Drawing.Point(414, 28);
+            this.placeName.Location = new System.Drawing.Point(12, 26);
             this.placeName.Name = "placeName";
-            this.placeName.Size = new System.Drawing.Size(100, 20);
+            this.placeName.Size = new System.Drawing.Size(97, 20);
             this.placeName.TabIndex = 3;
             this.placeName.TextChanged += new System.EventHandler(this.placeName_TextChanged);
             // 
             // addPlace
             // 
             this.addPlace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.addPlace.Location = new System.Drawing.Point(520, 26);
+            this.addPlace.Location = new System.Drawing.Point(118, 24);
             this.addPlace.Name = "addPlace";
-            this.addPlace.Size = new System.Drawing.Size(99, 23);
+            this.addPlace.Size = new System.Drawing.Size(96, 23);
             this.addPlace.TabIndex = 4;
             this.addPlace.Text = "Nuovo Posto";
             this.addPlace.UseVisualStyleBackColor = true;
             this.addPlace.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(625, 26);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "Wrong";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.AllowDrop = true;
+            this.comboBox1.Enabled = false;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "- Seleziona -"});
+            this.comboBox1.Location = new System.Drawing.Point(498, 28);
+            this.comboBox1.MaxDropDownItems = 100;
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            this.comboBox1.TabIndex = 6;
+            this.comboBox1.Text = "- Seleziona -";
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 269);
+            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.addPlace);
             this.Controls.Add(this.placeName);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.tlp);
             this.Controls.Add(this.button1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -180,9 +198,10 @@
         private System.Windows.Forms.ToolStripMenuItem showWindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox placeName;
         private System.Windows.Forms.Button addPlace;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }
 
