@@ -79,6 +79,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Helper.cs" />
+    <Compile Include="ListenThreadForm.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Measures.cs">
       <DependentUpon>Model.tt</DependentUpon>
