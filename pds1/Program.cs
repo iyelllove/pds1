@@ -27,7 +27,7 @@ namespace pds1
         /// 
         [STAThread]
 
-        static void Main(string[] args)
+        static void Main()
         {
 
            Helper.printAllNetworks();
