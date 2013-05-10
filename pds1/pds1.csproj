@@ -114,6 +114,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RightClass.cs" />
     <Compile Include="TransDialog.cs">
       <SubType>Form</SubType>
     </Compile>
