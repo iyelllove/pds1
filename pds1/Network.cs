@@ -12,13 +12,19 @@ using System.Collections.Generic;
 
 namespace pds1
 {
-    public partial class Checkin
+    public partial class Network
     {
-        public int ID { get; set; }
-        public System.DateTime @in { get; set; }
-        public Nullable<System.DateTime> @out { get; set; }
+        public Network()
+        {
+            this.PlacesNetworsValues = new HashSet<PlacesNetworsValue>();
+        }
     
-        public virtual Place Place { get; set; }
+        public int ID { get; set; }
+        public string SSID { get; set; }
+        public string MAC { get; set; }
+        public bool tethering { get; set; }
+    
+        public virtual ICollection<PlacesNetworsValue> PlacesNetworsValues { get; set; }
     }
     
 }

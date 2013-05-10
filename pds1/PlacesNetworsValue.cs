@@ -12,13 +12,15 @@ using System.Collections.Generic;
 
 namespace pds1
 {
-    public partial class Checkin
+    public partial class PlacesNetworsValue
     {
         public int ID { get; set; }
-        public System.DateTime @in { get; set; }
-        public Nullable<System.DateTime> @out { get; set; }
+        public short rilevance { get; set; }
+        public short media { get; set; }
+        public short variance { get; set; }
     
         public virtual Place Place { get; set; }
+        public virtual Network Network { get; set; }
     }
     
 }
