@@ -8,7 +8,7 @@ using System.Text;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using Microsoft.Win32;
-
+using System.Threading;
 using System.Net.NetworkInformation;
 
     
@@ -26,8 +26,8 @@ namespace pds1
         /// </summary>
         /// 
         [STAThread]
-       
-        static void Main()
+
+        static void Main(string[] args)
         {
 
            Helper.printAllNetworks();
@@ -39,7 +39,12 @@ namespace pds1
             SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
 
+            //ListenThreadForm.hndl = args[0];
+            Thread InstanceCaller = new Thread(
+            new ThreadStart(ListenThreadForm.InstanceMethod));
 
+            // Start the thread.
+            InstanceCaller.Start();
             Application.Run(new Form1());          
         }
 
