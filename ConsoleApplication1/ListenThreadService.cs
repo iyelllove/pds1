@@ -18,7 +18,7 @@ namespace ConsoleApplication1
 
             // Pause for a moment to provide a delay to make 
             // threads more apparent.
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
             Console.WriteLine("The instance method (Service) called by the worker thread has ended.");
         }
     }

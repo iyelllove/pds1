@@ -25,7 +25,22 @@ namespace ConsoleApplication1
         
         
     static void Service1()
-    {       
+    {  
+     //ricezione eventi di sistema
+
+    //azioni da intraprendere
+
+    //eventuale comunicazione al form
+       /* var server = new NamedPipeServerStream("PipesService");
+        server.WaitForConnection();
+        StreamReader reader = new StreamReader(server);
+        StreamWriter writer = new StreamWriter(server);
+        while (true)
+        {
+            var line = reader.ReadLine();
+            writer.WriteLine(String.Join("", line.Reverse()));
+            writer.Flush();
+        }*/
               
     }
 
