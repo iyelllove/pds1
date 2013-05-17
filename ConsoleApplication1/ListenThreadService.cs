@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System.IO.Pipes;
+using FNWifiLocatorLibrary;
 
 namespace ConsoleApplication1
 {
@@ -18,25 +19,15 @@ namespace ConsoleApplication1
             
             var client = new NamedPipeClientStream("FNPipeLocator");
             client.Connect();
-
-
-            StreamString ss = new StreamString(client);
-
-
-            //while (true)
-            //{
-                String text = ss.ReadString();
-                Console.WriteLine("Service.Thread: recived message:" + text);
-            //}
-
-            //Thread.Sleep(2000);
-            
+             StreamString ss = new StreamString(client);
+                while (true)
+                 {
+                    String text = ss.ReadString();
+                    PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
+                    Log.trace(pm.cmd);
+                    Console.WriteLine("Service.Thread: recived message:" + pm.cmd);
+                 }
             client.Close();
-
-            // Pause for a moment to provide a delay to make 
-            // threads more apparent.*/
-            Thread.Sleep(100);
-            Console.WriteLine("Service.Thread: The instance method (Form) called by the worker thread has ended.");
         }
     }
 
