@@ -11,7 +11,7 @@ using FNWifiLocatorLibrary;
 using Microsoft.Win32;
 using System.Net.NetworkInformation;
 
-namespace ConsoleApplication1
+namespace ConsoleService
 {
     class ProgramService
     {
