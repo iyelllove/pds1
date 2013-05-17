@@ -24,10 +24,17 @@ namespace FNWifiLocatorLibrary
             int len;
             len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
-            byte[] inBuffer = new byte[len];
-            ioStream.Read(inBuffer, 0, len);
-
-            return streamEncoding.GetString(inBuffer);
+            if (len > 0)
+            {
+                byte[] inBuffer = new byte[len];
+                ioStream.Read(inBuffer, 0, len);
+                return streamEncoding.GetString(inBuffer);
+            }
+            else {
+                return null;
+            }
+            
+            
         }
 
         public int WriteString(string outString)
