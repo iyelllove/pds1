@@ -23,9 +23,15 @@ namespace ConsoleApplication1
                 while (true)
                  {
                     String text = ss.ReadString();
-                    PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
-                    Log.trace(pm.cmd);
-                    Console.WriteLine("Service.Thread: recived message:" + pm.cmd);
+                    if (text != null)
+                    {
+                        PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
+                        Log.trace(pm.cmd);
+                        Console.WriteLine("Service.Thread: recived message:" + pm.cmd);
+                    }
+                    else {
+                        break;
+                    }
                  }
             client.Close();
         }
