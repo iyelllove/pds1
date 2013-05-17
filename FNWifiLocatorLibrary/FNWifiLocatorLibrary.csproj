@@ -53,6 +53,7 @@
     <Compile Include="Helper\Helper.cs" />
     <Compile Include="Helper\Log.cs" />
     <Compile Include="Helper\PipeMessage.cs" />
+    <Compile Include="Helper\StreamString.cs" />
     <Compile Include="Measure.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
