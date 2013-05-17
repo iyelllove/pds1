@@ -16,6 +16,7 @@ namespace pds1
 			InitializeComponent();
 		}
 
+
         public void Show(String s)
         {
             // 
