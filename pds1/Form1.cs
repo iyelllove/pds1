@@ -24,16 +24,18 @@ namespace pds1
         public Form1()
         {
 
-
-
             InitializeComponent();
             notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
             Resize += new EventHandler(Form1_Resize);
             
         }
 
-        
 
+        public void funData(String txt)
+        {
+            Notification notifForm = new Notification();
+            notifForm.Show("txt");
+        }
 
         private void notifyIcon1_DoubleClick(object sender,
                                      System.EventArgs e)
