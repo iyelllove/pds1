@@ -34,7 +34,7 @@ namespace FNWifiLocator
         static public List<PlaceTV> ParentList = new List<PlaceTV>();
         public MainWindow()
         {
-
+            
             Thread InstanceCaller = new Thread(
             new ThreadStart(ListenThreadForm.InstanceMethod));
             InstanceCaller.Start();
@@ -45,7 +45,7 @@ namespace FNWifiLocator
             Console.WriteLine("FN.Main:connection with client...\n");
             StreamString ss = new StreamString(server);
             //FNMain_ss = ss;
-
+            
             ss.WriteString("PIPE da FN a Service");
             Console.WriteLine("FN.Main:message send...\n");
             Thread.Sleep(2000);
@@ -228,6 +228,7 @@ namespace FNWifiLocator
 
         private void update_Click(object sender, RoutedEventArgs e)
         {
+            Helper.SerializeToString<PipeMessage>(new PipeMessage(){place=null, cmd = "update" });
             Log.trace("hei service.... perchè non ti aggiorni un pò?");
             //new PipeMessage() { cmd = "pp" };
             //Helper.SerializeToString<PipeMessage>();
@@ -236,6 +237,7 @@ namespace FNWifiLocator
             Thread.Sleep(2000);
             //server.Close();*/
         }
+
 
 
        
