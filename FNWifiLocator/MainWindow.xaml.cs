@@ -44,17 +44,17 @@ namespace FNWifiLocator
             server.WaitForConnection();
             Console.WriteLine("FN.Main:connection with client...\n");
             StreamString ss = new StreamString(server);
-            FNMain_ss = ss;
+            //FNMain_ss = ss;
 
             ss.WriteString("PIPE da FN a Service");
             Console.WriteLine("FN.Main:message send...\n");
             Thread.Sleep(2000);
-            //server.Close();
+            server.Close();
             
             InitializeComponent();
-            placeTreView.DataContext = placesList;
-            Parent.DataContext = ParentList;
-            refreshPlaceTree();
+            //placeTreView.DataContext = placesList;
+            //Parent.DataContext = ParentList;
+            //refreshPlaceTree();
             //Helper.printAllNetworks();
             
            
@@ -229,6 +229,8 @@ namespace FNWifiLocator
         private void update_Click(object sender, RoutedEventArgs e)
         {
             Log.trace("hei service.... perchè non ti aggiorni un pò?");
+            //new PipeMessage() { cmd = "pp" };
+            //Helper.SerializeToString<PipeMessage>();
             /*FNMain_ss.WriteString("UPDATE");
             Console.WriteLine("FN.Main:message send...\n");
             Thread.Sleep(2000);
