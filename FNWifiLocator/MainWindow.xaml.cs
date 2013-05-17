@@ -32,6 +32,7 @@ namespace FNWifiLocator
         static public StreamString FNMain_ss;
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
         static public List<PlaceTV> ParentList = new List<PlaceTV>();
+        private NamedPipeServerStream server;
         public MainWindow()
         {
             
@@ -39,17 +40,17 @@ namespace FNWifiLocator
             new ThreadStart(ListenThreadForm.InstanceMethod));
             InstanceCaller.Start();
 
-            var server = new NamedPipeServerStream("FNPipeLocator");
-            Console.WriteLine("FN.Main: Waiting for client connect...\n");
+            this.server = new NamedPipeServerStream("FNPipeLocator");
+            //Console.WriteLine("FN.Main: Waiting for client connect...\n");
             server.WaitForConnection();
-            Console.WriteLine("FN.Main:connection with client...\n");
-            StreamString ss = new StreamString(server);
+            //Console.WriteLine("FN.Main:connection with client...\n");
+            //StreamString ss = new StreamString(server);
             //FNMain_ss = ss;
             
-            ss.WriteString("PIPE da FN a Service");
-            Console.WriteLine("FN.Main:message send...\n");
-            Thread.Sleep(2000);
-            server.Close();
+            //ss.WriteString("PIPE da FN a Service");
+            //Console.WriteLine("FN.Main:message send...\n");
+            //Thread.Sleep(2000);
+            //server.Close();
             
             InitializeComponent();
             //placeTreView.DataContext = placesList;
@@ -228,14 +229,10 @@ namespace FNWifiLocator
 
         private void update_Click(object sender, RoutedEventArgs e)
         {
-            Helper.SerializeToString<PipeMessage>(new PipeMessage(){place=null, cmd = "update" });
+            
             Log.trace("hei service.... perchè non ti aggiorni un pò?");
-            //new PipeMessage() { cmd = "pp" };
-            //Helper.SerializeToString<PipeMessage>();
-            /*FNMain_ss.WriteString("UPDATE");
-            Console.WriteLine("FN.Main:message send...\n");
-            Thread.Sleep(2000);
-            //server.Close();*/
+            StreamString ss = new StreamString(server);
+            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage(){place=null, cmd = "update" }));
         }
 
 
