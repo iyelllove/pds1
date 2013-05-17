@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Pipes;
 using FNWifiLocatorLibrary;
 using System.Windows.Forms;
 using System.Threading;
@@ -28,7 +29,7 @@ namespace FNWifiLocator
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        static public StreamString FNMain_ss;
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
         static public List<PlaceTV> ParentList = new List<PlaceTV>();
         public MainWindow()
@@ -38,6 +39,17 @@ namespace FNWifiLocator
             new ThreadStart(ListenThreadForm.InstanceMethod));
             InstanceCaller.Start();
 
+            var server = new NamedPipeServerStream("FNPipeLocator");
+            Console.WriteLine("FN.Main: Waiting for client connect...\n");
+            server.WaitForConnection();
+            Console.WriteLine("FN.Main:connection with client...\n");
+            StreamString ss = new StreamString(server);
+            FNMain_ss = ss;
+
+            ss.WriteString("PIPE da FN a Service");
+            Console.WriteLine("FN.Main:message send...\n");
+            Thread.Sleep(2000);
+            //server.Close();
             
             InitializeComponent();
             placeTreView.DataContext = placesList;
@@ -217,6 +229,10 @@ namespace FNWifiLocator
         private void update_Click(object sender, RoutedEventArgs e)
         {
             Log.trace("hei service.... perchè non ti aggiorni un pò?");
+            /*FNMain_ss.WriteString("UPDATE");
+            Console.WriteLine("FN.Main:message send...\n");
+            Thread.Sleep(2000);
+            //server.Close();*/
         }
 
 
