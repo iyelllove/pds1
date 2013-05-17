@@ -16,6 +16,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using FNWifiLocatorLibrary;
 using System.Windows.Forms;
+using System.Threading;
+
 
 
 
@@ -32,12 +34,15 @@ namespace FNWifiLocator
         public MainWindow()
         {
 
-            
+            Thread InstanceCaller = new Thread(
+            new ThreadStart(ListenThreadForm.InstanceMethod));
+            InstanceCaller.Start();
+
             
             InitializeComponent();
-            placeTreView.DataContext = placesList;
-            Parent.DataContext = ParentList;
-            refreshPlaceTree();
+            //placeTreView.DataContext = placesList;
+            //Parent.DataContext = ParentList;
+            //refreshPlaceTree();
             //Helper.printAllNetworks();
             
            
