@@ -53,9 +53,9 @@ namespace FNWifiLocator
             //server.Close();
             
             InitializeComponent();
-            //placeTreView.DataContext = placesList;
-            //Parent.DataContext = ParentList;
-            //refreshPlaceTree();
+            placeTreView.DataContext = placesList;
+            Parent.DataContext = ParentList;
+            refreshPlaceTree();
             //Helper.printAllNetworks();
             
            
