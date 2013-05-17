@@ -31,14 +31,14 @@ namespace ConsoleApplication1
     //azioni da intraprendere
 
     //eventuale comunicazione al form
-        var server = new NamedPipeServerStream("PipesP");
-        Console.WriteLine("Waiting for client connect...\n");
+        var server = new NamedPipeServerStream("FNPipeService");
+        Console.WriteLine("Service.Main: Waiting for client connect...\n");
         server.WaitForConnection();
-        Console.WriteLine("connection with client...\n");
+        Console.WriteLine("Service.Main:connection with client...\n");
         StreamString ss = new StreamString(server);
 
-        ss.WriteString("Dai CAZZO PIPEEEE!!!");
-        Console.WriteLine("message send...\n");
+        ss.WriteString("PIPE da Service a FN");
+        Console.WriteLine("Service.Main:message send...\n");
         Thread.Sleep(8000);
         server.Close();
               
@@ -46,7 +46,7 @@ namespace ConsoleApplication1
 
     static void OnStart()//string[] args
     {
-        Console.WriteLine("AVVIO SERVICE");
+        Console.WriteLine("Service.Main:AVVIO SERVICE");
         //Thread.Sleep(100000);
 
         Thread InstanceCaller = new Thread(
