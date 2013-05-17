@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.ServiceProcess;
-
+using System.Configuration;
 using System.Data.Entity;
+
+
 
 
 namespace pds1
@@ -25,8 +27,7 @@ namespace pds1
         private Int16 backupc;
         private Place forcePlace = null;
 
-        private datapds1Entities2 db = new datapds1Entities2();
-
+        private datapds1Entities2 db;
 
 
 
@@ -34,10 +35,10 @@ namespace pds1
        
 
 
-        private void doCheckin(ref datapds1Entities2 db)
+        private void doCheckin()
         {
 
-           
+                datapds1Entities2 db = Helper.getDB();
                 Log.trace("CheckIn at " + this.current_place.name);
 
                 Checkin c = new Checkin() { @in = DateTime.Now};
@@ -54,9 +55,9 @@ namespace pds1
 
         }
 
-        private void doCheckout(ref datapds1Entities2 db)
+        private void doCheckout()
         {
-
+                datapds1Entities2 db = Helper.getDB();
                 Log.trace("CheckOut from " + this.checkin.Place.name);
                 this.db.Checkins.Find(this.checkin.ID).@out = DateTime.Now;
                 this.checkin = null;
@@ -85,6 +86,10 @@ namespace pds1
 
         public CurrentState()
         {
+
+
+            this.db = Helper.getDB();
+
             try
             {
                     foreach (Wlan.WlanBssEntry network in Helper.getCurrentNetworks()) {
@@ -156,7 +161,7 @@ namespace pds1
         }
 
         public float searchPlace() {
-
+            this.db = Helper.getDB();
             for (int k = 0; k < 1; k++)
             {
                 //System.Threading.Thread.Sleep(1500);
@@ -173,17 +178,36 @@ namespace pds1
 
                     if (this.forcePlace == null)
                     {
+                        List<int> ns = new List<int>();
+                        foreach (var network in networks)
+                        {
+                            string ssid = Helper.getSSIDName(network);
+                            string mac = Helper.getMacAddress(network);
+                            Network nn = this.db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).FirstOrDefault();
+                            if (nn != null) {
+                                ns.Add(nn.ID);
+                            }
+                        }
+
+                        var ps= db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c=>c.Place != null).GroupBy(c => c.Place).ToList();
+                        foreach (var ppps in ps) {
+
+                            Log.trace("sds" + ppps.Key.name);
+                        }
+                        
+
                         foreach (var network in networks)
                         {
                             string ssid = Helper.getSSIDName(network);
                             string mac = Helper.getMacAddress(network);
 
+                            
                             var m2 = this.db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).FirstOrDefault();
                             if (m2 != null)
                             {
                                 foreach (var pnv in m2.PlacesNetworsValues)
                                 {
-                                    if (!rightplaces.ContainsKey(pnv.Place.name))
+                                    if (pnv.Place != null && !rightplaces.ContainsKey(pnv.Place.name))
                                     {
                                         Log.trace("Possibile Posto:" + pnv.Place.name);
                                         //places.Add(pnv.Place);
@@ -333,17 +357,17 @@ namespace pds1
 
                         if (this.checkin == null)
                         {
-                            this.doCheckin(ref db);
+                            this.doCheckin();
                         }
                         else if (this.current_place == null)
                         {
 
-                            this.doCheckout(ref db);
+                            this.doCheckout();
                         }
                         else
                         {
-                            this.doCheckout(ref db);
-                            this.doCheckin(ref db);
+                            this.doCheckout();
+                            this.doCheckin();
                         }
                     }
 
@@ -444,7 +468,7 @@ namespace pds1
                             db.Checkins.Find(this.checkin.ID).Place = this.forcePlace;
                         }
                         else {
-                            this.doCheckin(ref db);
+                            this.doCheckin();
                         }
                         //this.checkin.Place = this.forcePlace;
                         

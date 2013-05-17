@@ -10,9 +10,10 @@ using System.Threading;
 namespace pds1
 {
     
-    static class Helper
+    public static class Helper
     {
         static DateTime timestamp;
+        static datapds1Entities2 dbistance = null;
         static List<Wlan.WlanBssEntry> networks = new List<Wlan.WlanBssEntry>();
 
         private static AutoResetEvent waitHandle = new AutoResetEvent(false);
@@ -67,13 +68,19 @@ namespace pds1
             return networks;
         }
 
+        static public List<Place> getAllRootPlaces()
+        {
+            var db = getDB();
+            return db.Places.Where(c => c.Parent.Equals(null)).ToList();
+        }
+
         static public List<Place> getAllPlaces() {
-            var db = new datapds1Entities2();
+            var db = getDB();
             return db.Places.ToList();
         }
 
         static public void printAllNetworks() {
-            var db = new datapds1Entities2();
+            var db = getDB();
 
             if (db.Networks.ToList() != null && db.Networks.Any())
             {
@@ -87,7 +94,7 @@ namespace pds1
         }
         static public void updateMeasures()
         {
-            var db = new datapds1Entities2();
+            var db = getDB();
             if (db.Networks.ToList() != null && db.Networks.Any())
             {
                 Log.trace("All Networks in the database:");
@@ -113,6 +120,13 @@ namespace pds1
         {
 
             return System.Text.ASCIIEncoding.ASCII.GetString(network.dot11Ssid.SSID).ToString();
+        }
+
+        static public datapds1Entities2 getDB(){
+            if (dbistance == null) {
+                dbistance = new datapds1Entities2();
+            }
+            return dbistance;
         }
 
     }

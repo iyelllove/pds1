@@ -30,8 +30,8 @@ namespace pds1
         
         static void Main()
         {
-
-           Helper.printAllNetworks();
+           //Log.trace("IL DB SI TROVA IN:" + Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\FNWifiLocator\\datapds1.sdf'");
+           //Helper.printAllNetworks();
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

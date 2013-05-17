@@ -20,6 +20,8 @@ namespace pds1
     {
         CurrentState oldstate;
         Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
+        List<Place> placelist = new List<Place>();
+
 
         public Form1()
         {
@@ -27,6 +29,9 @@ namespace pds1
             InitializeComponent();
             notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
             Resize += new EventHandler(Form1_Resize);
+            this.refreshPlaceTree();
+            this.Parents.Enabled = false;
+           
             
         }
 
@@ -85,8 +90,7 @@ namespace pds1
 
                 this.comboBox1.Items.Clear();
                 this.comboBox1.Items.Add("- Seleziona -");
-                this.comboBox1.Text = "- Seleziona -";
-           
+                this.comboBox1.SelectedIndex = 0;
                 
 
                 if (oldstate == null)
@@ -98,14 +102,14 @@ namespace pds1
                 if (oldstate.getCurrentPlace() != null)
                 {
 
-                    execFunction();
+                    execFunction(string.Format(@"C:\\Users\\Nico\\Desktop\\test.bat"));
                     
                     foreach(Place p in oldstate.getPossiblePlaces()) {
                        
                         this.comboBox1.Items.Add(p);
                         if (p.Equals(oldstate.getCurrentPlace()))
                         {
-                             this.comboBox1.Text = oldstate.getCurrentPlace().name;
+                            this.comboBox1.SelectedIndex = this.comboBox1.Items.Count - 1;
                         }
                         
                     }
@@ -175,7 +179,7 @@ namespace pds1
                         mac.Text = tMac;
 
 
-                        var db = new datapds1Entities2();
+                        var db = Helper.getDB();
 
   
                        /*
@@ -302,7 +306,7 @@ namespace pds1
         private void button2_Click(object sender, EventArgs e)
         {
 
-            using (var db = new datapds1Entities2())
+            using (var db = Helper.getDB())
             {
                 
                 
@@ -357,9 +361,9 @@ namespace pds1
                            for (int k = 0; k < 10; k++) {
                                this.oldstate.forceCurrentPlace(p);
                                this.oldstate.searchPlace();
-                           }    
-   
+                           }
 
+                           
                 }
                catch (Exception ex)
                 {
@@ -367,6 +371,7 @@ namespace pds1
                 }
                 
             }
+            this.refreshPlaceTree();
 
             
         }
@@ -396,9 +401,9 @@ namespace pds1
         }
 
 
-        private void execFunction()
+        private void execFunction(string filename)
         {
-            string filename = @"C:\\Users\\Nico\\Desktop\\test.bat"; 
+            
             if (File.Exists(filename)) {
 
 /*
@@ -411,17 +416,22 @@ namespace pds1
                     MessageBox.Show(ex.ToString(), "Batch file failed", MessageBoxButtons.OK);
                 }*/
 
-                /*
 
+                System.Diagnostics.Process.Start("cmd.exe", "/c " + filename);
+
+                /*
                 Process proc = new System.Diagnostics.Process();
+                proc.StartInfo.WorkingDirectory = string.Format(@"C:\\Users\\Nico\\Desktop\\");
                 proc.StartInfo.FileName = filename;
                 //proc.StartInfo.CreateNoWindow = true;
                 proc.StartInfo.RedirectStandardError = true;
                 proc.StartInfo.RedirectStandardOutput = true;
+
                 proc.StartInfo.UseShellExecute = false;
-                proc.Start();
+                proc.Start("cmd.exe", "/c yourbatch.bat");
                 proc.WaitForExit();
 
+                
                 string output = proc.StandardOutput.ReadToEnd();
                 string error = proc.StandardError.ReadToEnd();
 
@@ -431,10 +441,109 @@ namespace pds1
                 Console.WriteLine("error>>" + (String.IsNullOrEmpty(error) ? "(none)" : error));
                 // Console.WriteLine("ExitCode: " + proc.ToString(), "ExecuteCommand");
                 proc.Close();
-                 * */
+                 */
             }
 
         }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            this.Parents.Enabled = true;
+            this.button3.Enabled = true;
+            Place p = (Place)e.Node.Tag;
+            this.groupBox1.Text = p.name;
+            if (e.Node.Parent != null)
+            {
+                this.Parents.Text = e.Node.Parent.Text;
+            }
+            else {
+                this.Parents.SelectedIndex = 0;
+            }
+            
+           
+            
+        }
+
+        private void refreshPlaceTree() {
+            placelist.Clear();
+            this.Parents.Items.Clear();
+            this.Parents.Items.Add("- Seleziona -");
+            this.treeView1.Nodes.Clear();
+            foreach (Place p in Helper.getAllRootPlaces())
+            {
+                TreeNode TParent = new TreeNode(p.name);
+                TParent.Tag = p;
+                this.Parents.Items.Add(p.name);
+                placelist.Add(p);
+                TParent = this.getChilds(TParent,p, "-");
+            
+
+                treeView1.Nodes.Add(TParent);
+            }
+        }
+
+        private TreeNode getChilds(TreeNode TParent, Place p ,String sep)
+        {
+            if (p.Childs.Count > 0) { 
+                foreach(Place pp in p.Childs){
+                    TreeNode TNode = new TreeNode(pp.name);
+                    TNode.Tag = pp;
+                    placelist.Add(pp);
+                    this.Parents.Items.Add(sep +" "+ pp.name);
+
+                    TNode = this.getChilds(TNode, pp, sep+"-");
+                    TParent.Nodes.Add(TNode);
+                }
+            }
+
+            return TParent;
+        }
+
+        private void Parents_SelectedIndexChanged(object sender, EventArgs e)
+        {
+           
+            
+            
+            
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            int i = this.Parents.SelectedIndex;
+            datapds1Entities2 db = Helper.getDB();
+            if (i > 0 && placelist[i-1] != null)
+            {
+                i = placelist[i-1].ID;
+                Place pr = db.Places.Where(c => c.ID == i).FirstOrDefault();
+                Place p = (Place)this.treeView1.SelectedNode.Tag;
+                if (pr != null && pr.ID != p.ID)
+                {
+                    
+                    p.Parent = pr;
+                    db.SaveChanges();
+                }
+            }
+            else if(i == 0) {
+                Place p = (Place)this.treeView1.SelectedNode.Tag;
+                p.Parent = null;
+                db.SaveChanges();
+            }
+            refreshPlaceTree();
+
+
+
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        } 
 
 
       
