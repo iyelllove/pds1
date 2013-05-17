@@ -8,7 +8,7 @@ using System.IO;
 using System.IO.Pipes;
 using FNWifiLocatorLibrary;
 
-namespace ConsoleApplication1
+namespace ConsoleService
 {
     static class ListenThreadService
     {
@@ -25,6 +25,7 @@ namespace ConsoleApplication1
                     String text = ss.ReadString();
                     if (text != null)
                     {
+                        CurrentState cs = new CurrentState();
                         PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
                         Log.trace(pm.cmd);
                         Console.WriteLine("Service.Thread: recived message:" + pm.cmd);
