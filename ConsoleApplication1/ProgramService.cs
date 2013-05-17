@@ -17,6 +17,7 @@ namespace ConsoleService
     {
         static void Main(string[] args)
         {
+            
             OnStart();
             Service1();
             OnShutdown();// when the CanShutdown property is true
@@ -25,29 +26,49 @@ namespace ConsoleService
             OnStop();
         }
 
-        
+          
         
     static void Service1()
     {  
      //ricezione eventi di sistema
-        NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
+        NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);      
         SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
         SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
         SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
 
+    //listening sulla pipe dal form
+        Console.WriteLine("Service: ListenThreadForm.InstanceMethod is running on another thread.");
 
-    //azioni da intraprendere
+        var client = new NamedPipeClientStream("FNPipeLocator");
+        client.Connect();
+        StreamString ss = new StreamString(client);
+        while (true)
+        {
+            String text = ss.ReadString();
+            if (text != null)
+            {
+                CurrentState cs = new CurrentState();
+                PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
+                Log.trace(pm.cmd);
+                Console.WriteLine("Service: received message:" + pm.cmd);
+            }
+            else
+            {
+                break;
+            }
+            Thread.Sleep(4000);
+        }
+        client.Close();
 
 
-
-    //eventuale comunicazione al form
+    //eventuale comunicazione al form (avviene solo nel caso nuovo posto)
         var server = new NamedPipeServerStream("FNPipeService");
         Console.WriteLine("Service.Main: Waiting for client connect...\n");
         server.WaitForConnection();
         Console.WriteLine("Service.Main:connection with client...\n");
-        StreamString ss = new StreamString(server);
+        StreamString ssF = new StreamString(server);
 
-        ss.WriteString("PIPE da Service a FN");
+        ssF.WriteString("PIPE da Service a FN");
         Console.WriteLine("Service.Main:message send...\n");
         Thread.Sleep(8000);
         server.Close();
@@ -59,11 +80,11 @@ namespace ConsoleService
         Console.WriteLine("Service.Main:AVVIO SERVICE");
         //Thread.Sleep(100000);
 
-        Thread InstanceCaller = new Thread(
-            new ThreadStart(ListenThreadService.InstanceMethod));
+        //Thread InstanceCaller = new Thread(
+        //new ThreadStart(ListenThreadService.InstanceMethod));
 
         // Start the thread.
-        InstanceCaller.Start();
+        //InstanceCaller.Start();
     }
 
 
@@ -77,7 +98,6 @@ namespace ConsoleService
 
     }
 
-   
 
     //Gestione event handler////////////////////////////////////////////////////////
 

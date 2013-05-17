@@ -15,6 +15,7 @@ namespace ConsoleService
 
         static public void InstanceMethod()
         {
+
             Console.WriteLine("Service.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
             
             var client = new NamedPipeClientStream("FNPipeLocator");
@@ -36,6 +37,7 @@ namespace ConsoleService
                  }
             client.Close();
         }
+
     }
 
 
