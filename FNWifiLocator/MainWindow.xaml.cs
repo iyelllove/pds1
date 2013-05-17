@@ -120,9 +120,9 @@ namespace FNWifiLocator
                 else {
                     Parent.SelectedValue = p.parentTV;
                 }
-                
-                checkinFile.Text = p.pl.file_in;
-                checkoutFile.Text = p.pl.file_out;
+                this.place_name.Text = p.pl.name;
+                this.checkinFile.Text = p.pl.file_in;
+                this.checkoutFile.Text = p.pl.file_out;
             }
             else Parent.SelectedValue = null;
         }
@@ -143,15 +143,16 @@ namespace FNWifiLocator
             if (p != null)
             {
                 PlaceTV prnt = (PlaceTV)Parent.SelectedValue;
+                
+                p.pl.name = this.place_name.Text;
+                p.pl.file_in = this.checkinFile.Text;
+                p.pl.file_out = this.checkoutFile.Text;
                 if (prnt == null || prnt.pl == null || p.pl.ID != prnt.pl.ID)
                 {
                     p.pl.Parent = prnt.pl;
-                    Helper.getDB().SaveChanges();
-                    refreshPlaceTree();
                 }
-                p.pl.file_in = this.checkinFile.Text;
-                p.pl.file_out = this.checkoutFile.Text;
                 Helper.getDB().SaveChanges();
+                refreshPlaceTree();
             }
         }
 
@@ -169,6 +170,43 @@ namespace FNWifiLocator
                 db.SaveChanges();
                 refreshPlaceTree();
             }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+            using (var db = Helper.getDB())
+            {
+                 try
+                {
+                    Place p = new Place();
+                    p.name = this.new_place_tetbox.Text;
+                    p.m_num = 1;
+                    db.Places.Add(p);
+                    db.SaveChanges();
+                    PipeMessage m = new PipeMessage();
+                     
+                    
+
+                    Helper.saveAllCurrentNetworkInPlace(p);
+                }
+                catch (Exception ex)
+                {
+                    Log.error(ex.Message);
+                }
+
+            }
+
+
+
+
+
+
+        }
+
+        private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+
         }
 
 
