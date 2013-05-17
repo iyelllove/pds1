@@ -1,0 +1,60 @@
+﻿<Window x:Class="FNWifiLocator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
+        Title="MainWindow" Height="368" Width="551">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="109*"/>
+            <RowDefinition Height="229*"/>
+        </Grid.RowDefinitions>
+        <StackPanel x:Name="LayoutRoot" Background="White" Margin="0,10,0,0" AllowDrop="True" HorizontalAlignment="Left" Grid.RowSpan="2">
+            <StackPanel.Resources>
+
+                <HierarchicalDataTemplate x:Key="PlaceTVTemplate"  ItemsSource="{Binding Path=ChildPlaces}" >
+                    <TextBlock Text="{Binding Path=Title}" />
+                   
+                </HierarchicalDataTemplate>
+            </StackPanel.Resources>
+            <StackPanel.BindingGroup>
+                <BindingGroup/>
+            </StackPanel.BindingGroup>
+            <StackPanel.Effect>
+                <DropShadowEffect RenderingBias="Quality"/>
+            </StackPanel.Effect>
+            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView" Margin="5,5,5,5" HorizontalAlignment="Left" Width="200"  SelectedItemChanged="placeTreView_SelectedItemChanged">
+            </TreeView>
+        </StackPanel>
+        <Grid Grid.RowSpan="2">
+
+
+            <Button x:Name="bOpenFileDialog" Content="Scegli File" 
+        		Click="bOpenFileDialogIn_Click" Margin="0,0,10,97" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />
+
+            <TextBox x:Name="checkinFile" 
+        		Background="Beige" Margin="230,0,73,97" Height="22" VerticalAlignment="Bottom" />
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Label Content="Checkout" Margin="228,0,0,63" RenderTransformOrigin="1.921,-0.308" HorizontalAlignment="Left" Width="60" Height="26" VerticalAlignment="Bottom"/>
+                <Label Content="Checkin" Margin="228,0,0,121" RenderTransformOrigin="1.921,-0.308" Height="26" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="52"/>
+                <Label Content="Eredita da questo luogo" Margin="228,0,153,182" RenderTransformOrigin="1.921,-0.308" Height="29" VerticalAlignment="Bottom"/>
+            </Grid>
+            <Button x:Name="bOpenFileDialog_Copy" Content="Scegli File" 
+            	Click="bOpenFileDialogOut_Click" Margin="0,0,12,45" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />
+            <TextBox x:Name="checkoutFile" 
+            	Background="Beige" Margin="230,0,73,45" Height="22" VerticalAlignment="Bottom" />
+
+
+        </Grid>
+        <Button x:Name="Save_Place" Content="Salva" Margin="0,0,15,15" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="1" Click="Save_Place_Click"/>
+        <ComboBox x:Name="Parent" ItemsSource="{Binding}" Margin="232,0,15,149" Height="25" VerticalAlignment="Bottom" Grid.Row="1"/>
+        <Button x:Name="Save_Place_Copy" Content="Elimina" Margin="0,0,95,15" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="1" Click="Delete_Place_Click"/>
+        <Button x:Name="Save_Place_Copy1" Content="Reset" Margin="0,0,175,15" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="77" Grid.Row="1"/>
+
+
+    </Grid>
+</Window>
