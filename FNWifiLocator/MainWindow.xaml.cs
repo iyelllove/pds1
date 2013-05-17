@@ -40,9 +40,9 @@ namespace FNWifiLocator
 
             
             InitializeComponent();
-            //placeTreView.DataContext = placesList;
-            //Parent.DataContext = ParentList;
-            //refreshPlaceTree();
+            placeTreView.DataContext = placesList;
+            Parent.DataContext = ParentList;
+            refreshPlaceTree();
             //Helper.printAllNetworks();
             
            
@@ -212,6 +212,11 @@ namespace FNWifiLocator
         private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
         {
 
+        }
+
+        private void update_Click(object sender, RoutedEventArgs e)
+        {
+            Log.trace("hei service.... perchè non ti aggiorni un pò?");
         }
 
 
