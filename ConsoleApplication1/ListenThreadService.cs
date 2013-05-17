@@ -23,11 +23,11 @@ namespace ConsoleApplication1
             StreamString ss = new StreamString(client);
 
 
-            while (true)
-            {
+            //while (true)
+            //{
                 String text = ss.ReadString();
                 Console.WriteLine("Service.Thread: recived message:" + text);
-            }
+            //}
 
             //Thread.Sleep(2000);
             
