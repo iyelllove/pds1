@@ -251,10 +251,5 @@ namespace FNWifiLocator
             }
 
         }
-
-<<<<<<< .mine
-
-       
-=======
->>>>>>> .theirs    }
+    }
 }
