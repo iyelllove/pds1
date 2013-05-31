@@ -20,30 +20,36 @@ namespace FNWifiLocator
         {
             Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
-            var client = new NamedPipeClientStream("FNPipeService");
-            client.Connect();
-            StreamString ss = new StreamString(client);
-            while (true)
+            var client = new NamedPipeClientStream(".", "FNPipeService", PipeDirection.In, PipeOptions.Asynchronous);
+            try
             {
-                String text = ss.ReadString();
-                if (text != null)
-                {
-                    CurrentState cs = new CurrentState();
-                    PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
-                    Log.trace(pm.cmd);
-                    Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
-                    Notification notifForm = new Notification();
-                    notifForm.Show(pm.cmd);
-                }
-                else
-                {
-                    break;
-                }
+                client.Connect(5000);//avvio service
 
-                
+                StreamString ss = new StreamString(client);
+                while (true)
+                {
+                    String text = ss.ReadString();
+                    if (text != null)
+                    {
+                        CurrentState cs = new CurrentState();
+                        PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
+                        Log.trace(pm.cmd);
+                        Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
+                        Notification notifForm = new Notification();
+                        notifForm.Show(pm.cmd);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
-             Thread.Sleep(4000);
-                Console.WriteLine("FN.Thread: The instance method (Form) called by the worker thread has ended.");
+            catch (TimeoutException e)
+            {
+                Log.trace("FN.Thread: " + e.ToString());
+                //check se il service è in esecuzione
+            }
+             Console.WriteLine("FN.Thread: The instance method (Form) called by the worker thread has ended.");
             client.Close();
 
             /*
@@ -70,8 +76,6 @@ namespace FNWifiLocator
 
             // Pause for a moment to provide a delay to make 
             // threads more apparent.
-            Thread.Sleep(100);
-            Console.WriteLine("FN.Thread: The instance method (Form) called by the worker thread has ended.");
         }
 
       
