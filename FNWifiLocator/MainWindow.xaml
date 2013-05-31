@@ -46,6 +46,7 @@
                 <TextBox x:Name="new_place_tetbox" HorizontalAlignment="Left" Height="22" Margin="235,13,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="205" TextChanged="TextBox_TextChanged_1"/>
                 <TextBox x:Name="place_name" HorizontalAlignment="Left" Height="22" Margin="235,103,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="292" TextChanged="TextBox_TextChanged_1"/>
                 <Button x:Name="update" Content="Aggiorna" HorizontalAlignment="Left" Margin="456,52,0,0" VerticalAlignment="Top" Width="75" Click="update_Click" Height="24"/>
+                <Button x:Name="update_Copy" Content="Aggiorna lista&#xD;&#xA;" HorizontalAlignment="Left" Margin="236,52,0,0" VerticalAlignment="Top" Width="107" Click="update_ClickList" Height="24"/>
             </Grid>
             <Button x:Name="bOpenFileDialog_Copy" Content="Scegli File" 
             	Click="bOpenFileDialogOut_Click" Margin="0,0,12,45" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />

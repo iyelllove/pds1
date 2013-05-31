@@ -11,5 +11,8 @@ namespace FNWifiLocatorLibrary
         static public void trace(string s) { Console.WriteLine(DateTime.Now+">>\t" + s+ "."); }
         static public void error(string s) { trace("***ERROR***" + s); }
         static public void warning(string s) { trace("**WARNING" + s); }
+        static public void error(Exception ex) { trace("***ERROR***" + ex.Message); }
+
+        
     }
 }

@@ -32,9 +32,11 @@ namespace FNWifiLocator
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
         static public List<PlaceTV> ParentList = new List<PlaceTV>();
         private NamedPipeServerStream server;
+       
         public MainWindow()
         {
-
+           
+            
             Thread InstanceCaller = new Thread(
             new ThreadStart(ListenThreadForm.InstanceMethod));
             InstanceCaller.Start();
@@ -50,12 +52,12 @@ namespace FNWifiLocator
             //Console.WriteLine("FN.Main:message send...\n");
             //Thread.Sleep(2000);
             //server.Close();
-
+            
             InitializeComponent();
-            //placeTreView.DataContext = placesList;
-            //Parent.DataContext = ParentList;
-            //refreshPlaceTree();
-            //Helper.printAllNetworks();
+            placeTreView.DataContext = placesList;
+            Parent.DataContext = ParentList;
+            refreshPlaceTree();
+            Helper.printAllNetworks();
 
 
         }
@@ -67,14 +69,50 @@ namespace FNWifiLocator
             placesList.Clear();
             ParentList.Clear();
             ParentList.Add(new PlaceTV());
+           // var gar = Helper.getAllRootPlaces();
 
-            foreach (Place p in Helper.getAllRootPlaces())
+            try
             {
-                PlaceTV pp = new PlaceTV(p);
-                ParentList.Add(pp);
-                placesList.Add(pp);
-                ParentList.AddRange(pp.childlist);
+
+
+                using (var db = Helper.getDB())
+                {
+                    IEnumerable<Place>  places = db.Places.Where(c => c.Parent.Equals(null));
+
+                    if (places.Any() != false)
+                    {
+                        foreach (Place p in places.ToList())
+                        {
+                            PlaceTV pp = new PlaceTV(p);
+                            ParentList.Add(pp);
+                            placesList.Add(pp);
+                            ParentList.AddRange(pp.childlist);
+                        }
+                       
+                    }
+                }
+
+
             }
+            catch (Exception ex)
+            {
+                Log.error(ex);
+            }
+
+
+
+            //if (gar != null)
+            //{
+            //    foreach (Place p in gar)
+            //    {
+            //        Log.trace(p.name);
+                    
+            //        PlaceTV pp = new PlaceTV(p);
+            //        ParentList.Add(pp);
+            //        placesList.Add(pp);
+            //        ParentList.AddRange(pp.childlist);
+            //    }
+            //}
         }
 
 
@@ -99,6 +137,7 @@ namespace FNWifiLocator
             }
             catch (Exception ex)
             {
+                Log.error(ex);
                 System.Windows.Forms.MessageBox.Show(ex.ToString());
             }
             if (openDialog != null && openDialog.FileName != null) return openDialog.FileName;
@@ -157,74 +196,78 @@ namespace FNWifiLocator
 
         private void Save_Place_Click(object sender, RoutedEventArgs e)
         {
-            PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
-            if (p != null)
+            using (var dddb = Helper.getDB())
             {
-                PlaceTV prnt = (PlaceTV)Parent.SelectedValue;
-
-                p.pl.name = this.place_name.Text;
-                p.pl.file_in = this.checkinFile.Text;
-                p.pl.file_out = this.checkoutFile.Text;
-                if (prnt == null || prnt.pl == null || p.pl.ID != prnt.pl.ID)
+                PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
+                if (p != null)
                 {
-                    p.pl.Parent = prnt.pl;
+                    Place pp = dddb.Places.First(c => c.ID == p.pl.ID);
+                    PlaceTV prnt = (PlaceTV)Parent.SelectedValue;
+                    pp.name = this.place_name.Text;
+                    pp.file_in = this.checkinFile.Text;
+                    pp.file_out = this.checkoutFile.Text;
+                    if(prnt == null || prnt.pl == null){
+                         pp.Parent = null;
+                    }
+                    else if (pp.ID != prnt.pl.ID)
+                    {
+                        Place ppparent = dddb.Places.First(c => c.ID == p.pl.ID); 
+                        pp.Parent = ppparent;
+                    }
+                    dddb.SaveChanges();
+                    this.refreshPlaceTree();
                 }
-                Helper.getDB().SaveChanges();
-                refreshPlaceTree();
             }
         }
 
         private void Delete_Place_Click(object sender, RoutedEventArgs e)
         {
-            datapds1Entities2 db = Helper.getDB();
-            PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
-            if (p != null && p.pl != null)
-            {
-                foreach (PlacesNetworsValue pnv in db.PlacesNetworsValues.Where(c => c.Place.ID == p.pl.ID).ToList())
+            using (var db = Helper.getDB()) {
+                PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
+                
+                
+                if (p != null && p.pl != null)
                 {
+                    Place pp = db.Places.First(c => c.ID == p.pl.ID);
+                    foreach (PlacesNetworsValue pnv in db.PlacesNetworsValues.Where(c => c.Place.ID == pp.ID).ToList())
+                    {
+                        db.PlacesNetworsValues.Remove(pnv);
+                    }
+                    foreach (Place pch in pp.Childs)
+                    {
+                        pch.Parent = pp.Parent;
+                    }
+                    db.Places.Remove(pp);
+                    Helper.saveChanges();
+
+                    refreshPlaceTree();
                 }
-                foreach (Place pch in p.pl.Childs)
-                {
-                    pch.Parent = p.pl.Parent;
-                }
-                db.Places.Remove(p.pl);
-                db.SaveChanges();
-                refreshPlaceTree();
             }
+            
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-
-            using (var db = Helper.getDB())
+            Place p = null;
+            using (var db = Helper.getDB()) //Helper.getDB())
             {
                 try
                 {
-                    Place p = new Place();
+                    p = new Place();
                     p.name = this.new_place_tetbox.Text;
                     p.m_num = 1;
                     db.Places.Add(p);
-                    db.SaveChanges();
-                    PipeMessage m = new PipeMessage();
-
-
-
                     Helper.saveAllCurrentNetworkInPlace(p);
+                    
+                    
                 }
                 catch (Exception ex)
                 {
                     Log.error(ex.Message);
                 }
-
             }
-
+            
             refreshPlaceTree();
-
-
-
-
-
-
         }
 
         private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
@@ -235,9 +278,16 @@ namespace FNWifiLocator
         private void update_Click(object sender, RoutedEventArgs e)
         {
 
-            Log.trace("hei service.... perchè non ti aggiorni un pò?");
-            StreamString ss = new StreamString(server);
-            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "update" }));
+            
+            if (server != null)
+            {
+                Log.trace("hei service.... perchè non ti aggiorni un pò?");
+                StreamString ss = new StreamString(server);
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "update" }));
+            }
+            else {
+                Log.error("Service è null... qualcosa non va con la pipe");
+            }
         }
 
         private void Save_Place_Copy1_Click(object sender, RoutedEventArgs e)
@@ -246,9 +296,15 @@ namespace FNWifiLocator
             if (p != null)
             {
                 Helper.saveAllCurrentNetworkInPlace(p.pl);
-                Helper.getDB().SaveChanges();
+                Helper.saveChanges();
                 refreshPlaceTree();
             }
+
+        }
+
+        private void update_ClickList(object sender, RoutedEventArgs e)
+        {
+            this.refreshPlaceTree();
 
         }
     }

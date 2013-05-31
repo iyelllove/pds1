@@ -31,13 +31,6 @@ namespace FNWifiLocatorLibrary
         public virtual ICollection<PlacesNetworsValue> PlacesNetworsValues { get; set; }
         public virtual ICollection<Place> Childs { get; set; }
         public virtual Place Parent { get; set; }
-
-
-
-        public override string ToString()
-        {
-            return name;
-        }
     }
     
 }

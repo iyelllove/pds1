@@ -17,19 +17,23 @@ namespace FNWifiLocator
 
 
 
-        static public List<FNWifiLocatorLibrary.Place> getAllRootPlaces()
+        static public List<Place> getAllRootPlaces()
         {
 
             try
             {
-                IQueryable<Place> places;
+                IEnumerable<Place> places;
 
-                using (var  db = getDB())
+                using (var db = Helper.getNewDB())
                 {
                     places = db.Places.Where(c => c.Parent.Equals(null));
 
                     if(places.Any() != false)
                     {
+                        foreach (Place p in places.ToList())
+                        { 
+                            Log.trace(p.name);
+                        }
                         return places.ToList(); // this line is the problem
                     }
                 }
@@ -38,7 +42,7 @@ namespace FNWifiLocator
             }
             catch (Exception ex)
             {
-                Log.error(ex.ToString());
+                Log.error(ex);
             }
             return null;
 

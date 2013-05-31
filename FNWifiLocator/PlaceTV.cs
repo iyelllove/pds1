@@ -15,7 +15,7 @@ namespace FNWifiLocator
     {
         public string Title { get; set; }
         public int Level = 0;
-        public FNWifiLocatorLibrary.Place pl;
+        public Place pl;
         public PlaceTV parentTV { get; set; }
         public List<PlaceTV> childlist = new List<PlaceTV>();
         private ObservableCollection<PlaceTV> childPlacesValue = new ObservableCollection<PlaceTV>();
@@ -38,12 +38,12 @@ namespace FNWifiLocator
             this.Title = "...";
         }
 
-        public PlaceTV(FNWifiLocatorLibrary.Place p, int level)
+        public PlaceTV(Place p, int level)
         {
             this.Level = level;
             this.pl = p;
             this.Title = p.name;
-            foreach (FNWifiLocatorLibrary.Place pc in p.Childs)
+            foreach (Place pc in p.Childs)
             {
                 PlaceTV ppc = new PlaceTV(pc, this.Level + 1) { parentTV = this };
                 ChildPlaces.Add(ppc);
@@ -53,15 +53,20 @@ namespace FNWifiLocator
         }
 
 
-        public PlaceTV(FNWifiLocatorLibrary.Place p) {
+        public PlaceTV(Place p) {
             this.Level = 0;
             this.pl = p;
             this.Title = p.name;
-            foreach (FNWifiLocatorLibrary.Place pc in p.Childs) {
-                PlaceTV ppc = new PlaceTV(pc, this.Level + 1) { parentTV = this };
-                childlist.Add(ppc);
-                ChildPlaces.Add(ppc);
-                childlist.AddRange(ppc.childlist);
+           
+            if (p.Childs != null)
+            {
+                foreach (Place pc in p.Childs)
+                {
+                    PlaceTV ppc = new PlaceTV(pc, this.Level + 1) { parentTV = this };
+                    childlist.Add(ppc);
+                    ChildPlaces.Add(ppc);
+                    childlist.AddRange(ppc.childlist);
+                }
             }
         }
 
