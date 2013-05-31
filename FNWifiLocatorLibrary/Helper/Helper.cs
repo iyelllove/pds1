@@ -74,7 +74,7 @@ namespace FNWifiLocatorLibrary
             var db = getDB();
             foreach (Wlan.WlanBssEntry network in Helper.getCurrentNetworks())
             {
-                if (network.linkQuality >= 15/*Properties.Settings.Default.delta_signal_value*/)
+                if (network.linkQuality >= 0/*Properties.Settings.Default.delta_signal_value*/)
                 {
                     string thename = Helper.getSSIDName(network);
                     string themac = Helper.getMacAddress(network);
