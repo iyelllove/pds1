@@ -38,6 +38,7 @@ namespace ConsoleService
         {
 
                 datapds1Entities2 db = Helper.getDB();
+                Log.trace(".......................................");
                 Log.trace("CheckIn at " + this.current_place.name);
 
                 Checkin c = new Checkin() { @in = DateTime.Now};
@@ -159,6 +160,10 @@ namespace ConsoleService
             }
         }
         */
+
+
+       
+
         public float searchPlace() {
             this.db = Helper.getDB();
             for (int k = 0; k < 1; k++)
@@ -172,32 +177,141 @@ namespace ConsoleService
                     Dictionary<string, PlacesNetworsValue> used = new Dictionary<string, PlacesNetworsValue>();
                     Dictionary<string, PlacesNetworsValue> used2remove = new Dictionary<string, PlacesNetworsValue>();
 
+
+                       
                     Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
+                    List<Network> network_sniffed = new List<Network>();
+                    List<Network> networks_candidate =  new List<Network>();
                     this.possible_place.Clear();
 
-                    if (this.forcePlace == null)
+
+
+
+                    List<int> ns = new List<int>();
+
+                    foreach (var network in networks)
                     {
-                        List<int> ns = new List<int>();
-                        //Creo una lista di interi in cui metto tutti gli ID delle reti che sto sentendo e che conosco
-                        foreach (var network in networks)
+
+                        string ssid = Helper.getSSIDName(network);
+                        string mac = Helper.getMacAddress(network);
+                        Network nn = this.db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).FirstOrDefault();
+                        if (nn != null)
                         {
-                            string ssid = Helper.getSSIDName(network);
-                            string mac = Helper.getMacAddress(network);
-                            Network nn = this.db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).FirstOrDefault();
-                            if (nn != null) {
-                                ns.Add(nn.ID);
+                            network_sniffed.Add(nn);
+                            ns.Add(nn.ID);
+                        }
+                    }
+                    var place_candidate = db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c => c.Place.ID != null).GroupBy(c => c.Place).ToList();
+                    int n_p = place_candidate.Count();
+                    if (n_p > 0)
+                    {
+                        //oTTENGO SOLO I NETWORK CHE SENTO E CHE NON SONO CONDIVISI DA TUTTI I LUOGHI
+                        var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).Where(c => c.Count() < n_p).ToList();
+                        foreach (var ppps in network_candidate)
+                        {
+                            networks_candidate.Add(ppps.Key);
+                        }
+
+                        
+
+                        foreach (var ppps in place_candidate)
+                        {
+                            if (ppps.Key != null)
+                            {
+                                Log.trace("Posto Candidato: " + ppps.Key.name);
+                                RightPlace rp = new RightPlace() { place = ppps.Key };
+                                if(this.forcePlace != null && rp.place != this.forcePlace){
+                                    Log.trace("Disabilito");
+                                    rp.enable = false;
+                                }
+
+                                rightplaces.Add(ppps.Key.name, rp);
+                                
+                                
+                            }
+                        }
+                        Log.trace("****MI CONCENTRO SULLE RETI DIVERSE****");
+                        for (int i = 0; i < 5; i++)
+                        {
+                            foreach (RightPlace rp in rightplaces.Values)
+                            {
+                                if (rp.enable)
+                                {
+                                    int equal = 0;
+                                    int diff = 0;
+                                    Place p = rp.place;
+                                    Log.trace("Posto Candidato" + p.name);
+                                    used.Clear();
+                                    used2remove.Clear();
+                                    foreach (PlacesNetworsValue pnv in p.PlacesNetworsValues)
+                                    {
+                                        if (network_sniffed.Contains(pnv.Network))
+                                        {
+                                            if (networks_candidate.Contains(pnv.Network))
+                                            {
+                                                equal++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            diff++;
+                                        }
+
+                                    }
+                                    rp.addStep(equal, 0, 1);
+                                    Log.trace("-->" + equal + "  " + diff + "  ((" + p.name);
+
+                                }
+                            }
+                            networks = Helper.getCurrentNetworks();
+                            ns.Clear();
+                            network_sniffed.Clear();
+                            foreach (var network in networks)
+                            {
+
+                                
+                                string ssid = Helper.getSSIDName(network);
+                                string mac = Helper.getMacAddress(network);
+                                Network nn = this.db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).FirstOrDefault();
+                                if (nn != null)
+                                {
+                                    network_sniffed.Add(nn);
+                                    ns.Add(nn.ID);
+                                }
                             }
                         }
 
-                        var place_candidate= db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c=>c.Place != null).GroupBy(c => c.Place).ToList();
+
+                        
+
+                        /*
+                    
+                    if (this.forcePlace != null)
+                    {
+                        //Forzo il posto.. deve essere spostato perchè voglio che la lista dei posti possibili sia sempre aggiornata
+                       foreach (RightPlace rp  in rightplaces.Values){
+
+                           if (rightplaces[rp.place.name].place != this.forcePlace)
+                           {
+                               rightplaces[rp.place.name].enable = false;
+                           }
+                           this.forcePlace = null;
+                    }
+                    */    
+
+
+
+
+
+                        //Creo una lista di interi in cui metto tutti gli ID delle reti che sto sentendo e che conosco
+                        
+
                         //place_candidate contiene tutti i possibili posti in cui posso essere.
                         //Vuol dire che esiste almeno una rete in quel posto che sto sentendo anche ora.
                         //foreach (var pc in place_candidate) {} pc. key restituisce un oggetto di tipo Place
-                        foreach (var ppps in place_candidate)
-                        {
-                            rightplaces.Add(ppps.Key.name, new RightPlace() { place = ppps.Key });
-                            //Log.trace("sds" + ppps.Key.name);
-                        }
+                       
+
+
 
                         /*
                         foreach (var network in networks)
@@ -223,117 +337,135 @@ namespace ConsoleService
                                 }
                             }
                         }*/
-
+                        
                     }
-                    else
-                    {
-                        Log.trace("Force place " + this.forcePlace.name);
-                        rightplaces.Add(this.forcePlace.name, new RightPlace() { place = this.forcePlace });
-                        //places.Add(this.forcePlace);
-                        this.forcePlace = null;
-                    }
+                   
+                    
 
 
                     this.current_place = null;
+                    /*
                     float max = 0;
                     if (rightplaces.Count() > 0)
                     {
                         foreach (RightPlace rp in rightplaces.Values)
                         {
-                            Place p = rp.place;
-                            //foreach (Place p in places)
-                            //{
-                            int e = 0;
-                            float w = 0;
-                            int d = 0;
-                            int imp;
-                            used.Clear();
-                            used2remove.Clear();
-                            foreach (PlacesNetworsValue pnv in p.PlacesNetworsValues)
+                            if (rp.enable)
                             {
+                                Place p = rp.place;
+                                
 
-                                imp = Convert.ToInt16((pnv.rilevance * 100) / pnv.Place.m_num) + 1;
-                                if (imp <= 0) imp = 1;
-                                Log.trace("Importanza(" + pnv.Network.SSID + "):" + imp + "-->" + pnv.rilevance + "_" + pnv.Place.m_num);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                //foreach (Place p in places)
+                                //{
+                                int e = 0;
+                                float w = 0;
+                                int d = 0;
+                                int imp;
+                                used.Clear();
+                                used2remove.Clear();
+                                foreach (PlacesNetworsValue pnv in p.PlacesNetworsValues)
+                                {
+
+                                    imp = Convert.ToInt16((pnv.rilevance * 100) / pnv.Place.m_num) + 1;
+                                    if (imp <= 0) imp = 1;
+                                    // Log.trace("Importanza(" + pnv.Network.SSID + "):" + imp + "-->" + pnv.rilevance + "_" + pnv.Place.m_num);
+                                    foreach (var network in networks)
+                                    {
+
+                                        String ssid_1 = Helper.getSSIDName(network);
+                                        String mac_1 = Helper.getMacAddress(network);
+
+                                        if (!used.ContainsKey(pnv.Network.MAC) && mac_1.Equals(pnv.Network.MAC))
+                                        {
+                                            int diff = Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi));
+
+                                            used.Add(pnv.Network.MAC, pnv);
+                                            //Log.trace("Trovata");
+                                            if (diff > 0)
+                                            {
+                                                //Log.trace("Incentivo x la vicinanza {" + imp + "_" + diff + "}(" + imp / diff + ")");
+                                                e += imp + imp * (1 / diff);
+                                            }
+                                            else
+                                            {
+                                                e += imp;
+                                            }
+                                        }
+
+
+                                        /*
+                                        if (!used.ContainsKey(pnv.Network.MAC) && mac_1.Equals(pnv.Network.MAC)
+                                            && ((Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi)) <= (pnv.variance * step)) || (delta == Properties.Settings.Default.numer_of_try))
+                                            //&& (ssid_1.Equals(pnv.Network.SSID))   && (pnv.media - pnv.variance > network.linkQuality)
+                                            )
+                                        {
+                                            Log.trace("E->" + ((Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi)))));
+                                            int diff = Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi));
+                                            used.Add(pnv.Network.MAC, pnv);
+
+                                   
+                                            e += pnv.rilevance;
+                                            //d += diff;
+                                            break;
+                                        }* /
+                                    }
+
+                                    //Questa rete presente nel DB non è presente ora
+                                    if (!used.ContainsKey(pnv.Network.MAC))
+                                    {
+
+                                        used.Add(pnv.Network.MAC, pnv);
+                                        used2remove.Add(pnv.Network.MAC, pnv);
+                                        //Log.trace("Rete non trovata al momento (" + pnv.Network.SSID + " -> " + imp + ")");
+                                        if (imp > 1)
+                                            d += imp;
+                                    }
+
+                                }
+
+
                                 foreach (var network in networks)
                                 {
 
-                                    String ssid_1 = Helper.getSSIDName(network);
+                                    //Queste reti sono presenti in questo momento ma no nel DB
+
                                     String mac_1 = Helper.getMacAddress(network);
-
-                                    if (!used.ContainsKey(pnv.Network.MAC) && mac_1.Equals(pnv.Network.MAC))
+                                    if (!used.ContainsKey(mac_1))
                                     {
-                                        int diff = Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi));
-
-                                        used.Add(pnv.Network.MAC, pnv);
-                                        Log.trace("Trovata");
-                                        if (diff > 0)
-                                        {
-                                            Log.trace("Incentivo x la vicinanza {" + imp + "_" + diff + "}(" + imp / diff + ")");
-                                            e += imp + imp * (1 / diff);
-                                        }
-                                        else
-                                        {
-                                            e += imp;
-                                        }
+                                        d++;
+                                        Log.trace("Rete non trovata nel DB (" + Helper.getSSIDName(network) + ")");
+                                        //d += Convert.ToInt16(network.linkQuality * step);
                                     }
 
-
-                                    /*
-                                    if (!used.ContainsKey(pnv.Network.MAC) && mac_1.Equals(pnv.Network.MAC)
-                                        && ((Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi)) <= (pnv.variance * step)) || (delta == Properties.Settings.Default.numer_of_try))
-                                        //&& (ssid_1.Equals(pnv.Network.SSID))   && (pnv.media - pnv.variance > network.linkQuality)
-                                        )
-                                    {
-                                        Log.trace("E->" + ((Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi)))));
-                                        int diff = Math.Abs(Math.Abs(pnv.media) - Math.Abs(network.rssi));
-                                        used.Add(pnv.Network.MAC, pnv);
-
-                                   
-                                        e += pnv.rilevance;
-                                        //d += diff;
-                                        break;
-                                    }*/
                                 }
 
-                                //Questa rete presente nel DB non è presente ora
-                                if (!used.ContainsKey(pnv.Network.MAC))
-                                {
-
-                                    used.Add(pnv.Network.MAC, pnv);
-                                    used2remove.Add(pnv.Network.MAC, pnv);
-                                    Log.trace("Rete non trovata al momento (" + pnv.Network.SSID + " -> " + imp + ")");
-                                    if (imp > 1)
-                                        d += imp;
-                                }
+                                w = rightplaces[p.name].addStep(e, d, 1);
+                                // Log.trace("Valore x " + p.name + ": (d: " + d + " e: " + e + ") -->" + w + "%");
 
                             }
-
-
-                            foreach (var network in networks)
-                            {
-
-                                //Queste reti sono presenti in questo momento ma no nel DB
-
-                                String mac_1 = Helper.getMacAddress(network);
-                                if (!used.ContainsKey(mac_1))
-                                {
-                                    d++;
-                                    Log.trace("Rete non trovata nel DB (" + Helper.getSSIDName(network) + ")");
-                                    //d += Convert.ToInt16(network.linkQuality * step);
-                                }
-
-                            }
-
-                            w = rightplaces[p.name].addStep(e, d, 1);
-                            Log.trace("Valore x " + p.name + ": (d: " + d + " e: " + e + ") -->" + w + "%");
-
                         }
                     }
+                    */
 
-
-                   
-                    Log.trace("################################ SCELGO IL MIGLIORE ################################ ");
+                    float max = 0;
+                    Log.trace("########## SCELGO IL MIGLIORE ####### ");
                     foreach (RightPlace rp in rightplaces.Values)
                     {
                         this.possible_place.Add(rp.place);
@@ -343,7 +475,6 @@ namespace ConsoleService
                         {
                             this.current_place = rp.place;
                             this.current_place_value = max;
-                            Log.trace("Nuovo Massimo-->" + rp.place.name + ": " + rp.avg);
                         }
 
                     }
@@ -374,7 +505,7 @@ namespace ConsoleService
                             this.doCheckin();
                         }
                     }
-
+                /*
                     if (this.current_place != null)
                     {
                         //ABBIAMO UN POSTO DEFINITO
@@ -409,7 +540,7 @@ namespace ConsoleService
                                 pnv.Network = m;
                                 pnv.Place = this.current_place;
                                 pnv.media = Convert.ToInt16(network.rssi.ToString());
-                                pnv.variance = (short)/*Properties.Settings.Default.delta_signal_value*/ 1;
+                                pnv.variance = (short)//*Properties.Settings.Default.delta_signal_value* / 1;
                                 //pnv.rilevance = Convert.ToInt16((network.linkQuality/10)+1);
                                 pnv.rilevance = 1;
                                 Log.trace("Aggiungo nuova rete al posto ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") a " + this.current_place.name);
@@ -434,7 +565,7 @@ namespace ConsoleService
                         {
                             db.PlacesNetworsValues.Remove(pnv);
                         }
-                        */
+                        //* /
 
 
                         Place thisplace = db.Places.Where(c => c.ID == this.current_place.ID).FirstOrDefault();
@@ -443,7 +574,7 @@ namespace ConsoleService
                             
                             thisplace.m_num++;
                         }
-
+                        
                         db.SaveChanges();
 
                     }
@@ -451,7 +582,7 @@ namespace ConsoleService
                     {
                         Log.trace("Non sei in nessun posto conosciuto");
                     }
-                
+                */
 
             }
            

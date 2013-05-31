@@ -27,6 +27,7 @@ namespace ConsoleService
                     if (text != null)
                     {
                         CurrentState cs = new CurrentState();
+                        cs.searchPlace();
                         PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
                         Log.trace(pm.cmd);
                         Console.WriteLine("Service.Thread: recived message:" + pm.cmd);
