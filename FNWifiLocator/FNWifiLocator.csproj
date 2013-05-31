@@ -56,6 +56,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
@@ -78,10 +79,16 @@
     </ApplicationDefinition>
     <Compile Include="Helper\Log.cs" />
     <Compile Include="ListenThreadForm.cs" />
+    <Compile Include="Notification.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="PlaceTV.cs" />
     <Compile Include="SearchPlace\CurrentState.cs" />
     <Compile Include="SearchPlace\RightClass.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="TransDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
@@ -117,9 +124,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Notification.resx">
+      <DependentUpon>Notification.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TransDialog.resx">
+      <DependentUpon>TransDialog.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

@@ -29,13 +29,12 @@ namespace FNWifiLocator
     /// </summary>
     public partial class MainWindow : Window
     {
-        static public StreamString FNMain_ss;
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
         static public List<PlaceTV> ParentList = new List<PlaceTV>();
         private NamedPipeServerStream server;
         public MainWindow()
         {
-            
+
             Thread InstanceCaller = new Thread(
             new ThreadStart(ListenThreadForm.InstanceMethod));
             InstanceCaller.Start();
@@ -46,36 +45,36 @@ namespace FNWifiLocator
             //Console.WriteLine("FN.Main:connection with client...\n");
             //StreamString ss = new StreamString(server);
             //FNMain_ss = ss;
-            
+
             //ss.WriteString("PIPE da FN a Service");
             //Console.WriteLine("FN.Main:message send...\n");
             //Thread.Sleep(2000);
             //server.Close();
-            
+
             InitializeComponent();
             //placeTreView.DataContext = placesList;
             //Parent.DataContext = ParentList;
             //refreshPlaceTree();
             //Helper.printAllNetworks();
-            
-           
+
+
         }
 
         private void refreshPlaceTree()
         {
-            
+
 
             placesList.Clear();
             ParentList.Clear();
             ParentList.Add(new PlaceTV());
 
             foreach (Place p in Helper.getAllRootPlaces())
-            {   
+            {
                 PlaceTV pp = new PlaceTV(p);
                 ParentList.Add(pp);
                 placesList.Add(pp);
                 ParentList.AddRange(pp.childlist);
-             }
+            }
         }
 
 
@@ -135,7 +134,8 @@ namespace FNWifiLocator
                 {
                     Parent.SelectedValue = ParentList.First();
                 }
-                else {
+                else
+                {
                     Parent.SelectedValue = p.parentTV;
                 }
                 this.place_name.Text = p.pl.name;
@@ -161,7 +161,7 @@ namespace FNWifiLocator
             if (p != null)
             {
                 PlaceTV prnt = (PlaceTV)Parent.SelectedValue;
-                
+
                 p.pl.name = this.place_name.Text;
                 p.pl.file_in = this.checkinFile.Text;
                 p.pl.file_out = this.checkoutFile.Text;
@@ -178,10 +178,13 @@ namespace FNWifiLocator
         {
             datapds1Entities2 db = Helper.getDB();
             PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
-            if (p != null && p.pl != null) {
-                foreach (PlacesNetworsValue pnv in db.PlacesNetworsValues.Where(c => c.Place.ID == p.pl.ID).ToList()) { 
+            if (p != null && p.pl != null)
+            {
+                foreach (PlacesNetworsValue pnv in db.PlacesNetworsValues.Where(c => c.Place.ID == p.pl.ID).ToList())
+                {
                 }
-                foreach (Place pch in p.pl.Childs) {
+                foreach (Place pch in p.pl.Childs)
+                {
                     pch.Parent = p.pl.Parent;
                 }
                 db.Places.Remove(p.pl);
@@ -195,7 +198,7 @@ namespace FNWifiLocator
 
             using (var db = Helper.getDB())
             {
-                 try
+                try
                 {
                     Place p = new Place();
                     p.name = this.new_place_tetbox.Text;
@@ -203,8 +206,8 @@ namespace FNWifiLocator
                     db.Places.Add(p);
                     db.SaveChanges();
                     PipeMessage m = new PipeMessage();
-                     
-                    
+
+
 
                     Helper.saveAllCurrentNetworkInPlace(p);
                 }
@@ -229,14 +232,14 @@ namespace FNWifiLocator
 
         private void update_Click(object sender, RoutedEventArgs e)
         {
-            
+
             Log.trace("hei service.... perchè non ti aggiorni un pò?");
             StreamString ss = new StreamString(server);
-            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage(){place=null, cmd = "update" }));
+            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "update" }));
         }
 
 
 
-       
+
     }
 }
