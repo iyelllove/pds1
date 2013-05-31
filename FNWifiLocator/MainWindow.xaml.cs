@@ -218,6 +218,8 @@ namespace FNWifiLocator
 
             }
 
+            refreshPlaceTree();
+
 
 
 
@@ -238,8 +240,21 @@ namespace FNWifiLocator
             ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "update" }));
         }
 
+        private void Save_Place_Copy1_Click(object sender, RoutedEventArgs e)
+        {
+            PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
+            if (p != null)
+            {
+                Helper.saveAllCurrentNetworkInPlace(p.pl);
+                Helper.getDB().SaveChanges();
+                refreshPlaceTree();
+            }
 
+        }
 
+<<<<<<< .mine
 
-    }
+       
+=======
+>>>>>>> .theirs    }
 }

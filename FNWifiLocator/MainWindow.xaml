@@ -57,7 +57,7 @@
         <Button x:Name="Save_Place" Content="Salva" Margin="0,0,15,15" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="1" Click="Save_Place_Click"/>
         <ComboBox x:Name="Parent" ItemsSource="{Binding}" Margin="232,0,15,149" Height="25" VerticalAlignment="Bottom" Grid.Row="1"/>
         <Button x:Name="Save_Place_Copy" Content="Elimina" Margin="0,0,95,15" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="1" Click="Delete_Place_Click"/>
-        <Button x:Name="Save_Place_Copy1" Content="Reset" Margin="0,0,175,15" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="77" Grid.Row="1"/>
+        <Button x:Name="Save_Place_Copy1" Content="Reset" Margin="0,0,175,15" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="77" Grid.Row="1" Click="Save_Place_Copy1_Click"/>
 
 
     </Grid>
