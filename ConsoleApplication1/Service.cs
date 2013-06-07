@@ -94,12 +94,12 @@ namespace ConsoleService
                 }
             }*/
 
-            using (this.server = new NamedPipeServerStream("FNPipeService")) 
-            {
+            this.server = new NamedPipeServerStream("FNPipeService"); 
+           
                 Console.WriteLine("Service: wait for client(form) connect");
                 server.WaitForConnection();
                 Console.WriteLine("Service: Form is connected");
-            }
+            
 
             //ATTENZIONE!! il service si blocca sulla wait?Elo scheduler?
             
