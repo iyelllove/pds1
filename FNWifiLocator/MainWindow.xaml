@@ -2,59 +2,46 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
-        Title="MainWindow" Height="680" Width="666">
+        Title="MainWindow" Height="680" Width="255">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="421*"/>
-            <ColumnDefinition Width="237*"/>
+            <ColumnDefinition Width="8*"/>
+            <ColumnDefinition Width="210*"/>
+            <ColumnDefinition Width="19*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="109*"/>
             <RowDefinition Height="229*"/>
         </Grid.RowDefinitions>
-        <StackPanel x:Name="LayoutRoot" Background="White" Margin="0,103,0,0" AllowDrop="True" HorizontalAlignment="Left" Grid.Row="1">
+        <StackPanel x:Name="LayoutRoot" Background="White" Margin="1,91,0,54" AllowDrop="True" HorizontalAlignment="Left" Grid.Row="1" Width="216" Grid.Column="1" Grid.ColumnSpan="2">
             <StackPanel.Resources>
 
                 <HierarchicalDataTemplate x:Key="PlaceTVTemplate"  ItemsSource="{Binding Path=ChildPlaces}" >
                     <TextBlock Text="{Binding Path=Title}" />
-                   
                 </HierarchicalDataTemplate>
             </StackPanel.Resources>
-            <StackPanel.BindingGroup>
-                <BindingGroup/>
-            </StackPanel.BindingGroup>
-            <StackPanel.Effect>
-                <DropShadowEffect RenderingBias="Quality"/>
-            </StackPanel.Effect>
-            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView" Margin="5,5,5,5" HorizontalAlignment="Left" Width="200"  SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True">
+            
+            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView"  HorizontalAlignment="Left" Width="200"  SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True">
             </TreeView>
         </StackPanel>
-        <Grid Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <Grid >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="401*"/>
-                    <ColumnDefinition Width="19*"/>
-                    <ColumnDefinition Width="226*"/>
-                    <ColumnDefinition Width="12*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Button x:Name="update_Copy" Content="Aggiorna lista&#xD;&#xA;" HorizontalAlignment="Left" Margin="236,352,0,0" VerticalAlignment="Top" Width="107" Click="update_ClickList" Height="24"/>
-                <Label Content="Posizione Attuale" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,19,0,0" Height="24" Width="185" Grid.Column="1" Grid.ColumnSpan="2"/>
-                <Label x:Name="positionName" Content="Sconosciuta" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,49,0,0" Height="24" Width="245" Unloaded="positionName_Unloaded" Grid.ColumnSpan="2" Grid.Column="1"/>
-                <RadioButton x:Name="radiob" Content="Nuovo Posto" GroupName="place" HorizontalAlignment="Left" Margin="400,146,0,0" VerticalAlignment="Top" IsChecked="True" Grid.ColumnSpan="3"/>
-                <RadioButton x:Name="radiob1" Content="Posto Esistente" GroupName="place" HorizontalAlignment="Left" Margin="400,74,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
-                <TextBox x:Name="new_place_name" HorizontalAlignment="Left" Height="22" Margin="0,176,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="219" TextChanged="TextBox_TextChanged_1" Grid.Column="2"/>
-                <Button x:Name="submitPlace" Content="Invia" HorizontalAlignment="Left" Margin="145,211,0,0" VerticalAlignment="Top" Width="75" Click="submitPlace_Click_1" Height="24" Grid.Column="2"/>
-                <Button x:Name="wrongPosition" Content="Posizione Errata" HorizontalAlignment="Left" Margin="1,211,0,0" VerticalAlignment="Top" Width="107" Click="wrongPosition_Click_1" Height="24" IsEnabled="False" Grid.Column="2"/>
-                <Button x:Name="toggleWindow" Content="&gt;&gt;" HorizontalAlignment="Left" Margin="189,21,0,0" VerticalAlignment="Top" Width="31" Click="toggleWindow_Click_1" Height="24" Grid.Column="2"/>
+        <Grid Grid.RowSpan="2" Grid.ColumnSpan="3" Margin="0,0,-7,0">
+            <Grid HorizontalAlignment="Left" Width="248"  >
+                <Button x:Name="update_Copy" Content="Aggiorna lista&#xD;&#xA;" HorizontalAlignment="Left" Margin="12,0,0,19" VerticalAlignment="Bottom" Width="107" Click="update_ClickList" Height="24" RenderTransformOrigin="2.187,-2.083"/>
+                <Label Content="Posizione Attuale" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,23,0,0" Height="24" Width="185"/>
+                <Label x:Name="positionName" Content="Sconosciuta" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,39,-22,0" Height="24" Width="245" Unloaded="positionName_Unloaded"/>
+                <RadioButton x:Name="radiob" Content="Nuovo Posto" GroupName="place" HorizontalAlignment="Left" Margin="9,146,0,0" VerticalAlignment="Top" IsChecked="True" Height="16" Width="85"/>
+                <RadioButton x:Name="radiob1" Content="Posto Esistente" GroupName="place" HorizontalAlignment="Left" Margin="9,74,0,0" VerticalAlignment="Top" Height="16" Width="96"/>
+                <TextBox x:Name="new_place_name" HorizontalAlignment="Left" Height="22" Margin="8,176,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="207" TextChanged="TextBox_TextChanged_1"/>
+                <Button x:Name="submitPlace" Content="Invia" HorizontalAlignment="Left" Margin="150,211,0,0" VerticalAlignment="Top" Width="64" Click="submitPlace_Click_1" Height="24"/>
+                <Button x:Name="wrongPosition" Content="Posizione Errata" HorizontalAlignment="Left" Margin="9,211,0,0" VerticalAlignment="Top" Width="107" Click="wrongPosition_Click_1" Height="24" IsEnabled="False"/>
+                <Button x:Name="toggleWindow" Content="&gt;&gt;" HorizontalAlignment="Left" Margin="201,36,0,0" VerticalAlignment="Top" Width="31" Click="toggleWindow_Click_1" Height="24"/>
+                <Button x:Name="placeDetail" Content="Dettaglio" HorizontalAlignment="Left" Margin="128,0,0,18" VerticalAlignment="Bottom" Width="107" Click="placeDetail_click" Height="24" RenderTransformOrigin="2.187,-2.083"/>
             </Grid>
 
 
         </Grid>
-        <ComboBox x:Name="comboplace" ItemsSource="{Binding}" Margin="0,0,18,79" Height="25" VerticalAlignment="Bottom" Grid.Column="1"/>
+        <ComboBox x:Name="comboplace" ItemsSource="{Binding}" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="2,0,0,88" Width="207" Grid.Column="1" />
 
 
     </Grid>

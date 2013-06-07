@@ -30,13 +30,39 @@ namespace FNWifiLocator
     public partial class MainWindow : Window
     {
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
-        static public List<PlaceTV> ParentList = new List<PlaceTV>();
+        static public Dictionary<PlaceTV, Place> ParentList = new Dictionary<PlaceTV, Place>();
         public refreshListDelegate rlistdelegate;
         private NamedPipeServerStream server;
 
         public slideWindow slw = new slideWindow();
 
+
+
+        private Place selectedPlace;
+        public Place SelectedPlace
+        {
+            get { return selectedPlace; }
+            set
+            {
+                this.selectedPlace = value;
+                if (value != null)
+                {
+                    this.placeDetail.IsEnabled = true;
+                }
+                else {
+                    this.placeDetail.IsEnabled = false;
+                }
+            }
+        }
         private Place currentPlace;
+        public PlaceTV CurrentPlaceTV    // the Name property
+        {
+            set {
+                this.comboplace.SelectedValue = value;
+                this.CurrentPlace = value.pl; 
+            }
+        }
+
         public Place CurrentPlace    // the Name property
         {
             get { return currentPlace; }
@@ -66,6 +92,7 @@ namespace FNWifiLocator
                 }
             }
         }
+
        
         public MainWindow()
         {
@@ -113,6 +140,9 @@ namespace FNWifiLocator
 
             this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
+            comboplace.DataContext = placesList;
+
+
             this.rlistdelegate += this.refreshPlaceTree;
             rlistdelegate();
             CurrentPlace = null;
@@ -127,7 +157,7 @@ namespace FNWifiLocator
 
             placesList.Clear();
             ParentList.Clear();
-            ParentList.Add(new PlaceTV());
+            
            // var gar = Helper.getAllRootPlaces();
 
             try
@@ -143,9 +173,9 @@ namespace FNWifiLocator
                         foreach (Place p in places.ToList())
                         {
                             PlaceTV pp = new PlaceTV(p);
-                            ParentList.Add(pp);
+                            ParentList.Add(pp,pp.pl);
+                            
                             placesList.Add(pp);
-                            ParentList.AddRange(pp.childlist);
                         }
                        
                     }
@@ -158,8 +188,10 @@ namespace FNWifiLocator
                 Log.error(ex);
             }
 
-
-
+            this.SelectedPlace = null;
+            foreach (PlaceTV ptv in this.placeTreView.Items) {
+                Log.trace(ptv.pl.name);
+            }
             //if (gar != null)
             //{
             //    foreach (Place p in gar)
@@ -176,7 +208,7 @@ namespace FNWifiLocator
 
 
 
-        private String selectFile()
+      /*  private String selectFile()
         {
             OpenFileDialog openDialog = new OpenFileDialog();
             try
@@ -202,7 +234,7 @@ namespace FNWifiLocator
             if (openDialog != null && openDialog.FileName != null) return openDialog.FileName;
             else return "";
         }
-
+        */
 
         private void execFunction(string filename)
         {
@@ -222,13 +254,18 @@ namespace FNWifiLocator
 
         //EVENTI
 
+
+        //Selezionao un luogo nella visuala ad albero.
         private void placeTreView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             
             PlaceTV p = (PlaceTV)e.NewValue;
             if (p != null)
             {
-                this.CurrentPlace = p.pl;
+                //PROVVISORIO
+                this.CurrentPlaceTV = p;
+
+                this.SelectedPlace = p.pl;
             }
         }
 
@@ -297,6 +334,7 @@ namespace FNWifiLocator
 
         private void update_ClickList(object sender, RoutedEventArgs e)
         {
+
             this.rlistdelegate();
 
         }
@@ -354,23 +392,22 @@ namespace FNWifiLocator
         private void toggleWindow_Click_1(object sender, RoutedEventArgs e)
         {
             if (this.slw == null) { this.slw = new slideWindow(); }
-            if (this.currentPlace != null) {
-                slw.CurrentPlace = this.currentPlace;
-
-
-
-               
-            
-
-
-                slw.Show();
-                this.slw.Closed += slw_Closed;
-            }
+            this.placeDetail.Opacity = this.placeTreView.Opacity = 1 - placeTreView.Opacity;
         }
 
         void slw_Closed(object sender, EventArgs e)
         {
             this.slw = new slideWindow(); 
+        }
+
+        private void placeDetail_click(object sender, RoutedEventArgs e)
+        {
+            if (this.selectedPlace != null)
+            {
+                slw.CurrentPlace = this.currentPlace;
+                slw.Show();
+                this.slw.Closed += slw_Closed;
+            }
         }
 
        
