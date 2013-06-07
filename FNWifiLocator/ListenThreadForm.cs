@@ -20,7 +20,8 @@ namespace FNWifiLocator
         {
             Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
-            var client = new NamedPipeClientStream(".", "FNPipeService", PipeDirection.In, PipeOptions.Asynchronous);
+            //var client = new NamedPipeClientStream(".", "FNPipeService", PipeDirection.In, PipeOptions.Asynchronous);
+            var client = new NamedPipeClientStream("FNPipeService");
             try
             {
                 client.Connect(5000);//avvio service

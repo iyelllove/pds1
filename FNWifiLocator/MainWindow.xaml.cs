@@ -76,7 +76,7 @@ namespace FNWifiLocator
             new ThreadStart(ListenThreadForm.InstanceMethod));
             InstanceCaller.Start();
 
-            using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
+            /*using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
                 var asyncResult = server.BeginWaitForConnection(null, null);
 
@@ -91,9 +91,14 @@ namespace FNWifiLocator
                     // fail
                     Log.trace("FN.Main:client NOT connect...\n");
                 }
+            }*/
+
+            using (this.server = new NamedPipeServerStream("FNPipeLocator"))
+            {
+                Console.WriteLine("FN.Main: Waiting for client connect...\n");
+                server.WaitForConnection();
+                Console.WriteLine("FN.Main:connection with client...\n");
             }
-            //Console.WriteLine("FN.Main: Waiting for client connect...\n");
-            //server.WaitForConnection();
             //Console.WriteLine("FN.Main:connection with client...\n");
             //StreamString ss = new StreamString(server);
             //FNMain_ss = ss;
