@@ -35,8 +35,10 @@ namespace ConsoleService
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
 
             //listening sulla pipe dal form
-            var client = new NamedPipeClientStream(".","FNPipeLocator", PipeDirection.In, PipeOptions.Asynchronous);
+            //var client = new NamedPipeClientStream(".","FNPipeLocator", PipeDirection.In, PipeOptions.Asynchronous);
+            var client = new NamedPipeClientStream("FNPipeLocator");
             client.Connect();
+            Console.WriteLine("Service: Connect with server");
             StreamString ss = new StreamString(client);
             while (true)
             {
@@ -75,7 +77,7 @@ namespace ConsoleService
         {
             Console.WriteLine("Service.Main:AVVIO SERVICE");
             
-            using(this.server = new NamedPipeServerStream("FNPipeService", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
+           /* using(this.server = new NamedPipeServerStream("FNPipeService", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
                 var asyncResult = server.BeginWaitForConnection(null, null);
 
@@ -90,10 +92,17 @@ namespace ConsoleService
                     // fail
                     Console.WriteLine("Service:client NOT connect...\n");
                 }
+            }*/
+
+            using (this.server = new NamedPipeServerStream("FNPipeService")) 
+            {
+                Console.WriteLine("Service: wait for client(form) connect");
+                server.WaitForConnection();
+                Console.WriteLine("Service: Form is connected");
             }
-            
+
             //ATTENZIONE!! il service si blocca sulla wait?Elo scheduler?
-            //server.WaitForConnection();
+            
 
             //Thread.Sleep(100000);
 
