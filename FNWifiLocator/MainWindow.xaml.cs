@@ -97,12 +97,10 @@ namespace FNWifiLocator
         public MainWindow()
         {
 
-
-            
             Thread InstanceCaller = new Thread(
             new ThreadStart(ListenThreadForm.InstanceMethod));
             InstanceCaller.Start();
-
+             
             /*using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
                 var asyncResult = server.BeginWaitForConnection(null, null);
@@ -120,10 +118,10 @@ namespace FNWifiLocator
                 }
             }*/
 
-            this.server = new NamedPipeServerStream("FNPipeLocator");
+            this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out);
       
             Console.WriteLine("FN.Main: Waiting for client connect...\n");
-            server.WaitForConnection();
+            this.server.WaitForConnection();
             Console.WriteLine("FN.Main:connection with client...\n");
             
             
@@ -155,10 +153,12 @@ namespace FNWifiLocator
         private void refreshPlaceTree()
         {
             Log.trace("Refresho la lista");
-
-            StreamString ss = new StreamString(server);
-            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "refresh" }));
-
+            if (server != null) {
+                StreamString ss = new StreamString(server);
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "refresh" }));
+               
+            
+            }
             placesList.Clear();
             ParentList.Clear();
             
@@ -338,7 +338,6 @@ namespace FNWifiLocator
 
         private void update_ClickList(object sender, RoutedEventArgs e)
         {
-
             this.rlistdelegate();
 
         }
