@@ -13,8 +13,37 @@ using System.Net.NetworkInformation;
 
 namespace ConsoleService
 {
+
+
+    class ClientPipe
+    {
+
+        public NamedPipeClientStream thePipe;
+        public bool OkToExit;
+        public bool IsReading;
+        public byte[] Data;
+        public DateTime LastRead;
+        public Service service;
+        public ClientPipe(Service s)
+        {
+            service = s;
+        }
+
+    }
+
     public partial class Service
     {
+
+        Timer TimeoutTimer;
+        
+        const int TimeoutSeconds = 15;
+
+        
+        protected static AsyncCallback AsyncReadCallback = new AsyncCallback(PipeReadCallback);
+
+        private ClientPipe clientPipe;
+ 
+
         private NamedPipeServerStream server;
         public Service()
         {
@@ -36,6 +65,27 @@ namespace ConsoleService
 
             //listening sulla pipe dal form
             //var client = new NamedPipeClientStream(".","FNPipeLocator", PipeDirection.In, PipeOptions.Asynchronous);
+
+
+            this.clientPipe = new ClientPipe(this);
+
+            clientPipe.thePipe = new NamedPipeClientStream(".", "FNPipeLocator", PipeDirection.In, PipeOptions.Asynchronous);
+
+            clientPipe.OkToExit = false;
+
+            clientPipe.Data = new byte[4096];
+
+            clientPipe.IsReading = false;
+            clientPipe.LastRead = DateTime.Now;
+
+            TimeoutTimer = new Timer(TimeoutCheck, this, 1, 1000);
+            clientPipe.thePipe.Connect(1000);
+
+            GetData(clientPipe);
+
+
+            /*
+
             var client = new NamedPipeClientStream("FNPipeLocator");
             client.Connect();
             Console.WriteLine("Service: Connect with server");
@@ -57,7 +107,7 @@ namespace ConsoleService
                 Thread.Sleep(4000);
             }
             client.Close();
-
+            */
 
             //eventuale comunicazione al form (avviene solo nel caso nuovo posto)
             /* var server = new NamedPipeServerStream("FNPipeService");
@@ -72,6 +122,96 @@ namespace ConsoleService
              server.Close();*/
 
         }
+
+
+
+        static void GetData(ClientPipe clientPipe)
+        {
+
+            while (!clientPipe.OkToExit)
+            {
+
+                if (!clientPipe.IsReading)
+                {
+
+                    clientPipe.IsReading = true;
+                    clientPipe.LastRead = DateTime.Now;
+                    clientPipe.thePipe.BeginRead(clientPipe.Data, 0, 4096, AsyncReadCallback, clientPipe.service);
+
+                }
+
+                System.Threading.Thread.Sleep(10);
+
+            }
+
+        }
+
+
+        static void TimeoutCheck(object state)
+        {
+
+
+
+            Service client = (Service)state;
+
+
+            TimeSpan timeSinceLastRead = DateTime.Now - client.clientPipe.LastRead;
+
+            if (timeSinceLastRead.TotalSeconds > TimeoutSeconds)
+            {
+                client.clientPipe.LastRead = DateTime.Now;
+                Log.trace("REFRESH");
+                StreamString ss = new StreamString(client.server);
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "refresh" }));
+               }
+        }
+
+        private static void PipeReadCallback(IAsyncResult ar)
+        {
+
+            try
+            {
+
+                 Service client = (Service)ar.AsyncState;
+
+                 client.clientPipe.LastRead = DateTime.Now;
+
+                 ClientPipe clientPipe = client.clientPipe;
+
+
+                 clientPipe.LastRead = DateTime.Now;
+
+                int i = clientPipe.thePipe.EndRead(ar);
+
+                Console.WriteLine(String.Format("{0} callback {1} packet size = {2}", DateTime.Now.ToString("HH:mm:ss.fff"), "AIS", i));
+
+                if (i != 0)
+                {
+
+                    clientPipe.IsReading = false;
+
+                    GetData(clientPipe);
+
+                }
+
+                else
+                {
+
+                    clientPipe.OkToExit = true;
+
+                }
+
+            }
+
+            catch (Exception ex)
+            {
+
+                Debug.WriteLine("are we here " + ex.Message);
+
+            }
+
+        }
+
 
         private void OnStart()//string[] args
         {
