@@ -18,9 +18,9 @@ using System.IO.Pipes;
 using FNWifiLocatorLibrary;
 using System.Windows.Forms;
 using System.Threading;
+using System.Windows.Media.Animation;
 
-
-
+public delegate void refreshListDelegate();
 
 namespace FNWifiLocator
 {
@@ -31,11 +31,46 @@ namespace FNWifiLocator
     {
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
         static public List<PlaceTV> ParentList = new List<PlaceTV>();
+        public refreshListDelegate rlistdelegate;
         private NamedPipeServerStream server;
+
+        public slideWindow slw = new slideWindow();
+
+        private Place currentPlace;
+        public Place CurrentPlace    // the Name property
+        {
+            get { return currentPlace; }
+            set{
+                this.currentPlace = value;
+                
+                if (value != null)
+                {
+                    this.positionName.Content = value.name;
+                    this.wrongPosition.IsEnabled = true;
+                    this.radiob1.IsChecked = true;
+                    this.radiob1.IsEnabled = false;
+                    new_place_name.IsEnabled = false;
+                    this.radiob.IsEnabled = false;
+                    this.comboplace.IsEnabled = false;
+                    this.submitPlace.IsEnabled = false;
+                }
+                else {
+                    this.positionName.Content = "Sconosciuta";
+                    this.radiob.IsChecked = true;
+                    this.radiob.IsEnabled = true;
+                    this.radiob1.IsEnabled = true;
+                    this.wrongPosition.IsEnabled = false;
+                    this.comboplace.IsEnabled = true;
+                    this.submitPlace.IsEnabled = true;
+                    new_place_name.IsEnabled = true;
+                }
+            }
+        }
        
         public MainWindow()
         {
-           
+
+
             
             Thread InstanceCaller = new Thread(
             new ThreadStart(ListenThreadForm.InstanceMethod));
@@ -69,9 +104,13 @@ namespace FNWifiLocator
             //server.Close();
             
             InitializeComponent();
+           
+
+            this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
-            Parent.DataContext = ParentList;
-            refreshPlaceTree();
+            this.rlistdelegate += this.refreshPlaceTree;
+            rlistdelegate();
+            CurrentPlace = null;
             Helper.printAllNetworks();
 
 
@@ -79,7 +118,7 @@ namespace FNWifiLocator
 
         private void refreshPlaceTree()
         {
-
+            Log.trace("Refresho la lista");
 
             placesList.Clear();
             ParentList.Clear();
@@ -180,61 +219,17 @@ namespace FNWifiLocator
 
         private void placeTreView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-
+            
             PlaceTV p = (PlaceTV)e.NewValue;
             if (p != null)
             {
-                if (p.pl.Parent == null)
-                {
-                    Parent.SelectedValue = ParentList.First();
-                }
-                else
-                {
-                    Parent.SelectedValue = p.parentTV;
-                }
-                this.place_name.Text = p.pl.name;
-                this.checkinFile.Text = p.pl.file_in;
-                this.checkoutFile.Text = p.pl.file_out;
-            }
-            else Parent.SelectedValue = null;
-        }
-
-        private void bOpenFileDialogIn_Click(object sender, RoutedEventArgs e)
-        {
-            this.checkinFile.Text = this.selectFile();
-        }
-
-        private void bOpenFileDialogOut_Click(object sender, RoutedEventArgs e)
-        {
-            this.checkoutFile.Text = this.selectFile();
-        }
-
-        private void Save_Place_Click(object sender, RoutedEventArgs e)
-        {
-            using (var dddb = Helper.getDB())
-            {
-                PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
-                if (p != null)
-                {
-                    Place pp = dddb.Places.First(c => c.ID == p.pl.ID);
-                    PlaceTV prnt = (PlaceTV)Parent.SelectedValue;
-                    pp.name = this.place_name.Text;
-                    pp.file_in = this.checkinFile.Text;
-                    pp.file_out = this.checkoutFile.Text;
-                    if(prnt == null || prnt.pl == null){
-                         pp.Parent = null;
-                    }
-                    else if (pp.ID != prnt.pl.ID)
-                    {
-                        Place ppparent = dddb.Places.First(c => c.ID == p.pl.ID); 
-                        pp.Parent = ppparent;
-                    }
-                    dddb.SaveChanges();
-                    this.refreshPlaceTree();
-                }
+                this.CurrentPlace = p.pl;
             }
         }
 
+       
+
+        
         private void Delete_Place_Click(object sender, RoutedEventArgs e)
         {
             using (var db = Helper.getDB()) {
@@ -255,35 +250,13 @@ namespace FNWifiLocator
                     db.Places.Remove(pp);
                     Helper.saveChanges();
 
-                    refreshPlaceTree();
+                    this.rlistdelegate();
                 }
             }
             
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            Place p = null;
-            using (var db = Helper.getDB()) //Helper.getDB())
-            {
-                try
-                {
-                    p = new Place();
-                    p.name = this.new_place_tetbox.Text;
-                    p.m_num = 1;
-                    db.Places.Add(p);
-                    Helper.saveAllCurrentNetworkInPlace(p);
-                    
-                    
-                }
-                catch (Exception ex)
-                {
-                    Log.error(ex.Message);
-                }
-            }
-            
-            refreshPlaceTree();
-        }
+        
 
         private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
         {
@@ -292,8 +265,8 @@ namespace FNWifiLocator
 
         private void update_Click(object sender, RoutedEventArgs e)
         {
-
-            
+            this.rlistdelegate();
+           
             if (server != null)
             {
                 Log.trace("hei service.... perchè non ti aggiorni un pò?");
@@ -312,15 +285,90 @@ namespace FNWifiLocator
             {
                 Helper.saveAllCurrentNetworkInPlace(p.pl);
                 Helper.saveChanges();
-                refreshPlaceTree();
+                this.rlistdelegate();
             }
 
         }
 
         private void update_ClickList(object sender, RoutedEventArgs e)
         {
-            this.refreshPlaceTree();
+            this.rlistdelegate();
 
         }
+
+        private void wrongPosition_Click_1(object sender, RoutedEventArgs e)
+        {
+            this.CurrentPlace = null;
+
+        }
+
+        private void positionName_Unloaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void submitPlace_Click_1(object sender, RoutedEventArgs e)
+        {
+            if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false)
+            {
+                //posto esistente
+            }
+            else {
+                //posto nuovo
+                Place p = null;
+                using (var db = Helper.getDB()) //Helper.getDB())
+                {
+                    try
+                    {
+                        p = new Place();
+                        p.name = this.new_place_name.Text;
+                        p.m_num = 1;
+                        db.Places.Add(p);
+                        Helper.saveAllCurrentNetworkInPlace(p);
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.error(ex.Message);
+                    }
+                }
+               
+                this.rlistdelegate();
+                this.CurrentPlace = p;
+                if (this.slw == null) { this.slw = new slideWindow(); }
+                this.slw.CurrentPlace = p;
+                this.slw.Show();
+                
+            }
+
+        }
+
+
+
+        private void toggleWindow_Click_1(object sender, RoutedEventArgs e)
+        {
+            if (this.slw == null) { this.slw = new slideWindow(); }
+            if (this.currentPlace != null) {
+                slw.CurrentPlace = this.currentPlace;
+
+
+
+               
+            
+
+
+                slw.Show();
+                this.slw.Closed += slw_Closed;
+            }
+        }
+
+        void slw_Closed(object sender, EventArgs e)
+        {
+            this.slw = new slideWindow(); 
+        }
+
+       
+        
     }
 }
