@@ -120,12 +120,13 @@ namespace FNWifiLocator
                 }
             }*/
 
-            using (this.server = new NamedPipeServerStream("FNPipeLocator"))
-            {
-                Console.WriteLine("FN.Main: Waiting for client connect...\n");
-                server.WaitForConnection();
-                Console.WriteLine("FN.Main:connection with client...\n");
-            }
+            this.server = new NamedPipeServerStream("FNPipeLocator");
+      
+            Console.WriteLine("FN.Main: Waiting for client connect...\n");
+            server.WaitForConnection();
+            Console.WriteLine("FN.Main:connection with client...\n");
+            
+            
             //Console.WriteLine("FN.Main:connection with client...\n");
             //StreamString ss = new StreamString(server);
             //FNMain_ss = ss;
@@ -154,6 +155,9 @@ namespace FNWifiLocator
         private void refreshPlaceTree()
         {
             Log.trace("Refresho la lista");
+
+            StreamString ss = new StreamString(server);
+            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "refresh" }));
 
             placesList.Clear();
             ParentList.Clear();

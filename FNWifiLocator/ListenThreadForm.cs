@@ -24,7 +24,7 @@ namespace FNWifiLocator
             var client = new NamedPipeClientStream("FNPipeService");
             try
             {
-                client.Connect(5000);//avvio service
+                client.Connect();//avvio service
 
                 StreamString ss = new StreamString(client);
                 while (true)
