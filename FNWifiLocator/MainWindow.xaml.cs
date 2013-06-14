@@ -42,6 +42,7 @@ namespace FNWifiLocator
         public refreshListDelegate rlistdelegate;
         private NamedPipeServerStream server;
 
+
         public slideWindow slw = new slideWindow();
 
 
@@ -175,6 +176,9 @@ InstanceCaller.Start();
             CurrentPlace = null;
             Helper.printAllNetworks();
 
+            //Notification notifForm2 = new Notification();
+            //notifForm2.Show("PROVAAAA");
+
 
         }
 
@@ -184,7 +188,7 @@ InstanceCaller.Start();
         }
 
         private void refreshPlaceTree()
-        {
+        {            
             Log.trace("Refresho la lista");
             if (server != null) {
                 StreamString ss = new StreamString(server);

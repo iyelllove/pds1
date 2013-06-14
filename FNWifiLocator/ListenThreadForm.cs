@@ -16,13 +16,14 @@ namespace FNWifiLocator
 {
     public class ListenThreadForm
     {
-         MainWindow mw;
+       MainWindow mw;
         public ListenThreadForm(MainWindow mw) {
             this.mw = mw;
         }
 
-        public  void InstanceMethod()
-        {
+     public  void InstanceMethod()
+      {
+           
             Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
             //var client = new NamedPipeClientStream(".", "FNPipeService", PipeDirection.In, PipeOptions.Asynchronous);
@@ -60,8 +61,9 @@ namespace FNWifiLocator
                         }
                         
                         Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
-                        Notification notifForm = new Notification();
-                        notifForm.Show(pm.cmd);
+                        //Notification notifForm = new Notification();
+                        //notifForm.Show(pm.cmd);  
+                       
                     }
                     else
                     {
