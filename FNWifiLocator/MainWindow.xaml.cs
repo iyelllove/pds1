@@ -1,5 +1,4 @@
 ﻿using System;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +20,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
+using System.ServiceProcess;
 
 
 public delegate void refreshListDelegate();
@@ -135,14 +135,75 @@ namespace FNWifiLocator
 
         public MainWindow()
         {
+            /* stati in cui può trovarsi il service
+            try
+            {
+            ServiceController sc = new ServiceController("kgvjhg");
+
+                switch (sc.Status)
+                {
+                    case ServiceControllerStatus.Running:
+                        Console.WriteLine("Running\n");
+                        break;
+                    case ServiceControllerStatus.Stopped:
+                        Console.WriteLine("Stopped\n");
+                        break;
+                    case ServiceControllerStatus.Paused:
+                        Console.WriteLine("Paused\n");
+                        break;
+                    case ServiceControllerStatus.StopPending:
+                        Console.WriteLine("stopping\n");
+                        break;
+                    case ServiceControllerStatus.StartPending:
+                        Console.WriteLine("Starting\n");
+                        break;
+                    default:
+                        Console.WriteLine("Status Changing\n");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+
+            }*/
+            try
+            {
+            ServiceController sc = new ServiceController("jytfcvbhtf");
+
+            if (sc.Status == ServiceControllerStatus.Stopped)
+            {
+                // Start the service if the current status is stopped.
+
+                Log.trace("Starting the WifiLocator service...");
+                try
+                {
+                    // Start the service, and wait until its status is "Running".
+                    sc.Start();
+                    sc.WaitForStatus(ServiceControllerStatus.Running);
+
+                    // Display the current service status.
+                    Log.trace("The WifiLocator service status is now set to " + sc.Status.ToString());
+                }
+                catch (InvalidOperationException)
+                {
+                    Log.trace("Could not start the WifiLocator service.");
+                }
+            }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             
 
             
             newPlace = new changePlace(ChangePlaceMethod);
             
             ListenThreadForm listener = new ListenThreadForm(this);
-Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
-InstanceCaller.Start();
+            Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
+            InstanceCaller.Start();
 
              
             /*using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
