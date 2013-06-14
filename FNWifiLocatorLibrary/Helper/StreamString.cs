@@ -22,6 +22,7 @@ namespace FNWifiLocatorLibrary
         public string ReadString()
         {
             int len;
+            //ioStream.ReadTimeout=1000;
             len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
             if (len > 0)
