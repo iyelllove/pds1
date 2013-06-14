@@ -170,7 +170,7 @@ namespace FNWifiLocator
             }*/
             try
             {
-            ServiceController sc = new ServiceController("jytfcvbhtf");
+            ServiceController sc = new ServiceController("Power");
 
             if (sc.Status == ServiceControllerStatus.Stopped)
             {
