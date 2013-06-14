@@ -2,11 +2,28 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
-        Title="MainWindow" Height="350"
+        Title="MainWindow" Height="350" Width="250"
         MinWidth="200"
         MaxWidth="500"
-        Width="{Binding ElementName=MainWindow, Path=CustomWidth}"
+       
         >
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Button.Click" SourceName="toggleWindow"  >
+            <BeginStoryboard Name="mystoryboard">
+                <Storyboard>
+                    <DoubleAnimation To="500" Duration="0:0:0.5" 
+                AccelerationRatio="0.10" DecelerationRatio="0.25" 
+                Storyboard.TargetProperty="(Canvas.Width)" Name="slideAnimation"  />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+        
+
+
+    </Window.Triggers>
+
+
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -32,21 +49,22 @@
         </StackPanel>
         <Grid Grid.RowSpan="2" Grid.ColumnSpan="3" Margin="0,0,-7,0">
             <Grid HorizontalAlignment="Left" Width="248"  >
-                <Label Content="Posizione Attuale" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,23,0,0" Height="24" Width="185"/>
-                <Label x:Name="positionName" Content="Sconosciuta" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,39,-8,0" Height="24" Width="245" Unloaded="positionName_Unloaded"/>
-                <RadioButton x:Name="radiob" Content="Nuovo Posto" GroupName="place" HorizontalAlignment="Left" Margin="9,156,0,0" VerticalAlignment="Top" IsChecked="True" Height="16" Width="85"/>
-                <RadioButton x:Name="radiob1" Content="Posto Esistente" GroupName="place" HorizontalAlignment="Left" Margin="9,74,0,0" VerticalAlignment="Top" Height="16" Width="96"/>
-                <TextBox x:Name="new_place_name" HorizontalAlignment="Left" Height="22" Margin="8,176,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="207" TextChanged="TextBox_TextChanged_1"/>
-                <Button x:Name="submitPlace" Content="Invia" HorizontalAlignment="Left" Margin="128,251,0,0" VerticalAlignment="Top" Width="90" Click="submitPlace_Click_1" Height="24"/>
-                <Button x:Name="wrongPosition" Content="Posizione Errata" HorizontalAlignment="Left" Margin="9,251,0,0" VerticalAlignment="Top" Width="107" Click="wrongPosition_Click_1" Height="24" IsEnabled="False"/>
-                <Button x:Name="toggleWindow" Content="&gt;&gt;" HorizontalAlignment="Left" Margin="201,36,0,0" VerticalAlignment="Top" Width="31" Click="toggleWindow_Click_1" Height="24"/>
-                <RadioButton x:Name="radiob2" Content="Nessun posto" GroupName="place" HorizontalAlignment="Left" Margin="9,214,0,0" VerticalAlignment="Top" IsChecked="True" Height="16" Width="205"/>
+                <Button         x:Name="toggleWindow"   Content="&gt;&gt;"          HorizontalAlignment="Left" Margin="190,25,0,0" VerticalAlignment="Top" Width="30"  Click="toggleWindow_Click_1" Height="25"/>
+                <Label                                  Content="Posizione Attuale" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,25,0,0" Height="25" Width="170"/>
+                <Label          x:Name="positionName"   Content="Sconosciuta"       HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,45,-8,0" Height="25" Width="210" Unloaded="positionName_Unloaded"/>
+                <RadioButton    x:Name="radiob1"        Content="Posto Esistente"   HorizontalAlignment="Left" GroupName="place"  Margin="10,75,0,0" VerticalAlignment="Top" Height="25" Width="210"/>
+                <ComboBox       x:Name="comboplace"     ItemsSource="{Binding}"     HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Margin="10,100,0,0"   Width="210" />
+                <RadioButton    x:Name="radiob"         Content="Nuovo Posto"       HorizontalAlignment="Left" GroupName="place"  Margin="10,140,0,0" VerticalAlignment="Top" IsChecked="True" Height="16" Width="210"/>
+                <TextBox        x:Name="new_place_name"                             HorizontalAlignment="Left" Height="25" Margin="10,165,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="210" TextChanged="TextBox_TextChanged_1"/>
+                <RadioButton    x:Name="radiob2"        Content="Nessun posto"      HorizontalAlignment="Left" GroupName="place" Margin="10,205,0,0" VerticalAlignment="Top" IsChecked="True" Height="25" Width="205"/>
+                <Button         x:Name="submitPlace"    Content="Invia"             HorizontalAlignment="Left" Margin="128,245,0,0" VerticalAlignment="Top" Width="90" Click="submitPlace_Click_1" Height="25"/>
+                <Button         x:Name="wrongPosition"  Content="Posizione Errata"  HorizontalAlignment="Left" Margin="10,245,0,0" VerticalAlignment="Top" Width="107" Click="wrongPosition_Click_1" Height="25" IsEnabled="False"/>
+                
             </Grid>
 
 
         </Grid>
-        <ComboBox x:Name="comboplace" ItemsSource="{Binding}" Height="25" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="2,100,0,0" Width="207" Grid.Column="1" />
-
+       
 
     </Grid>
 </Window>

@@ -30,7 +30,7 @@ namespace FNWifiLocator
     /// <summary>
     /// Logica di interazione per MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
 
         public delegate void changePlace(Place p);
@@ -46,22 +46,26 @@ namespace FNWifiLocator
         public slideWindow slw = new slideWindow();
 
 
-        private int _width;
-        public int CustomWidth
+        private bool _slideOpen;
+        public bool SlideOpen
         {
-            get { return _width; }
+            get { return _slideOpen; }
             set
             {
-                if (value != _width)
+                this._slideOpen = value;
+                if (value == true)
                 {
-                    _width = value;
-                    if (PropertyChanged != null)
-                        PropertyChanged(this, new PropertyChangedEventArgs("CustomWidth"));
+                    this.slideAnimation.To = 500;
+                    this.toggleWindow.Content = "<<";
+                }
+                else
+                {
+                    this.toggleWindow.Content = ">>";
+                    this.slideAnimation.To = 250;
                 }
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-
+        
         private Place selectedPlace;
         public Place SelectedPlace
         {
@@ -119,9 +123,20 @@ namespace FNWifiLocator
             }
         }
 
-       
+        
+        private int? _MyFoo;
+        public int? MyFoo
+        {
+            get { return 500; }
+            set { _MyFoo = value; }
+        }
+
+        public RoutedEvent RoutedEvent { get; set; }
+
         public MainWindow()
         {
+            
+
             
             newPlace = new changePlace(ChangePlaceMethod);
             
@@ -164,21 +179,17 @@ InstanceCaller.Start();
             //server.Close();
             
             InitializeComponent();
-            
+            this.SlideOpen = false;
 
             this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
             comboplace.DataContext = placesList;
 
-
             this.rlistdelegate += this.refreshPlaceTree;
             rlistdelegate();
             CurrentPlace = null;
             Helper.printAllNetworks();
-
-            //Notification notifForm2 = new Notification();
-            //notifForm2.Show("PROVAAAA");
-
+            
 
         }
 
@@ -188,7 +199,7 @@ InstanceCaller.Start();
         }
 
         private void refreshPlaceTree()
-        {            
+        {
             Log.trace("Refresho la lista");
             if (server != null) {
                 StreamString ss = new StreamString(server);
@@ -429,9 +440,11 @@ InstanceCaller.Start();
 
         private void toggleWindow_Click_1(object sender, RoutedEventArgs e)
         {
+            
             if (this.slw == null) { this.slw = new slideWindow(); }
-            this.placeDetail.Opacity = this.placeTreView.Opacity = 1 - placeTreView.Opacity;
-            CustomWidth = 10;
+            this.SlideOpen = !this.SlideOpen;
+            //this.placeDetail.Opacity = this.placeTreView.Opacity = 1 - placeTreView.Opacity;
+            
         }
 
         void slw_Closed(object sender, EventArgs e)
