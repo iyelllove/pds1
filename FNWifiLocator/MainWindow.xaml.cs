@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,8 @@ using FNWifiLocatorLibrary;
 using System.Windows.Forms;
 using System.Threading;
 using System.Windows.Media.Animation;
+using System.ComponentModel;
+
 
 public delegate void refreshListDelegate();
 
@@ -27,8 +30,13 @@ namespace FNWifiLocator
     /// <summary>
     /// Logica di interazione per MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+
+        public delegate void changePlace(Place p);
+        public changePlace newPlace;
+
+
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
         static public Dictionary<PlaceTV, Place> ParentList = new Dictionary<PlaceTV, Place>();
         public refreshListDelegate rlistdelegate;
@@ -37,6 +45,21 @@ namespace FNWifiLocator
         public slideWindow slw = new slideWindow();
 
 
+        private int _width;
+        public int CustomWidth
+        {
+            get { return _width; }
+            set
+            {
+                if (value != _width)
+                {
+                    _width = value;
+                    if (PropertyChanged != null)
+                        PropertyChanged(this, new PropertyChangedEventArgs("CustomWidth"));
+                }
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private Place selectedPlace;
         public Place SelectedPlace
@@ -75,6 +98,7 @@ namespace FNWifiLocator
                     this.wrongPosition.IsEnabled = true;
                     this.radiob1.IsChecked = true;
                     this.radiob1.IsEnabled = false;
+                    this.radiob2.IsEnabled = false;
                     new_place_name.IsEnabled = false;
                     this.radiob.IsEnabled = false;
                     this.comboplace.IsEnabled = false;
@@ -85,6 +109,7 @@ namespace FNWifiLocator
                     this.radiob.IsChecked = true;
                     this.radiob.IsEnabled = true;
                     this.radiob1.IsEnabled = true;
+                    this.radiob2.IsEnabled = true;
                     this.wrongPosition.IsEnabled = false;
                     this.comboplace.IsEnabled = true;
                     this.submitPlace.IsEnabled = true;
@@ -96,10 +121,13 @@ namespace FNWifiLocator
        
         public MainWindow()
         {
+            this.PropertyChanged();
+            newPlace = new changePlace(ChangePlaceMethod);
+            
+            ListenThreadForm listener = new ListenThreadForm(this);
+Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
+InstanceCaller.Start();
 
-            Thread InstanceCaller = new Thread(
-            new ThreadStart(ListenThreadForm.InstanceMethod));
-            InstanceCaller.Start();
              
             /*using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
@@ -135,7 +163,7 @@ namespace FNWifiLocator
             //server.Close();
             
             InitializeComponent();
-           
+            
 
             this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
@@ -150,12 +178,17 @@ namespace FNWifiLocator
 
         }
 
+        private void ChangePlaceMethod(Place p)
+        {
+            this.CurrentPlace = p;
+        }
+
         private void refreshPlaceTree()
         {
             Log.trace("Refresho la lista");
             if (server != null) {
                 StreamString ss = new StreamString(server);
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "refresh" }));
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "refresh" }));
                
             
             }
@@ -267,9 +300,7 @@ namespace FNWifiLocator
             if (p != null)
             {
                 //PROVVISORIO
-                this.CurrentPlaceTV = p;
-
-                this.SelectedPlace = p.pl;
+                 this.SelectedPlace = p.pl;
             }
         }
 
@@ -317,7 +348,7 @@ namespace FNWifiLocator
             {
                 Log.trace("hei service.... perchè non ti aggiorni un pò?");
                 StreamString ss = new StreamString(server);
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "update" }));
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "update" }));
             }
             else {
                 Log.error("Service è null... qualcosa non va con la pipe");
@@ -396,6 +427,7 @@ namespace FNWifiLocator
         {
             if (this.slw == null) { this.slw = new slideWindow(); }
             this.placeDetail.Opacity = this.placeTreView.Opacity = 1 - placeTreView.Opacity;
+            CustomWidth = 10;
         }
 
         void slw_Closed(object sender, EventArgs e)
@@ -407,10 +439,15 @@ namespace FNWifiLocator
         {
             if (this.selectedPlace != null)
             {
-                slw.CurrentPlace = this.currentPlace;
+                slw.CurrentPlace = this.selectedPlace;
                 slw.Show();
                 this.slw.Closed += slw_Closed;
             }
+        }
+
+        private void radiob_Copy_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
 
        

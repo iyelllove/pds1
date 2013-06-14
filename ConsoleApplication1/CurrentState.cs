@@ -164,10 +164,10 @@ namespace ConsoleService
 
        
 
-        public float searchPlace() {
-            this.db = Helper.getDB();
-            for (int k = 0; k < 1; k++)
+        public Place searchPlace() {
+            using (var db = Helper.getDB())
             {
+           
                 //System.Threading.Thread.Sleep(1500);
                 //datapds1Entities2 db = new datapds1Entities2();
                 
@@ -218,8 +218,11 @@ namespace ConsoleService
                         {
                             if (ppps.Key != null)
                             {
+                                if (true) return ppps.Key;
                                 Log.trace("Posto Candidato: " + ppps.Key.name);
                                 RightPlace rp = new RightPlace() { place = ppps.Key };
+
+
                                 if(this.forcePlace != null && rp.place != this.forcePlace){
                                     Log.trace("Disabilito");
                                     rp.enable = false;
@@ -272,7 +275,8 @@ namespace ConsoleService
                                 
                                 string ssid = Helper.getSSIDName(network);
                                 string mac = Helper.getMacAddress(network);
-                                Network nn = this.db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).FirstOrDefault();
+                                Network nn = db.Networks.First(n => n.SSID == ssid && n.MAC == mac);
+                                
                                 if (nn != null)
                                 {
                                     network_sniffed.Add(nn);
@@ -583,10 +587,8 @@ namespace ConsoleService
                         Log.trace("Non sei in nessun posto conosciuto");
                     }
                 */
-
-            }
-           
-             return this.current_place_value;
+                    }
+             return this.current_place;
         }
 
 

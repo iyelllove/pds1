@@ -11,12 +11,17 @@ using FNWifiLocator.TransDlg;
 
 
 
+
 namespace FNWifiLocator
 {
-    static class ListenThreadForm
+    public class ListenThreadForm
     {
-        
-        static public void InstanceMethod()
+         MainWindow mw;
+        public ListenThreadForm(MainWindow mw) {
+            this.mw = mw;
+        }
+
+        public  void InstanceMethod()
         {
             Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
@@ -35,6 +40,25 @@ namespace FNWifiLocator
                         CurrentState cs = new CurrentState();
                         PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
                         Log.trace(pm.cmd);
+                        switch (pm.cmd)
+                        {
+                            case "refresh":
+                                if (pm.place != null)
+                                {
+                                    Place place = pm.getPlace();
+                                    Log.trace("Place is not null" + place.ID + place.name);
+                                    mw.Dispatcher.Invoke(mw.newPlace, place);
+                                }
+                                else { Log.trace("Place is null"); }
+                                break;
+                            case "refresh2":
+                                Console.WriteLine("Case 2");
+                                break;
+                            default:
+                                Console.WriteLine(pm.cmd);
+                                break;
+                        }
+                        
                         Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
                         Notification notifForm = new Notification();
                         notifForm.Show(pm.cmd);

@@ -36,13 +36,13 @@ namespace ConsoleService
 
         Timer TimeoutTimer;
         
-        const int TimeoutSeconds = 15;
+        const int TimeoutSeconds = 25;
 
         
         protected static AsyncCallback AsyncReadCallback = new AsyncCallback(PipeReadCallback);
 
         private ClientPipe clientPipe;
- 
+        private CurrentState cs = new CurrentState();
 
         private NamedPipeServerStream server;
         public Service()
@@ -76,7 +76,7 @@ namespace ConsoleService
             clientPipe.Data = new byte[4096];
 
             clientPipe.IsReading = false;
-            clientPipe.LastRead = DateTime.Now;
+            
 
             TimeoutTimer = new Timer(TimeoutCheck, this, 1, 1000);
             clientPipe.thePipe.Connect(1000);
@@ -135,7 +135,7 @@ namespace ConsoleService
                 {
 
                     clientPipe.IsReading = true;
-                    clientPipe.LastRead = DateTime.Now;
+                    //clientPipe.LastRead = DateTime.Now;
                     clientPipe.thePipe.BeginRead(clientPipe.Data, 0, 4096, AsyncReadCallback, clientPipe.service);
 
                 }
@@ -162,7 +162,8 @@ namespace ConsoleService
                 client.clientPipe.LastRead = DateTime.Now;
                 Log.trace("REFRESH");
                 StreamString ss = new StreamString(client.server);
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "refresh" }));
+               
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place =  client.cs.searchPlace().ID, cmd = "refresh" }));
                }
         }
 
@@ -271,7 +272,7 @@ namespace ConsoleService
         {
             Log.trace("indirizzo ip cambiato");
             StreamString ss = new StreamString(server);
-            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = null, cmd = "ip change" }));
+            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "ip change" }));
         }
 
         private void SystemEvents_SessionEnded(object sender, SessionEndedEventArgs e)
