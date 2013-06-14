@@ -121,7 +121,7 @@ namespace FNWifiLocator
        
         public MainWindow()
         {
-            this.PropertyChanged();
+            
             newPlace = new changePlace(ChangePlaceMethod);
             
             ListenThreadForm listener = new ListenThreadForm(this);
