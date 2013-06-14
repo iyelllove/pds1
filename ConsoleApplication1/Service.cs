@@ -92,6 +92,7 @@ namespace ConsoleService
             StreamString ss = new StreamString(client);
             while (true)
             {
+                
                 String text = ss.ReadString();
                 if (text != null)
                 {
@@ -104,7 +105,7 @@ namespace ConsoleService
                 {
                     break;
                 }
-                Thread.Sleep(4000);
+               //Thread.Sleep(4000);
             }
             client.Close();
             */
