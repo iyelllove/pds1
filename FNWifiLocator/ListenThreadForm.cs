@@ -44,7 +44,7 @@ namespace FNWifiLocator
                         switch (pm.cmd)
                         {
                             case "refresh":
-                                if (pm.place != null)
+                                if (pm.getPlace() != null)
                                 {
                                     Place place = pm.getPlace();
                                     Log.trace("Place is not null" + place.ID + place.name);

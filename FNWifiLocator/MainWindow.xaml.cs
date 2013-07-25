@@ -489,7 +489,8 @@ namespace FNWifiLocator
                
                 this.rlistdelegate();
                 this.CurrentPlace = p;
-                if (this.slw == null) { this.slw = new slideWindow(); }
+              
+                this.getSlw();
                 this.slw.CurrentPlace = p;
                 this.slw.Show();
                 
@@ -502,7 +503,7 @@ namespace FNWifiLocator
         private void toggleWindow_Click_1(object sender, RoutedEventArgs e)
         {
             
-            if (this.slw == null) { this.slw = new slideWindow(); }
+            
             this.SlideOpen = !this.SlideOpen;
             //this.placeDetail.Opacity = this.placeTreView.Opacity = 1 - placeTreView.Opacity;
             
@@ -517,10 +518,16 @@ namespace FNWifiLocator
         {
             if (this.selectedPlace != null)
             {
+                getSlw();
                 slw.CurrentPlace = this.selectedPlace;
                 slw.Show();
                 this.slw.Closed += slw_Closed;
             }
+        }
+
+        private slideWindow getSlw() {
+            if (this.slw == null) { this.slw = new slideWindow(); }
+            return this.slw;
         }
 
         private void radiob_Copy_Checked(object sender, RoutedEventArgs e)
