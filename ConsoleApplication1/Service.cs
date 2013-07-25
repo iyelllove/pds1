@@ -163,9 +163,16 @@ namespace ConsoleService
                 client.clientPipe.LastRead = DateTime.Now;
                 Log.trace("REFRESH");
                 StreamString ss = new StreamString(client.server);
+                if (client.cs.searchPlace() != null )
+                {
+                    ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = client.cs.searchPlace().ID, cmd = "refresh" }));
                
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place =  client.cs.searchPlace().ID, cmd = "refresh" }));
-               }
+                }
+                else {
+                    ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "refresh" }));
+               
+                }
+                }
         }
 
         private static void PipeReadCallback(IAsyncResult ar)
