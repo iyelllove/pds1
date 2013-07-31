@@ -46,7 +46,7 @@ namespace FNWifiLocator
 
 
         public slideWindow slw = new slideWindow();
-        public notifyWindow ntfw = new notifyWindow();
+        //public notifyWindow ntfw = new notifyWindow();
 
 
         private bool _slideOpen;
