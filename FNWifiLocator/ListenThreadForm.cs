@@ -40,7 +40,7 @@ namespace FNWifiLocator
                     {
                         CurrentState cs = new CurrentState();
                         PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
-                        Log.trace(pm.cmd);
+                        Log.trace("command receveid"+pm.cmd);
                         switch (pm.cmd)
                         {
                             case "refresh":

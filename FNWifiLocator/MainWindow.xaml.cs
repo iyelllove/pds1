@@ -30,6 +30,8 @@ namespace FNWifiLocator
     /// <summary>
     /// Logica di interazione per MainWindow.xaml
     /// </summary>
+    /// 
+
     public partial class MainWindow : Window
     {
 
@@ -83,6 +85,7 @@ namespace FNWifiLocator
             }
         }
         private Place currentPlace;
+        private Checkin currentCheckin;
         public PlaceTV CurrentPlaceTV    // the Name property
         {
             set {
@@ -95,31 +98,64 @@ namespace FNWifiLocator
         {
             get { return currentPlace; }
             set{
-                this.currentPlace = value;
-                
-                if (value != null)
+
+               
+                    if (currentCheckin != null)
+                    {
+                        using (var db = Helper.getDB())
+                        {
+                            currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
+                            currentCheckin.@out = DateTime.Now;
+                            //db.Checkins.Attach(currentCheckin);
+                            db.SaveChanges();
+                        }
+                    }   
+
+                    if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
                 {
-                    this.positionName.Content = value.name;
-                    this.wrongPosition.IsEnabled = true;
-                    this.radiob1.IsChecked = true;
-                    this.radiob1.IsEnabled = false;
-                    this.radiob2.IsEnabled = false;
-                    new_place_name.IsEnabled = false;
-                    this.radiob.IsEnabled = false;
-                    this.comboplace.IsEnabled = false;
-                    this.submitPlace.IsEnabled = false;
+                    this.currentPlace = value;
+                    
+                     using (var db = Helper.getDB())
+                    {
+                        if(value != null){
+                            value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
+                            currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                            value.Checkins.Add(currentCheckin);
+                        }
+                        
+                        db.SaveChanges();
+                    } 
+                    
+                    
+                    if (value != null)
+                    {
+
+                        Log.trace("ma da qui?");
+                        this.positionName.Content = value.name;
+                        this.wrongPosition.IsEnabled = true;
+                        this.radiob1.IsChecked = true;
+                        this.radiob1.IsEnabled = false;
+                        this.radiob2.IsEnabled = false;
+                        new_place_name.IsEnabled = false;
+                        this.radiob.IsEnabled = false;
+                        this.comboplace.IsEnabled = false;
+                        this.submitPlace.IsEnabled = false;
+                    }
+                    else
+                    {
+                        this.positionName.Content = "Sconosciuta";
+                        this.radiob.IsChecked = true;
+                        this.radiob.IsEnabled = true;
+                        this.radiob1.IsEnabled = true;
+                        this.radiob2.IsEnabled = true;
+                        this.wrongPosition.IsEnabled = false;
+                        this.comboplace.IsEnabled = true;
+                        this.submitPlace.IsEnabled = true;
+                        new_place_name.IsEnabled = true;
+                    }
                 }
-                else {
-                    this.positionName.Content = "Sconosciuta";
-                    this.radiob.IsChecked = true;
-                    this.radiob.IsEnabled = true;
-                    this.radiob1.IsEnabled = true;
-                    this.radiob2.IsEnabled = true;
-                    this.wrongPosition.IsEnabled = false;
-                    this.comboplace.IsEnabled = true;
-                    this.submitPlace.IsEnabled = true;
-                    new_place_name.IsEnabled = true;
-                }
+                
+                 
             }
         }
 
@@ -256,7 +292,12 @@ namespace FNWifiLocator
 
         private void ChangePlaceMethod(Place p)
         {
-            this.CurrentPlace = p;
+            //if ((this.CurrentPlace != null && p == null) || (this.CurrentPlace == null && p != null)  || this.CurrentPlace.ID != p.ID)
+            //{
+                this.CurrentPlace = p;
+            //}
+            
+            
         }
 
         private void refreshPlaceTree()
@@ -525,12 +566,24 @@ namespace FNWifiLocator
             }
         }
 
+        private void stats_click(object sender, RoutedEventArgs e)
+        {
+            statWindow stw = new statWindow();
+            stw.ShowDialog();
+           
+        }
+
         private slideWindow getSlw() {
             if (this.slw == null) { this.slw = new slideWindow(); }
             return this.slw;
         }
 
         private void radiob_Copy_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void toggleWindow_Copy_Click(object sender, RoutedEventArgs e)
         {
 
         }

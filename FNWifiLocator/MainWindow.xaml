@@ -5,6 +5,7 @@
         Title="MainWindow" Height="350" Width="250"
         MinWidth="200"
         MaxWidth="500"
+        ResizeMode="NoResize"
        
         >
 
@@ -59,7 +60,8 @@
                 <RadioButton    x:Name="radiob2"        Content="Nessun posto"      HorizontalAlignment="Left" GroupName="place" Margin="10,205,0,0" VerticalAlignment="Top" IsChecked="True" Height="25" Width="205"/>
                 <Button         x:Name="submitPlace"    Content="Invia"             HorizontalAlignment="Left" Margin="128,245,0,0" VerticalAlignment="Top" Width="90" Click="submitPlace_Click_1" Height="25"/>
                 <Button         x:Name="wrongPosition"  Content="Posizione Errata"  HorizontalAlignment="Left" Margin="10,245,0,0" VerticalAlignment="Top" Width="107" Click="wrongPosition_Click_1" Height="25" IsEnabled="False"/>
-                
+                <Button         x:Name="toggleWindow_Copy"   Content="&gt;&gt;"          HorizontalAlignment="Left" Margin="150,25,0,0" VerticalAlignment="Top" Width="30"  Click="stats_click" Height="25"/>
+
             </Grid>
 
 

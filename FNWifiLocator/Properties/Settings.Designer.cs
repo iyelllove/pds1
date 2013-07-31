@@ -94,5 +94,17 @@ namespace FNWifiLocator.Properties {
                 this["min_update_value"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"Power\"")]
+        public string service_name {
+            get {
+                return ((string)(this["service_name"]));
+            }
+            set {
+                this["service_name"] = value;
+            }
+        }
     }
 }
