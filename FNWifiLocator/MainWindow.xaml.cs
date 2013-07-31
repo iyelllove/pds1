@@ -46,6 +46,7 @@ namespace FNWifiLocator
 
 
         public slideWindow slw = new slideWindow();
+        public notifyWindow ntfw = new notifyWindow();
 
 
         private bool _slideOpen;
@@ -169,6 +170,8 @@ namespace FNWifiLocator
 
         public RoutedEvent RoutedEvent { get; set; }
 
+        public volatile bool _shouldStop;
+
         public MainWindow()
         {
             /* stati in cui può trovarsi il service
@@ -264,7 +267,7 @@ namespace FNWifiLocator
             Console.WriteLine("FN.Main: Waiting for client connect...\n");
             this.server.WaitForConnection();
             Console.WriteLine("FN.Main:connection with client...\n");
-            
+
             
             //Console.WriteLine("FN.Main:connection with client...\n");
             //StreamString ss = new StreamString(server);

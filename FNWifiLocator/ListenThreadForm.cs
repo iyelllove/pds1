@@ -17,9 +17,11 @@ namespace FNWifiLocator
     public class ListenThreadForm
     {
        MainWindow mw;
-        public ListenThreadForm(MainWindow mw) {
+       public ListenThreadForm(MainWindow mw) {
             this.mw = mw;
-        }
+             }
+
+        public volatile bool _shouldStop;
 
      public  void InstanceMethod()
       {
@@ -33,8 +35,9 @@ namespace FNWifiLocator
                 client.Connect();//avvio service
 
                 StreamString ss = new StreamString(client);
-                while (true)
+                while (!_shouldStop)
                 {
+                    
                     String text = ss.ReadString();
                     if (text != null)
                     {
@@ -69,6 +72,10 @@ namespace FNWifiLocator
                     {
                         break;
                     }
+                }
+                if (_shouldStop)
+                {
+                    Log.trace("_shouldStop is set to true");
                 }
             }
             catch (TimeoutException e)

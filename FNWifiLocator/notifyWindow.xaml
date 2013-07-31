@@ -1,0 +1,96 @@
+﻿<Window
+    x:Class="FNWifiLocator.notifyWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Title="Notification Popup" Width="300"
+  WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="Manual" ShowInTaskbar="False" Top="5" Left="5" Height="184">
+
+    <Grid RenderTransformOrigin="0,1" >
+
+        <!-- Notification area -->
+        <Border BorderThickness="1" Background="Beige" BorderBrush="Black" CornerRadius="10" RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Border.RenderTransform>
+            <StackPanel Margin="20" RenderTransformOrigin="0.5,0.5">
+                <StackPanel.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </StackPanel.RenderTransform>
+                <TextBlock Margin="5" RenderTransformOrigin="0.5,0.5" TextWrapping="Wrap">
+                    <TextBlock.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </TextBlock.RenderTransform><Bold><Run Text="Notification data"/></Bold><LineBreak /><InlineUIContainer>
+                		<Label Content="Errore messaggio di notifica" Height="33" Width="243" RenderTransformOrigin="0.501,0.892">
+                			<Label.RenderTransform>
+                				<TransformGroup>
+                					<ScaleTransform/>
+                					<SkewTransform/>
+                					<RotateTransform Angle="-0.249"/>
+                					<TranslateTransform X="0.091" Y="-0.001"/>
+                				</TransformGroup>
+                			</Label.RenderTransform>
+                		</Label>
+                	</InlineUIContainer><LineBreak /></TextBlock>
+                <CheckBox Content="Checkable" Margin="5 5 0 5" RenderTransformOrigin="0.5,0.5" >
+                    <CheckBox.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </CheckBox.RenderTransform>
+                </CheckBox>
+                <Button Content="Clickable" HorizontalAlignment="Center" RenderTransformOrigin="0.439,1.307" Margin="102,0" >
+                    <Button.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </Button.RenderTransform>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Animation -->
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)">
+                            <SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)">
+                            <SplineDoubleKeyFrame KeyTime="0:0:2" Value="1"/>
+                            <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0"/>
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Grid.Triggers>
+
+        <Grid.RenderTransform>
+            <ScaleTransform ScaleY="1" />
+        </Grid.RenderTransform>
+
+    </Grid>
+
+</Window>
