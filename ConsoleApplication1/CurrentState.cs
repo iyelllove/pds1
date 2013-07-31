@@ -194,11 +194,17 @@ namespace ConsoleService
 
                         string ssid = Helper.getSSIDName(network);
                         string mac = Helper.getMacAddress(network);
-                        Network nn = this.db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).FirstOrDefault();
-                        if (nn != null)
+                        try
                         {
-                            network_sniffed.Add(nn);
-                            ns.Add(nn.ID);
+                            Network nn = db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).SingleOrDefault();
+                            if (nn != null)
+                            {
+                                network_sniffed.Add(nn);
+                                ns.Add(nn.ID);
+                            }
+                        }
+                        catch {
+                            
                         }
                     }
                     var place_candidate = db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c => c.Place.ID != null).GroupBy(c => c.Place).ToList();
