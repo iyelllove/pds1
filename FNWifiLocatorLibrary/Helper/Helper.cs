@@ -110,8 +110,11 @@ namespace FNWifiLocatorLibrary
         
 
         static public List<Place> getAllPlaces() {
-            var db = getDB();
-            return db.Places.ToList();
+            List<Place> allplaces = null;
+            using (var db = getDB()) {
+                allplaces = db.Places.ToList();
+            }
+            return allplaces;
         }
 
         static public void printAllNetworks() {
@@ -130,13 +133,15 @@ namespace FNWifiLocatorLibrary
         }
         static public void updateMeasures()
         {
-            var db = getDB();
-            if (db.Networks.ToList() != null && db.Networks.Any())
+            using (var db = getDB())
             {
-                Log.trace("All Networks in the database:");
-                foreach (var item in db.Networks.ToList())
+                if (db.Networks.ToList() != null && db.Networks.Any())
                 {
-                    Log.trace("Networks: \t" + item.SSID + ",\t" + item.MAC);
+                    Log.trace("All Networks in the database:");
+                    foreach (var item in db.Networks.ToList())
+                    {
+                        Log.trace("Networks: \t" + item.SSID + ",\t" + item.MAC);
+                    }
                 }
             }
 
@@ -166,17 +171,17 @@ namespace FNWifiLocatorLibrary
         }
         
         static public datapds1Entities2 getDB(){
-            
-            fbndbistance = new FNDB();
-            return fbndbistance.getDBInstance();
+            return new datapds1Entities2();
+            //fbndbistance = new datapds1Entities2();
+            //return fbndbistance;
+            //return fbndbistance.getDBInstance();
         }
 
         static public void saveChanges()
         {
             if (fbndbistance != null)
             {
-                fbndbistance.SaveChanges();
-                
+                              
             }
         }
 

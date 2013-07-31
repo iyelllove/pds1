@@ -6,21 +6,26 @@ using System.Threading.Tasks;
 
 namespace FNWifiLocatorLibrary
 {
-    class FNDB
+    public sealed class FNDB
     {
+         private static readonly datapds1Entities2 instance = new datapds1Entities2();
         private datapds1Entities2 db = null;
-        public FNDB()
-        {
-            this.db = new datapds1Entities2();
-        }
+         static FNDB() { }
 
-        public datapds1Entities2 getDBInstance()
-        {
-            return this.db;
-        }
+             private FNDB() { }
 
-        public void SaveChanges(){
-            this.db.SaveChanges();
-        }
+             public static datapds1Entities2 Instance
+          {
+              get
+              {
+                  return instance;
+              }
+          }
     }
+
+   
+
+ 
+
+  
 }
