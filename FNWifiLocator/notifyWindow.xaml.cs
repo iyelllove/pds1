@@ -19,14 +19,23 @@ namespace FNWifiLocator
     /// </summary>
     public partial class notifyWindow : Window
     {
-        public notifyWindow(string msg)
+
+        public notifyWindow()
         {
             InitializeComponent();
-           
+            this.label.Content = "";
             this.Left = SystemParameters.PrimaryScreenWidth - this.Width;
             this.Top = SystemParameters.WorkArea.Bottom - this.Height;
             this.Show();
-            // Screen.PrimaryScreen.WorkingArea.Size;
+        }
+
+        public notifyWindow(string msg)
+        {
+            InitializeComponent();
+            this.label.Content = msg;
+            this.Left = SystemParameters.PrimaryScreenWidth - this.Width;
+            this.Top = SystemParameters.WorkArea.Bottom - this.Height;
+            this.Show();
         }
     }
 }

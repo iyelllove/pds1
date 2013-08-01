@@ -20,5 +20,8 @@
     <Setting Name="min_update_value" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">10</Value>
     </Setting>
+    <Setting Name="service_name" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Power</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

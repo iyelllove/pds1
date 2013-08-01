@@ -14,15 +14,22 @@ using FNWifiLocator.TransDlg;
 
 namespace FNWifiLocator
 {
+    
+
     public class ListenThreadForm
     {
+
+    
        MainWindow mw;
        public ListenThreadForm(MainWindow mw) {
             this.mw = mw;
              }
 
-        public volatile bool _shouldStop;
+       public volatile bool _shouldStop;
 
+       public delegate void UpdateTextCallback(string message);
+
+        
      public  void InstanceMethod()
       {
            
@@ -43,9 +50,12 @@ namespace FNWifiLocator
                     {
                         CurrentState cs = new CurrentState();
                         PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
-                        Log.trace("command receveid"+pm.cmd);
+                        Log.trace("command receveid "+pm.cmd);
+                        Log.trace("---------------------------------notifyWPF");
+                        mw.ntfw.label.Dispatcher.Invoke(new UpdateTextCallback(this.UpdateText),new object[] { pm.cmd });
+
                         switch (pm.cmd)
-                        {
+                        {                           
                             case "refresh":
                                 if (pm.getPlace() != null)
                                 {
@@ -112,7 +122,12 @@ namespace FNWifiLocator
             // threads more apparent.
         }
 
-      
+     private void UpdateText(string message)
+     {
+         //mw.ntfw.label.Content=message;
+         //mw.ntfw.Show();
+         mw.ntfw = new notifyWindow(message);
+     }
         
     }
 

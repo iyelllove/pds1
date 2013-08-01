@@ -46,7 +46,8 @@ namespace FNWifiLocator
 
 
         public slideWindow slw = new slideWindow();
-        //public notifyWindow ntfw = new notifyWindow();
+        public notifyWindow ntfw = new notifyWindow();
+        
 
 
         private bool _slideOpen;
@@ -209,7 +210,7 @@ namespace FNWifiLocator
             }*/
             try
             {
-            ServiceController sc = new ServiceController("Power");
+                ServiceController sc = new ServiceController("Power");
 
             if (sc.Status == ServiceControllerStatus.Stopped)
             {
@@ -281,6 +282,7 @@ namespace FNWifiLocator
             InitializeComponent();
             this.SlideOpen = false;
 
+            
             this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
             comboplace.DataContext = placesList;
@@ -289,6 +291,8 @@ namespace FNWifiLocator
             rlistdelegate();
             CurrentPlace = null;
             Helper.printAllNetworks();
+
+            
             
 
         }

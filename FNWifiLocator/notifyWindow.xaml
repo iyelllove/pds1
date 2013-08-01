@@ -35,16 +35,7 @@
                             <TranslateTransform/>
                         </TransformGroup>
                     </TextBlock.RenderTransform><Bold><Run Text="Notification data"/></Bold><LineBreak /><InlineUIContainer>
-                		<Label Content="Errore messaggio di notifica" Height="33" Width="243" RenderTransformOrigin="0.501,0.892">
-                			<Label.RenderTransform>
-                				<TransformGroup>
-                					<ScaleTransform/>
-                					<SkewTransform/>
-                					<RotateTransform Angle="-0.249"/>
-                					<TranslateTransform X="0.091" Y="-0.001"/>
-                				</TransformGroup>
-                			</Label.RenderTransform>
-                		</Label>
+                		<Label x:Name="label" Content="errore messaggio notifica" Height="49" Width="241" RenderTransformOrigin="0.493,2.603"/>
                 	</InlineUIContainer><LineBreak /></TextBlock>
                 <CheckBox Content="Checkable" Margin="5 5 0 5" RenderTransformOrigin="0.5,0.5" >
                     <CheckBox.RenderTransform>
@@ -80,7 +71,7 @@
                         </DoubleAnimationUsingKeyFrames>
                         <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)">
                             <SplineDoubleKeyFrame KeyTime="0:0:2" Value="1"/>
-                            <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0"/>
+                            <SplineDoubleKeyFrame KeyTime="0:0:8" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                 </BeginStoryboard>
