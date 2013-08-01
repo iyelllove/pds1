@@ -31,6 +31,28 @@ namespace ConsoleService
 
     }
 
+
+
+    /*
+
+    
+       
+        public PlaceTV CurrentPlaceTV    // the Name property
+        {
+            set {
+                this.comboplace.SelectedValue = value;
+                this.CurrentPlace = value.pl; 
+            }
+        }
+
+           // the Name property
+        {
+            get { return currentPlace; }
+            set{
+     * 
+     * 
+     * 
+     */
     public partial class Service
     {
 
@@ -42,7 +64,45 @@ namespace ConsoleService
         protected static AsyncCallback AsyncReadCallback = new AsyncCallback(PipeReadCallback);
 
         private ClientPipe clientPipe;
-        private CurrentState cs = new CurrentState();
+       
+        private Checkin currentCheckin;
+        private Place currentPlace;
+        public Place CurrentPlace
+        {
+            get { return currentPlace; }
+            set
+            {
+                if (currentCheckin != null)
+                {
+                    //UPDATE DEL VALORE OUT DI CURRENT CHECKIN. SONO SICURO CHE FINO A QUESTO MOMENTO SONO STATO LI'
+                    using (var db = Helper.getDB())
+                    {
+                        currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
+                        currentCheckin.@out = DateTime.Now;
+                        //db.Checkins.Attach(currentCheckin);
+                        db.SaveChanges();
+                    }
+                }
+                    if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
+                    {
+                        //VUOL DIRE CHE IL LUOVO IN VALUE è DIVERSO DA QUELLO CHE HO MEMORIZZATO IO
+                        this.currentPlace = value;
+
+                        using (var db = Helper.getDB())
+                        {
+                            if (value != null)
+                            {
+                                value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
+                                currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                                value.Checkins.Add(currentCheckin);
+                            }
+
+                            db.SaveChanges();
+                        }
+                    
+                }
+            }
+        }
 
         private NamedPipeServerStream server;
         public Service()
@@ -134,14 +194,11 @@ namespace ConsoleService
 
                 if (!clientPipe.IsReading)
                 {
-
                     clientPipe.IsReading = true;
                     //clientPipe.LastRead = DateTime.Now;
                     clientPipe.thePipe.BeginRead(clientPipe.Data, 0, 4096, AsyncReadCallback, clientPipe.service);
 
-                }
-
-                System.Threading.Thread.Sleep(10);
+                }System.Threading.Thread.Sleep(10);
 
             }
 
@@ -163,16 +220,25 @@ namespace ConsoleService
                 client.clientPipe.LastRead = DateTime.Now;
                 Log.trace("REFRESH");
                 StreamString ss = new StreamString(client.server);
-                if (client.cs.searchPlace() != null )
+
+
+                CurrentState cs = new CurrentState();
+                Place value = cs.searchPlace();
+
+                if ((client.currentPlace != value && value == null) || (client.currentPlace == null && value != null) || (client.currentPlace != null && value != null && client.currentPlace.ID != value.ID))
                 {
-                    ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = client.cs.searchPlace().ID, cmd = "refresh" }));
-               
+                    if (value != null)
+                    {
+                        ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = value.ID, cmd = "refresh" }));
+                    }
+                    else
+                    {
+                        ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "refresh" }));
+                    }
                 }
-                else {
-                    ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "refresh" }));
-               
-                }
-                }
+                client.CurrentPlace = value;
+
+            }       
         }
 
         private static void PipeReadCallback(IAsyncResult ar)
@@ -198,14 +264,18 @@ namespace ConsoleService
                 {
 
                     clientPipe.IsReading = false;
-
+                    Log.trace("FALSE");
                     GetData(clientPipe);
+                    if (i > 1)
+                    {
+                     //   PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(Encoding.UTF8.GetString(clientPipe.Data, 0, clientPipe.Data.Length));
+                    }
 
                 }
 
                 else
                 {
-
+                   
                     clientPipe.OkToExit = true;
 
                 }
