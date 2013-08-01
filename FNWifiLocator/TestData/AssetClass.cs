@@ -66,7 +66,14 @@ namespace FNWifiLocator
                 var places = dddb.Places.ToList();
                 foreach (Place place in places) {
                     int i = dddb.Checkins.Where(c => c.Place.ID == place.ID).Count();
-                    assetClasses.Add(new AssetClass() { Class = place.name, Fund = 1.56, Total = place.name, Benchmark = i });
+
+
+
+                    var qurey = from ad in dddb.Checkins
+                                where (ad.Place.ID == place.ID)
+                                select ad;
+
+                    assetClasses.Add(new AssetClass() { Class = place.name, Fund = 1+i, Total = place.name, Benchmark = i });
                 }
                
             }

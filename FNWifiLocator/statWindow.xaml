@@ -23,54 +23,19 @@
                 </c:PieChartLayout.ColorSelector>
             </c:PieChartLayout>
 
-            <GroupBox Header="Bound Data" Width="Auto" Margin="10">
+            <GroupBox Header="Dettagli" Width="Auto" Margin="10">
                 <StackPanel Orientation="Horizontal">
-                    <ListView IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding}" Margin="10"
-                               Height="150" Name="listBox1" GridViewColumnHeader.Click="OnColumnHeaderClick">
+                    <ListView IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding}" Margin="10,10,10,11"
+                               Height="150" Name="listBox1" GridViewColumnHeader.Click="OnColumnHeaderClick" Width="479">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Class" DisplayMemberBinding="{Binding Path=Class}"/>
-                                <GridViewColumn Header="Fund" DisplayMemberBinding="{Binding Path=Fund}"/>
-                                <GridViewColumn Header="Benchmark" DisplayMemberBinding="{Binding Path=Benchmark}"/>
-                                <GridViewColumn Header="Total" DisplayMemberBinding="{Binding Path=Total}"/>
+                                <GridViewColumn Header="Tempo Medio" DisplayMemberBinding="{Binding Path=Fund}"/>
+                                <GridViewColumn Header="Numero di Volte" DisplayMemberBinding="{Binding Path=Benchmark}"/>
+                                <GridViewColumn Header="Tempo Totale" DisplayMemberBinding="{Binding Path=Total}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <GroupBox Header="Item Details" Width="Auto" Margin="10">
-                        <Grid Margin="10">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="30*" />
-                                <RowDefinition Height="30*" />
-                                <RowDefinition Height="30*" />
-                                <RowDefinition Height="30*" />
-                                <RowDefinition Height="30*" />
-                                <RowDefinition Height="30*" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="78*" />
-                                <ColumnDefinition Width="112*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Height="23" Grid.Column="0"  Grid.Row="0">Class:</Label>
-                            <TextBox Text="{Binding Path=Class}"  Height="23" Width="110" Grid.Column="1"  Grid.Row="0" />
-
-                            <Label Height="23" Grid.Column="0"  Grid.Row="1">Fund:</Label>
-                            <TextBox Text="{Binding Path=Fund}"  Height="23" Width="110" Grid.Column="1"  Grid.Row="1" />
-
-                            <Label Height="23" Grid.Column="0"  Grid.Row="2">Benchmark:</Label>
-                            <TextBox Text="{Binding Path=Benchmark}"  Height="23" Width="110" Grid.Column="1"  Grid.Row="2" />
-
-                            <Label Height="23" Grid.Column="0"  Grid.Row="3">Total:</Label>
-                            <TextBox Text="{Binding Path=Total}"  Height="23" Width="110" Grid.Column="1"  Grid.Row="3" />
-
-                            <Label Height="23" Grid.Column="0"  Grid.Row="3">Total:</Label>
-                            <TextBox Text="{Binding Path=Total}"  Height="23" Width="110" Grid.Column="1"  Grid.Row="3" />
-
-                            <Button Grid.ColumnSpan="2" Grid.Column="0"  Grid.Row="4" Click="AddNewItem"
-                                Width="80" HorizontalAlignment="Left" Margin="3"  Content="Add New Item"/>
-
-                        </Grid>
-                    </GroupBox>
                 </StackPanel>
             </GroupBox>
         </StackPanel>

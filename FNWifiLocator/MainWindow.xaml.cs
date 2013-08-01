@@ -102,36 +102,37 @@ namespace FNWifiLocator
             set{
 
                
-                    if (currentCheckin != null)
-                    {
-                        using (var db = Helper.getDB())
-                        {
-                            currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
-                            currentCheckin.@out = DateTime.Now;
-                            //db.Checkins.Attach(currentCheckin);
-                            db.SaveChanges();
-                        }
-                    }   
+                    //if (currentCheckin != null)
+                    //{
+                    //    using (var db = Helper.getDB())
+                    //    {
+                    //        currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
+                    //        currentCheckin.@out = DateTime.Now;
+                    //        //db.Checkins.Attach(currentCheckin);
+                    //        db.SaveChanges();
+                    //    }
+                    //}   
 
                     if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
                 {
                     this.currentPlace = value;
                     
-                     using (var db = Helper.getDB())
-                    {
-                        if(value != null){
-                            value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
-                            currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
-                            value.Checkins.Add(currentCheckin);
-                        }
+                    // using (var db = Helper.getDB())
+                    //{
+                        //if(value != null){
+                            //value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
+                        //    currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                        //    value.Checkins.Add(currentCheckin);
+                        //}
                         
-                        db.SaveChanges();
-                    } 
+                        //db.SaveChanges();
+                    //} 
                     
                     
                     if (value != null)
                     {
-
+                        currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                            value.Checkins.Add(currentCheckin);
                         Log.trace("ma da qui?");
                         this.positionName.Content = value.name;
                         this.wrongPosition.IsEnabled = true;
@@ -145,6 +146,7 @@ namespace FNWifiLocator
                     }
                     else
                     {
+                        currentCheckin = null;
                         this.positionName.Content = "Sconosciuta";
                         this.radiob.IsChecked = true;
                         this.radiob.IsEnabled = true;
@@ -500,6 +502,16 @@ namespace FNWifiLocator
         private void wrongPosition_Click_1(object sender, RoutedEventArgs e)
         {
             this.CurrentPlace = null;
+            if (server != null)
+            {
+                Log.trace("hei service.... perchè non ti aggiorni un pò?");
+                StreamString ss = new StreamString(server);
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "update" }));
+            }
+            else
+            {
+                Log.error("Service è null... qualcosa non va con la pipe");
+            }
 
         }
 
