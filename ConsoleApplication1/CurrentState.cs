@@ -207,6 +207,7 @@ namespace ConsoleService
                             
                         }
                     }
+                    //CERCO TUTTI I POSTI CHE HANNO ALMENO UNA RETE DI QUELLE CHE STO SENTENDO
                     var place_candidate = db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c => c.Place.ID != null).GroupBy(c => c.Place).ToList();
                     int n_p = place_candidate.Count();
                     if (n_p > 0)
@@ -215,6 +216,7 @@ namespace ConsoleService
                         var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).Where(c => c.Count() < n_p).ToList();
                         foreach (var ppps in network_candidate)
                         {
+                            // TUTTI I NETWORKS CONDIVISI DA TUTTI I POSTI
                             networks_candidate.Add(ppps.Key);
                         }
 
