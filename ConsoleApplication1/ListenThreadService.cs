@@ -12,7 +12,7 @@ namespace ConsoleService
 {
     static class ListenThreadService
     {
-
+/*
         static public void InstanceMethod()
         {
 
@@ -38,7 +38,7 @@ namespace ConsoleService
                  }
             client.Close();
         }
-
+        */
     }
 
 
