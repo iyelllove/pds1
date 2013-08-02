@@ -54,7 +54,7 @@
                 <Label                                  Content="Posizione Attuale" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,25,0,0" Height="25" Width="170"/>
                 <Label          x:Name="positionName"   Content="Sconosciuta"       HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,45,-8,0" Height="25" Width="210" Unloaded="positionName_Unloaded"/>
                 <RadioButton    x:Name="radiob1"        Content="Posto Esistente"   HorizontalAlignment="Left" GroupName="place"  Margin="10,75,0,0" VerticalAlignment="Top" Height="25" Width="210"/>
-                <ComboBox       x:Name="comboplace"     ItemsSource="{Binding}"     HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Margin="10,100,0,0"   Width="210" />
+                <ComboBox       x:Name="comboplace"     ItemsSource="{Binding}"     HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Margin="10,100,0,0"   Width="210" SelectionChanged="comboplace_SelectionChanged" />
                 <RadioButton    x:Name="radiob"         Content="Nuovo Posto"       HorizontalAlignment="Left" GroupName="place"  Margin="10,140,0,0" VerticalAlignment="Top" IsChecked="True" Height="16" Width="210"/>
                 <TextBox        x:Name="new_place_name"                             HorizontalAlignment="Left" Height="25" Margin="10,165,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="210" TextChanged="TextBox_TextChanged_1"/>
                 <RadioButton    x:Name="radiob2"        Content="Nessun posto"      HorizontalAlignment="Left" GroupName="place" Margin="10,205,0,0" VerticalAlignment="Top" IsChecked="True" Height="25" Width="205"/>

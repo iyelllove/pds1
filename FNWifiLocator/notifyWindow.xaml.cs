@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace FNWifiLocator
 {
@@ -19,14 +20,14 @@ namespace FNWifiLocator
     /// </summary>
     public partial class notifyWindow : Window
     {
-
+        public bool canClose = true;
         public notifyWindow()
         {
             InitializeComponent();
             this.label.Content = "";
             this.Left = SystemParameters.PrimaryScreenWidth - this.Width;
             this.Top = SystemParameters.WorkArea.Bottom - this.Height;
-            this.Show();
+            //this.Show();
         }
 
         public notifyWindow(string msg)
@@ -35,7 +36,26 @@ namespace FNWifiLocator
             this.label.Content = msg;
             this.Left = SystemParameters.PrimaryScreenWidth - this.Width;
             this.Top = SystemParameters.WorkArea.Bottom - this.Height;
-            this.Show();
         }
+
+
+
+
+        public void ShowNotify() {
+
+            this.Show();
+            DispatcherTimer dt = new DispatcherTimer(); //a new DispatcherTimer
+            dt.Interval = new TimeSpan(0, 0, 3); //set the interval 1 second
+            dt.Start(); //start the timer
+            dt.Tick += new EventHandler(dt_Tick); //set the timer tick
+        
+        }
+
+     void dt_Tick(object sender, EventArgs e) //timer tick
+     {
+         this.Close();
+     }
+
+        
     }
 }

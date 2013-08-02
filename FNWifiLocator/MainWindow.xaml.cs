@@ -36,7 +36,9 @@ namespace FNWifiLocator
     {
 
         public delegate void changePlace(Place p);
+        public delegate void notifyText(String str);
         public changePlace newPlace;
+        public notifyText notify;
 
 
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
@@ -46,7 +48,7 @@ namespace FNWifiLocator
 
 
         public slideWindow slw = new slideWindow();
-        public notifyWindow ntfw = new notifyWindow();
+        public notifyWindow ntfw = new notifyWindow("AVVIO");
         
 
 
@@ -242,6 +244,7 @@ namespace FNWifiLocator
 
             
             newPlace = new changePlace(ChangePlaceMethod);
+            //notify = new notifyText(NotifyTextMethod);
             
             ListenThreadForm listener = new ListenThreadForm(this);
             Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
@@ -299,6 +302,14 @@ namespace FNWifiLocator
 
         }
 
+
+        private void NotifyTextMethod(String str)
+        {
+           new notifyWindow(str);
+
+
+        }
+
         private void ChangePlaceMethod(Place p)
         {
             //if ((this.CurrentPlace != null && p == null) || (this.CurrentPlace == null && p != null)  || this.CurrentPlace.ID != p.ID)
@@ -309,14 +320,21 @@ namespace FNWifiLocator
             
         }
 
+        private bool SendCommand(PipeMessage pm){
+             if (server != null) {
+                StreamString ss = new StreamString(server);
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
+                return true;
+            }
+             return false;
+        }
+
         private void refreshPlaceTree()
         {
             Log.trace("Refresho la lista");
             if (server != null) {
                 StreamString ss = new StreamString(server);
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "refresh" }));
-               
-            
+                this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
             }
             placesList.Clear();
             ParentList.Clear();
@@ -466,6 +484,7 @@ namespace FNWifiLocator
 
         }
 
+        //DEPRECATA
         private void update_Click(object sender, RoutedEventArgs e)
         {
             this.rlistdelegate();
@@ -502,17 +521,11 @@ namespace FNWifiLocator
         private void wrongPosition_Click_1(object sender, RoutedEventArgs e)
         {
             this.CurrentPlace = null;
-            if (server != null)
-            {
-                Log.trace("hei service.... perchè non ti aggiorni un pò?");
-                StreamString ss = new StreamString(server);
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "update" }));
-            }
-            else
-            {
-                Log.error("Service è null... qualcosa non va con la pipe");
-            }
 
+            if (!this.SendCommand(new PipeMessage() { place = 0, cmd = "wrong" }))
+            {
+                Log.error("Qualcosa non va con la pipe");
+            }
         }
 
         private void positionName_Unloaded(object sender, RoutedEventArgs e)
@@ -524,6 +537,8 @@ namespace FNWifiLocator
         {
             if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false)
             {
+                PlaceTV ptv = (PlaceTV)this.comboplace.SelectedItem;
+                PipeMessage pm = new PipeMessage() { cmd = "force", place = ptv.pl.ID };
                 //posto esistente
             }
             else {
@@ -553,7 +568,6 @@ namespace FNWifiLocator
                 this.getSlw();
                 this.slw.CurrentPlace = p;
                 this.slw.Show();
-                
             }
 
         }
@@ -562,11 +576,7 @@ namespace FNWifiLocator
 
         private void toggleWindow_Click_1(object sender, RoutedEventArgs e)
         {
-            
-            
             this.SlideOpen = !this.SlideOpen;
-            //this.placeDetail.Opacity = this.placeTreView.Opacity = 1 - placeTreView.Opacity;
-            
         }
 
         void slw_Closed(object sender, EventArgs e)
@@ -589,7 +599,6 @@ namespace FNWifiLocator
         {
             statWindow stw = new statWindow();
             stw.ShowDialog();
-           
         }
 
         private slideWindow getSlw() {
@@ -603,6 +612,11 @@ namespace FNWifiLocator
         }
 
         private void toggleWindow_Copy_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void comboplace_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }

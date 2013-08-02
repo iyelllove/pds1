@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Pipes;
 using FNWifiLocatorLibrary;
 using FNWifiLocator.TransDlg;
+using System.Windows.Threading;
 
 
 
@@ -19,10 +20,14 @@ namespace FNWifiLocator
     public class ListenThreadForm
     {
 
+        MainWindow mw;
     
-       MainWindow mw;
+      
        public ListenThreadForm(MainWindow mw) {
             this.mw = mw;
+
+            mw.notify = this.UpdateText;
+            
              }
 
        public volatile bool _shouldStop;
@@ -52,16 +57,18 @@ namespace FNWifiLocator
                         PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
                         Log.trace("command receveid "+pm.cmd);
                         Log.trace("---------------------------------notifyWPF");
-                        mw.ntfw.label.Dispatcher.Invoke(new UpdateTextCallback(this.UpdateText),new object[] { pm.cmd });
-
+                        //mw.ntfw.label.Dispatcher.Invoke(new UpdateTextCallback(this.UpdateText),"PROVA STRINGA");
+                        
                         switch (pm.cmd)
                         {                           
                             case "refresh":
                                 if (pm.getPlace() != null)
                                 {
+                                    
                                     Place place = pm.getPlace();
                                     Log.trace("Place is not null" + place.ID + place.name);
                                     mw.Dispatcher.Invoke(mw.newPlace, place);
+                                    mw.Dispatcher.Invoke(mw.notify, place.name);
                                 }
                                 else { Log.trace("Place is null"); }
                                 break;
@@ -126,9 +133,11 @@ namespace FNWifiLocator
      {
          //mw.ntfw.label.Content=message;
          //mw.ntfw.Show();
-         mw.ntfw = new notifyWindow(message);
-     }
+         notifyWindow nw = new notifyWindow(message);
+         nw.ShowNotify();
+         
         
+     }
     }
 
 
