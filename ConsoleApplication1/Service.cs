@@ -10,327 +10,163 @@ using System.Diagnostics;
 using FNWifiLocatorLibrary;
 using Microsoft.Win32;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using NativeWifi;
+
+
+
+
+
 
 namespace ConsoleService
 {
 
-
-    class ClientPipe
+    public  partial class Service
     {
 
-        public NamedPipeClientStream thePipe;
-        public bool OkToExit;
-        public bool IsReading;
-        public byte[] Data;
-        public DateTime LastRead;
-        public Service service;
-        public ClientPipe(Service s)
-        {
-            service = s;
-        }
-
-    }
-
-
-
-    /*
-
-    
-       
-        public PlaceTV CurrentPlaceTV    // the Name property
-        {
-            set {
-                this.comboplace.SelectedValue = value;
-                this.CurrentPlace = value.pl; 
-            }
-        }
-
-           // the Name property
-        {
-            get { return currentPlace; }
-            set{
-     * 
-     * 
-     * 
-     */
-    public partial class Service
-    {
+        public delegate void cmdReceived(PipeMessage p);
+        public cmdReceived newCommand;
+        public ListenThread listener;
 
         Timer TimeoutTimer;
         
         const int TimeoutSeconds = 25;
 
-        
-        protected static AsyncCallback AsyncReadCallback = new AsyncCallback(PipeReadCallback);
-
-        private ClientPipe clientPipe;
-       
         private Checkin currentCheckin;
+
         private Place currentPlace;
         public Place CurrentPlace
         {
             get { return currentPlace; }
             set
             {
-                if (currentCheckin != null)
+               
+                if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
                 {
-                    //UPDATE DEL VALORE OUT DI CURRENT CHECKIN. SONO SICURO CHE FINO A QUESTO MOMENTO SONO STATO LI'
+                    //VUOL DIRE CHE IL LUOVO IN VALUE è DIVERSO DA QUELLO CHE HO MEMORIZZATO IO
+                    this.currentPlace = value;
+
                     using (var db = Helper.getDB())
                     {
-                        currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
-                        currentCheckin.@out = DateTime.Now;
-                        //db.Checkins.Attach(currentCheckin);
+                        if (value != null)
+                        {
+                            value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
+                            currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                            value.Checkins.Add(currentCheckin);
+                        }
+
                         db.SaveChanges();
                     }
-                }
-                    if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
-                    {
-                        //VUOL DIRE CHE IL LUOVO IN VALUE è DIVERSO DA QUELLO CHE HO MEMORIZZATO IO
-                        this.currentPlace = value;
 
+                    StreamString ss = new StreamString(server);
+                    if (value != null)
+                    {
+                        this.SendCommand(new PipeMessage() { place = value.ID, cmd = "refresh" });
+                    }
+                    else
+                    {
+                        this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
+                    }
+                }
+                else {
+                    if (currentCheckin != null)
+                    {
+                        //UPDATE DEL VALORE OUT DI CURRENT CHECKIN. SONO SICURO CHE FINO A QUESTO MOMENTO SONO STATO LI'
                         using (var db = Helper.getDB())
                         {
-                            if (value != null)
-                            {
-                                value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
-                                currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
-                                value.Checkins.Add(currentCheckin);
-                            }
-
+                            currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
+                            currentCheckin.@out = DateTime.Now;
+                            //db.Checkins.Attach(currentCheckin);
                             db.SaveChanges();
                         }
-                    
+                    }
                 }
             }
         }
-
+        
+        private static AutoResetEvent waitHandle = new AutoResetEvent(false);
         private NamedPipeServerStream server;
+        private CurrentState cs = new CurrentState();
+        
         public Service()
         {
             OnStart();
             Service1();
+            
+            waitHandle.WaitOne(); //MI SERVE PER NON FAR MORIRE IL SERVICE
+            
             OnShutdown();// when the CanShutdown property is true
             // the system is shutting down.
             //per simulare gestire evento SessionEndedEventHandler
             OnStop();
         }
-
+       
         private void Service1()
         {
+            newCommand += newCommandEvent;
             //ricezione eventi di sistema
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
             SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
             SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
 
-            //listening sulla pipe dal form
-            //var client = new NamedPipeClientStream(".","FNPipeLocator", PipeDirection.In, PipeOptions.Asynchronous);
 
 
-            this.clientPipe = new ClientPipe(this);
+             WlanClient client = new WlanClient();
+             try
+             {
+                 foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                 {
+                     wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
+                 }
+             }
+             catch (Exception ex) { 
+             }
 
-            clientPipe.thePipe = new NamedPipeClientStream(".", "FNPipeLocator", PipeDirection.In, PipeOptions.Asynchronous);
-
-            clientPipe.OkToExit = false;
-
-            clientPipe.Data = new byte[4096];
-
-            clientPipe.IsReading = false;
             
-
-            TimeoutTimer = new Timer(TimeoutCheck, this, 1, 1000);
-            clientPipe.thePipe.Connect(1000);
-
-            GetData(clientPipe);
-
-
-            /*
-
-            var client = new NamedPipeClientStream("FNPipeLocator");
-            client.Connect();
-            Console.WriteLine("Service: Connect with server");
-            StreamString ss = new StreamString(client);
-            while (true)
-            {
-                
-                String text = ss.ReadString();
-                if (text != null)
-                {
-                    CurrentState cs = new CurrentState();
-                    PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
-                    Log.trace(pm.cmd);
-                    Console.WriteLine("Service: received message:" + pm.cmd);
-                }
-                else
-                {
-                    break;
-                }
-               //Thread.Sleep(4000);
-            }
-            client.Close();
-            */
-
-            //eventuale comunicazione al form (avviene solo nel caso nuovo posto)
-            /* var server = new NamedPipeServerStream("FNPipeService");
-             Console.WriteLine("Service.Main: Waiting for client connect...\n");
-             server.WaitForConnection();
-             Console.WriteLine("Service.Main:connection with client...\n");
-             StreamString ssF = new StreamString(server);
-
-             ssF.WriteString("PIPE da Service a FN");
-             Console.WriteLine("Service.Main:message send...\n");
-             Thread.Sleep(8000);
-             server.Close();*/
-
         }
-
-
-
-        static void GetData(ClientPipe clientPipe)
+        private void WrongPlace()
         {
-
-            while (!clientPipe.OkToExit)
-            {
-
-                if (!clientPipe.IsReading)
-                {
-                    clientPipe.IsReading = true;
-                    //clientPipe.LastRead = DateTime.Now;
-                    clientPipe.thePipe.BeginRead(clientPipe.Data, 0, 4096, AsyncReadCallback, clientPipe.service);
-
-                }System.Threading.Thread.Sleep(10);
-
-            }
-
+            //DEVO DECREMENTARE  TUTTE LE IMPORTANZE DELLE RETI IN CURRENT PLACE
+            Log.trace("WRONG PLACE");
+            this.CurrentPlace = null;
+            
         }
 
-
-        static void TimeoutCheck(object state)
+        private void ForceCheckin(Place p)
         {
+            // Log.trace("FORCE PLACE");
+            // this.WrongPlace();
 
-
-
-            Service client = (Service)state;
-
-
-            TimeSpan timeSinceLastRead = DateTime.Now - client.clientPipe.LastRead;
-
-            if (timeSinceLastRead.TotalSeconds > TimeoutSeconds)
-            {
-                client.clientPipe.LastRead = DateTime.Now;
-                Log.trace("REFRESH");
-                StreamString ss = new StreamString(client.server);
-
-
-                CurrentState cs = new CurrentState();
-                Place value = cs.searchPlace();
-                Log.trace("--------------------------------------------"+value.name);
-
-                if ((client.currentPlace != value && value == null) || (client.currentPlace == null && value != null) || (client.currentPlace != null && value != null && client.currentPlace.ID != value.ID))
-                {
-                    if (value != null)
-                    {
-                        ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = value.ID, cmd = "refresh" }));
-                    }
-                    else
-                    {
-                        ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "refresh" }));
-                    }
-                }
-                client.CurrentPlace = value;
-
-            }       
+            //DEVO INCREMENTARE  TUTTE LE IMPORTANZE DELLE RETI IN p
+            this.CurrentPlace = p;
         }
+       
 
-        private static void PipeReadCallback(IAsyncResult ar)
-        {
-
-            try
-            {
-
-                 Service client = (Service)ar.AsyncState;
-
-                 client.clientPipe.LastRead = DateTime.Now;
-
-                 ClientPipe clientPipe = client.clientPipe;
-
-
-                 clientPipe.LastRead = DateTime.Now;
-
-                int i = clientPipe.thePipe.EndRead(ar);
-
-                Console.WriteLine(String.Format("{0} callback {1} packet size = {2}", DateTime.Now.ToString("HH:mm:ss.fff"), "AIS", i));
-
-                if (i != 0)
-                {
-
-                    clientPipe.IsReading = false;
-                    Log.trace("FALSE");
-                    GetData(clientPipe);
-                    if (i > 1)
-                    {
-                     //   PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(Encoding.UTF8.GetString(clientPipe.Data, 0, clientPipe.Data.Length));
-                    }
-
-                }
-
-                else
-                {
-                   
-                    clientPipe.OkToExit = true;
-
-                }
-
-            }
-
-            catch (Exception ex)
-            {
-
-                Debug.WriteLine("are we here " + ex.Message);
-
-            }
-
-        }
-
-
+       
         private void OnStart()//string[] args
         {
             Console.WriteLine("Service.Main:AVVIO SERVICE");
             
-           /* using(this.server = new NamedPipeServerStream("FNPipeService", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
-            {
-                var asyncResult = server.BeginWaitForConnection(null, null);
-
-                if (asyncResult.AsyncWaitHandle.WaitOne(5000))
-                {
-                    server.EndWaitForConnection(asyncResult);
-                    // success
-                    Console.WriteLine("Service:client connect...\n");
-                }
-                else
-                {
-                    // fail
-                    Console.WriteLine("Service:client NOT connect...\n");
-                }
-            }*/
+        
 
             this.server = new NamedPipeServerStream("FNPipeService"); 
            
-                Console.WriteLine("Service: wait for client(form) connect");
-                server.WaitForConnection();
-                Console.WriteLine("Service: Form is connected");
+            Console.WriteLine("Service: wait for client(form) connect");
+            server.WaitForConnection();
+            Console.WriteLine("Service: Form is connected");
+            this.SendCommand(new PipeMessage(){cmd="CONNESSO"});
+
             
+            this.CurrentPlace = this.cs.searchPlace();
+
+            //CREO IL SECONDO THREAD PER LA COMUNICAZIONE DEL SERVICE
+            listener = new ListenThread(this, "FNPipeLocator");
+            Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
+            InstanceCaller.Start();
 
             //ATTENZIONE!! il service si blocca sulla wait?Elo scheduler?
-            
 
-            //Thread.Sleep(100000);
-
-            //Thread InstanceCaller = new Thread(
-            //new ThreadStart(ListenThreadService.InstanceMethod));
-
-            // Start the thread.
-            //InstanceCaller.Start();
         }
 
 
@@ -341,11 +177,58 @@ namespace ConsoleService
 
         private void OnShutdown()
         {
+            listener._shouldStop = true;
 
         }
 
 
-        //Gestione event handler////////////////////////////////////////////////////////
+
+        public void newCommandEvent(PipeMessage pm) {
+            if (pm != null) {
+                switch (pm.cmd)
+                {
+                    case "wrong":
+                        this.WrongPlace();
+                        break;
+                    case "refresh":
+                        this.CurrentPlace = this.cs.searchPlace();
+                        break;
+                }
+                Log.trace("RICEVUTO:" + pm.cmd);
+            }
+            
+        }
+
+        private bool SendCommand(PipeMessage pm) {
+           
+            if (server != null)
+            {
+                Log.trace("SEND:" + pm.cmd);
+                StreamString ss = new StreamString(server);
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
+                return true;
+            }
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        //          Gestione event handler                   ///
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
 
         private void AddressChangedCallback(object sender, EventArgs e)
         {
@@ -378,5 +261,19 @@ namespace ConsoleService
         {
             Log.trace("user suspends or resumes the system");
         }
+
+        private void wlanIfacenNotification(Wlan.WlanNotificationData notifyData)
+        {
+            Log.trace("IL SERVICE HA SENTITO UN EVENTO:"+notifyData.NotificationCode.ToString());
+            
+            if (notifyData.NotificationCode.Equals(Wlan.WlanNotificationCodeMsm.SignalQualityChange))
+            {
+               this.CurrentPlace = this.cs.searchPlace();
+            }
+            //Console.WriteLine("{0} to {1} with quality level {2}",connNotifyData.wlanConnectionMode, connNotifyData.profileName, "-");
+        }
     }
+
+
+
 }
