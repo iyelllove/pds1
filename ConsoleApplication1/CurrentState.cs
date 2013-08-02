@@ -162,66 +162,115 @@ namespace ConsoleService
         */
 
 
-       
 
-        public Place searchPlace() {
+
+        public Place searchPlace()
+        {
+            Place place_found = new Place();
+            place_found.name = "non settato";
             using (var db = Helper.getDB())
             {
-           
+
                 //System.Threading.Thread.Sleep(1500);
                 //datapds1Entities2 db = new datapds1Entities2();
+
+
+                //List<Place> places = new List<Place>();
+                List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
+                Dictionary<string, PlacesNetworsValue> used = new Dictionary<string, PlacesNetworsValue>();
+                Dictionary<string, PlacesNetworsValue> used2remove = new Dictionary<string, PlacesNetworsValue>();
+
+
+
+                Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
+                List<Network> network_sniffed = new List<Network>();
+                List<Network> networks_candidate = new List<Network>();
+                this.possible_place.Clear();
+
                 
-
-                    //List<Place> places = new List<Place>();
-                    List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
-                    Dictionary<string, PlacesNetworsValue> used = new Dictionary<string, PlacesNetworsValue>();
-                    Dictionary<string, PlacesNetworsValue> used2remove = new Dictionary<string, PlacesNetworsValue>();
-
-
-                       
-                    Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
-                    List<Network> network_sniffed = new List<Network>();
-                    List<Network> networks_candidate =  new List<Network>();
-                    this.possible_place.Clear();
+                double place_found_lp = double.MaxValue;
 
 
 
+                List<int> ns = new List<int>();
+                Dictionary<Network, Int16> current_strength_network = new Dictionary<Network, Int16>();
 
-                    List<int> ns = new List<int>();
+                foreach (var network in networks)
+                {
 
-                    foreach (var network in networks)
+                    string ssid = Helper.getSSIDName(network);
+                    string mac = Helper.getMacAddress(network);
+                    try
                     {
-
-                        string ssid = Helper.getSSIDName(network);
-                        string mac = Helper.getMacAddress(network);
-                        try
+                        Network nn = db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).SingleOrDefault();
+                        if (nn != null)
                         {
-                            Network nn = db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).SingleOrDefault();
-                            if (nn != null)
-                            {
-                                network_sniffed.Add(nn);
-                                ns.Add(nn.ID);
-                            }
-                        }
-                        catch {
-                            
+                            network_sniffed.Add(nn);
+                            ns.Add(nn.ID);
+                            current_strength_network.Add(nn, Convert.ToInt16(network.rssi.ToString()));
                         }
                     }
-                    //CERCO TUTTI I POSTI CHE HANNO ALMENO UNA RETE DI QUELLE CHE STO SENTENDO
-                    var place_candidate = db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c => c.Place.ID != null).GroupBy(c => c.Place).ToList();
-                    int n_p = place_candidate.Count();
-                    if (n_p > 0)
+                    catch
                     {
-                        //oTTENGO SOLO I NETWORK CHE SENTO E CHE NON SONO CONDIVISI DA TUTTI I LUOGHI
-                        var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).Where(c => c.Count() < n_p).ToList();
-                        foreach (var ppps in network_candidate)
+
+                    }
+                }
+                //CERCO TUTTI I POSTI CHE HANNO ALMENO UNA RETE DI QUELLE CHE STO SENTENDO
+                var place_candidate = db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c => c.Place.ID != null).GroupBy(c => c.Place).ToList();
+                int n_p = place_candidate.Count();
+                if (n_p > 0)
+                {
+                    //OTTENGO SOLO I NETWORK CHE SENTO 
+                    var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).ToList(); //Where(c => c.Count() < n_p).ToList();
+                    foreach (var ppps in network_candidate)
+                    {
+                        // TUTTI I NETWORKS CONDIVISI DA TUTTI I POSTI
+                        networks_candidate.Add(ppps.Key);
+                    }
+
+                    foreach (var pc in place_candidate)
+                    {
+                        Place place = pc.Key;
+                        double lp = 0;
+                        int i = 0;
+                        foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
                         {
-                            // TUTTI I NETWORKS CONDIVISI DA TUTTI I POSTI
-                            networks_candidate.Add(ppps.Key);
+                            //per ogni posto candidato considero le reti che costituiscono il posto
+                            //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
+                            if (networks_candidate.Contains(pnv.Network))
+                            {
+                                i++;
+                                int impronta = current_strength_network[pnv.Network];
+                                int media = pnv.media;
+                                lp = lp + ((Math.Abs(impronta - media)) ^ 2);
+
+                            }
+
                         }
+                        lp = Math.Sqrt(lp) / i;
+                        if (lp < place_found_lp)
+                        {
+                            place_found_lp = lp;
+                            place_found = place;
+                        }
+                    }
+
+                }
+                else
+                {
+                    //le reti che sto ascoltando non fanno parte di nessun posto a me conosciuto
+                    place_found = null;
+                }
+
+            }
+        return (place_found);
+        }
+
+
+                     
 
                         
-
+                        /*
                         foreach (var ppps in place_candidate)
                         {
                             if (ppps.Key != null)
@@ -350,12 +399,12 @@ namespace ConsoleService
                             }
                         }*/
                         
-                    }
+                    
                    
                     
 
 
-                    this.current_place = null;
+                    //this.current_place = null;
                     /*
                     float max = 0;
                     if (rightplaces.Count() > 0)
@@ -476,6 +525,7 @@ namespace ConsoleService
                     }
                     */
 
+            /*
                     float max = 0;
                     Log.trace("########## SCELGO IL MIGLIORE ####### ");
                     foreach (RightPlace rp in rightplaces.Values)
@@ -483,7 +533,7 @@ namespace ConsoleService
                         this.possible_place.Add(rp.place);
                         Log.trace(rp.place + ": " + rp.avg);
                         max = Math.Max(max, rp.avg);
-                        if (max == rp.avg && max > /*Properties.Settings.Default.min_perc_same_place*/ 70)
+                        if (max == rp.avg && max > /*Properties.Settings.Default.min_perc_same_place*//* 70)
                         {
                             this.current_place = rp.place;
                             this.current_place_value = max;
@@ -594,12 +644,17 @@ namespace ConsoleService
                     {
                         Log.trace("Non sei in nessun posto conosciuto");
                     }
-                */
+                *//*
                     }
              return this.current_place;
+        }*/
+
+
+
+        static string GetStringForSSID(Wlan.Dot11Ssid ssid)
+        {
+            return Encoding.ASCII.GetString(ssid.SSID, 0, (int)ssid.SSIDLength);
         }
-
-
 
         public void wrongPlace()
         {

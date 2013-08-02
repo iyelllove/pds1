@@ -224,6 +224,7 @@ namespace ConsoleService
 
                 CurrentState cs = new CurrentState();
                 Place value = cs.searchPlace();
+                Log.trace("--------------------------------------------"+value.name);
 
                 if ((client.currentPlace != value && value == null) || (client.currentPlace == null && value != null) || (client.currentPlace != null && value != null && client.currentPlace.ID != value.ID))
                 {
