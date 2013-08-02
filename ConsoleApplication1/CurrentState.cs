@@ -25,6 +25,7 @@ namespace ConsoleService
         private Checkin checkin;
         private Int16 backupc;
         private Place forcePlace = null;
+        double precision = 0;
 
         private datapds1Entities2 db;
 
@@ -166,8 +167,10 @@ namespace ConsoleService
 
         public Place searchPlace()
         {
+            Log.trace("-----------------------inizio ricerca" );
             Place place_found = new Place();
             place_found.name = "non settato";
+            double place_found_lp = double.MaxValue;
             using (var db = Helper.getDB())
             {
 
@@ -188,7 +191,7 @@ namespace ConsoleService
                 this.possible_place.Clear();
 
                 
-                double place_found_lp = double.MaxValue;
+                
 
 
 
@@ -263,6 +266,10 @@ namespace ConsoleService
                 }
 
             }
+         //Log.trace("-------------------------------"+place_found.name);
+            current_place = place_found;
+            if (place_found == null) { precision = 0; }
+            else { precision = place_found_lp; }
         return (place_found);
         }
 
