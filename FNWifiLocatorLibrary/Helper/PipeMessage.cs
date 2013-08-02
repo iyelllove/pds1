@@ -21,7 +21,7 @@ namespace FNWifiLocatorLibrary{
             
             set { if(value == null) place_id = 0; else place_id=value; } }
         public String cmd;
-        public float precision = 0;
+        public double precision = 0;
 
         public PipeMessage()
         {
