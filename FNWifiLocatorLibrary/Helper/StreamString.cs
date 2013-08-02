@@ -36,6 +36,7 @@ namespace FNWifiLocatorLibrary
             }
             
             
+            
         }
 
         public int WriteString(string outString)
