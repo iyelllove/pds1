@@ -73,6 +73,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="MyModelDbContextSingleton.cs" />
     <Compile Include="Network.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
