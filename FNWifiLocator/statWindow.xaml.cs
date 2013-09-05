@@ -41,13 +41,13 @@ namespace FNWifiLocator
         /// <param name="e"></param>
         private void OnColumnHeaderClick(object sender, RoutedEventArgs e)
         {
-            //GridViewColumn column = ((GridViewColumnHeader)e.OriginalSource).Column;
-            //piePlotter.PlottedProperty = column.Header.ToString();
+            GridViewColumn column = ((GridViewColumnHeader)e.OriginalSource).Column;
+            piePlotter.PlottedProperty = column.Header.ToString();
         }
 
         private void AddNewItem(object sender, RoutedEventArgs e)
         {
-            AssetClass asset = new AssetClass() { Class = "new class"};
+            AssetClass asset = new AssetClass() { PlaceName = "new class" };
             classes.Add(asset);
         }
     }

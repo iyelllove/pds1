@@ -9,25 +9,25 @@ namespace FNWifiLocator
 {
     public class AssetClass : INotifyPropertyChanged
     {
-        private String myClass;
+        private String placeName;
 
-        public String Class
+        public String PlaceName
         {
-            get { return myClass; }
+            get { return placeName; }
             set {
-                myClass = value;
-                RaisePropertyChangeEvent("Class");
+                placeName = value;
+                RaisePropertyChangeEvent("Placename");
             }
         }
 
-        private double fund;
+        private double media;
 
-        public double Fund
+        public double Media
         {
-            get { return fund; }
+            get { return media; }
             set {
-                fund = value;
-                RaisePropertyChangeEvent("Fund");
+                media = value;
+                RaisePropertyChangeEvent("Media");
             }
         }
 
@@ -42,14 +42,14 @@ namespace FNWifiLocator
             }
         }
 
-        private double benchmark;
+        private double times;
 
-        public double Benchmark
+        public double Times
         {
-            get { return benchmark; }
+            get { return times; }
             set {
-                benchmark = value;
-                RaisePropertyChangeEvent("Benchmark");
+                times = value;
+                RaisePropertyChangeEvent("Times");
             }
         }
 
@@ -67,13 +67,20 @@ namespace FNWifiLocator
                 foreach (Place place in places) {
                     int i = dddb.Checkins.Where(c => c.Place.ID == place.ID).Count();
 
-
-
+                    var cks = dddb.Checkins.Where(c => c.Place.ID == place.ID).ToList();
+                    var totaltime = 0;
+                    
+                    foreach (Checkin ck in cks) {
+                        totaltime += ((DateTime)(ck.@out)).Subtract(ck.@in).Seconds;
+                         //mediatime = mediatime+totaltime; 
+                    }
                     var qurey = from ad in dddb.Checkins
                                 where (ad.Place.ID == place.ID)
                                 select ad;
 
-                    assetClasses.Add(new AssetClass() { Class = place.name, Fund = 1+i, Total = place.name, Benchmark = i });
+
+
+                    assetClasses.Add(new AssetClass() { PlaceName = place.name, Media = totaltime / Math.Min(i, 1), Total = totaltime.ToString(), Times = i });
                 }
                
             }

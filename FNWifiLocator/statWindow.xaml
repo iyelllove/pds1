@@ -17,7 +17,7 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <c:PieChartLayout HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0"
-                              x:Name="piePlotter" PlottedProperty="Fund" Margin="10">
+                              x:Name="piePlotter" PlottedProperty="Media" Margin="10">
                 <c:PieChartLayout.ColorSelector>
                     <c:IndexedColourSelector Brushes="{StaticResource brushes}"/>
                 </c:PieChartLayout.ColorSelector>
@@ -26,12 +26,12 @@
             <GroupBox Header="Dettagli" Width="Auto" Margin="10">
                 <StackPanel Orientation="Horizontal">
                     <ListView IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding}" Margin="10,10,10,11"
-                               Height="150" Name="listBox1" GridViewColumnHeader.Click="OnColumnHeaderClick" Width="479">
+                               Height="150" Name="listBox1"  Width="Auto" >
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Class" DisplayMemberBinding="{Binding Path=Class}"/>
-                                <GridViewColumn Header="Tempo Medio" DisplayMemberBinding="{Binding Path=Fund}"/>
-                                <GridViewColumn Header="Numero di Volte" DisplayMemberBinding="{Binding Path=Benchmark}"/>
+                                <GridViewColumn Header="Class" DisplayMemberBinding="{Binding Path=PlaceName}"/>
+                                <GridViewColumn Header="Tempo Medio" DisplayMemberBinding="{Binding Path=Media}"/>
+                                <GridViewColumn Header="Numero di Volte" DisplayMemberBinding="{Binding Path=Times}"/>
                                 <GridViewColumn Header="Tempo Totale" DisplayMemberBinding="{Binding Path=Total}"/>
                             </GridView>
                         </ListView.View>

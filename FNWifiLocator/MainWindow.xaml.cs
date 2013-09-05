@@ -245,7 +245,7 @@ namespace FNWifiLocator
             
             newPlace = new changePlace(ChangePlaceMethod);
             //notify = new notifyText(NotifyTextMethod);
-            
+            InitializeComponent();
             ListenThreadForm listener = new ListenThreadForm(this);
             Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
             InstanceCaller.Start();
@@ -271,6 +271,7 @@ namespace FNWifiLocator
             this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out);
       
             Console.WriteLine("FN.Main: Waiting for client connect...\n");
+           
             this.server.WaitForConnection();
             Console.WriteLine("FN.Main:connection with client...\n");
 
@@ -284,7 +285,7 @@ namespace FNWifiLocator
             //Thread.Sleep(2000);
             //server.Close();
             
-            InitializeComponent();
+           
             this.SlideOpen = false;
 
             
@@ -544,15 +545,23 @@ namespace FNWifiLocator
             else {
                 //posto nuovo
                 Place p = null;
-                using (var db = Helper.getDB()) //Helper.getDB())
-                {
                     try
                     {
-                        p = new Place();
-                        p.name = this.new_place_name.Text;
-                        p.m_num = 1;
-                        db.Places.Add(p);
+                        using (var db = Helper.getDB()) //Helper.getDB())
+                        {
+
+                            p = new Place();
+                            p.name = this.new_place_name.Text;
+                            p.m_num = 1;
+                            db.Places.Add(p);
+                            db.SaveChanges();
+                        }
                         Helper.saveAllCurrentNetworkInPlace(p);
+                        using (var db = Helper.getDB()) //Helper.getDB())
+                        {
+                            db.Places.Attach(p);
+                            db.SaveChanges();
+                        }
 
 
                     }
@@ -560,7 +569,7 @@ namespace FNWifiLocator
                     {
                         Log.error(ex.Message);
                     }
-                }
+                
                
                 this.rlistdelegate();
                 this.CurrentPlace = p;

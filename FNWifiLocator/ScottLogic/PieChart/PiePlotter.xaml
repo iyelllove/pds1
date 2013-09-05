@@ -41,17 +41,22 @@
                                     DataContext="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType={x:Type ToolTip}}}"
                                     Text="{Binding Path=Percentage, Converter={StaticResource formatter}, ConverterParameter='\{0:0%\}'}"/>
                     
-                            <StackPanel Orientation="Vertical">                                  
-                                <TextBlock FontWeight="Bold"  Text="{Binding Path=Class}"/>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock FontWeight="Bold"  Text="{Binding Path=PlaceName}"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="I Miei Posti"/>                               
-                                    <TextBlock Text=": "/>
-                                    <TextBlock Text="{Binding Path=Fund}"/>
+                                    <TextBlock Text="Checkin: "/>
+                                    <TextBlock Text="{Binding Path=Times}"/>
+                                    <TextBlock Text=" volte"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="#"/>                               
-                                    <TextBlock Text=": "/>
-                                    <TextBlock Text="{Binding Path=Benchmark}"/>
+                                    <TextBlock Text="Totale: "/>
+                                    <TextBlock Text="{Binding Path=Total}"/>
+                                    <TextBlock Text=" sec."/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Media: "/>
+                                    <TextBlock Text="{Binding Path=Media}"/>
+                                    <TextBlock Text=" sec."/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>

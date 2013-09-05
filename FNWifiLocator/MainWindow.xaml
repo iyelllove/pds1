@@ -43,10 +43,12 @@
                     <TextBlock Text="{Binding Path=Title}" />
                 </HierarchicalDataTemplate>
             </StackPanel.Resources>
-            <Button x:Name="update_Copy" Content="Aggiorna lista&#xD;&#xA;" Click="update_ClickList" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>
+            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView"  HorizontalAlignment="Left" Width="200"  SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True"/>
             <Button x:Name="placeDetail" Content="Dettaglio"  Click="placeDetail_click" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>
 
-            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView"  HorizontalAlignment="Left" Width="200"  SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True"/>
+            <Button         x:Name="toggleWindow_Copy"   Content="Statistiche"           VerticalAlignment="Bottom" RenderTransformOrigin="2.187,-2.083"  Click="stats_click" Height="24" Margin="10, 0,10,0"/>
+            <Button x:Name="update_Copy" Content="Aggiorna lista&#xD;&#xA;" Click="update_ClickList" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>
+            
         </StackPanel>
         <Grid Grid.RowSpan="2" Grid.ColumnSpan="3" Margin="0,0,-7,0">
             <Grid HorizontalAlignment="Left" Width="248"  >
@@ -60,8 +62,7 @@
                 <RadioButton    x:Name="radiob2"        Content="Nessun posto"      HorizontalAlignment="Left" GroupName="place" Margin="10,205,0,0" VerticalAlignment="Top" IsChecked="True" Height="25" Width="205"/>
                 <Button         x:Name="submitPlace"    Content="Invia"             HorizontalAlignment="Left" Margin="128,245,0,0" VerticalAlignment="Top" Width="90" Click="submitPlace_Click_1" Height="25"/>
                 <Button         x:Name="wrongPosition"  Content="Posizione Errata"  HorizontalAlignment="Left" Margin="10,245,0,0" VerticalAlignment="Top" Width="107" Click="wrongPosition_Click_1" Height="25" IsEnabled="False"/>
-                <Button         x:Name="toggleWindow_Copy"   Content="&gt;&gt;"          HorizontalAlignment="Left" Margin="150,25,0,0" VerticalAlignment="Top" Width="30"  Click="stats_click" Height="25"/>
-
+                
             </Grid>
 
 
