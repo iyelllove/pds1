@@ -257,7 +257,10 @@ namespace ConsoleService
                             place_found = place;
                         }
                     }
-
+                    if (place_found!=null)
+                    {
+                        update_values(place_found);
+                    }
                 }
                 else
                 {
@@ -274,6 +277,100 @@ namespace ConsoleService
         }
 
 
+
+
+        public void update_values(Place place_found)
+        {
+            List<PlacesNetworsValue> founded = new List<PlacesNetworsValue>();
+            Helper.saveAllCurrentNetworkInPlace(place_found);
+            List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
+            foreach (var network in networks)
+            {
+                string ssid = Helper.getSSIDName(network);
+                string mac = Helper.getMacAddress(network);
+                PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
+                if (pnv_up != null)
+                {
+                    /*place network value delle reti che fanno parte di place_found, che sono presenti nel DB e che attualmente sto ascoltando*/
+                    founded.Add(pnv_up);
+                    pnv_up.rilevance=10;
+                }
+                else
+                {
+                    /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                }
+            }
+        }
+
+        public void update_values_checkin(Place place_found)
+        {
+            List<PlacesNetworsValue> founded = new List<PlacesNetworsValue>();
+            Helper.saveAllCurrentNetworkInPlace(place_found);
+            List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
+            foreach (var network in networks)
+            {
+                string ssid = Helper.getSSIDName(network);
+                string mac = Helper.getMacAddress(network);
+                PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
+                if (pnv_up != null)
+                {
+                    /*place network value delle reti che fanno parte di place_found, che sono presenti nel DB e che attualmente sto ascoltando*/
+                    founded.Add(pnv_up);
+                    pnv_up.rilevance = 10;
+                }
+                else
+                {
+                    /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                }
+            }
+
+            foreach (PlacesNetworsValue pnv in place_found.PlacesNetworsValues)
+            {
+
+                if (!founded.Contains(pnv))
+                {
+                    /*reti appartenenti al posto attuale ma che non sto ascotando*/
+                    pnv.rilevance--;
+                }
+            }
+
+        }
+
+           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        /*
+                        //Elimino tutte le reti che hanno come rilevanza 0 e meno
+                        foreach (PlacesNetworsValue pnv in db.PlacesNetworsValues.Where(c => c.rilevance <= 0).ToList())
+                        {
+                            db.PlacesNetworsValues.Remove(pnv);
+                        }
+                        //* /
+
+
+                        Place thisplace = db.Places.Where(c => c.ID == this.current_place.ID).FirstOrDefault();
+                        if (thisplace != null)
+                        {
+                            
+                            thisplace.m_num++;
+                        }
+                        
+                        db.SaveChanges();
+
+        }
                      
 
                         
