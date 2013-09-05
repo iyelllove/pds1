@@ -167,9 +167,9 @@ namespace ConsoleService
 
         public Place searchPlace()
         {
-            Log.trace("-----------------------inizio ricerca" );
-            Place place_found = new Place();
-            place_found.name = "non settato";
+            Log.trace("-----------------------inizio ricerca");
+            Place place_found = null;
+            //place_found.name = "non settato";
             double place_found_lp = double.MaxValue;
             using (var db = Helper.getDB())
             {
@@ -180,100 +180,100 @@ namespace ConsoleService
 
                 //List<Place> places = new List<Place>();
                 List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
-                Dictionary<string, PlacesNetworsValue> used = new Dictionary<string, PlacesNetworsValue>();
-                Dictionary<string, PlacesNetworsValue> used2remove = new Dictionary<string, PlacesNetworsValue>();
-
-
-
-                Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
-                List<Network> network_sniffed = new List<Network>();
-                List<Network> networks_candidate = new List<Network>();
-                this.possible_place.Clear();
-
-                
-                
-
-
-
-                List<int> ns = new List<int>();
-                Dictionary<Network, Int16> current_strength_network = new Dictionary<Network, Int16>();
-
-                foreach (var network in networks)
+                lock (networks)
                 {
+                    Dictionary<string, PlacesNetworsValue> used = new Dictionary<string, PlacesNetworsValue>();
+                    Dictionary<string, PlacesNetworsValue> used2remove = new Dictionary<string, PlacesNetworsValue>();
 
-                    string ssid = Helper.getSSIDName(network);
-                    string mac = Helper.getMacAddress(network);
-                    try
-                    {
-                        Network nn = db.Networks.Where(n => n.SSID == ssid).Where(n => n.MAC == mac).SingleOrDefault();
-                        if (nn != null)
-                        {
-                            network_sniffed.Add(nn);
-                            ns.Add(nn.ID);
-                            current_strength_network.Add(nn, Convert.ToInt16(network.rssi.ToString()));
-                        }
-                    }
-                    catch
+
+
+                    Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
+                    List<Network> network_sniffed = new List<Network>();
+                    List<Network> networks_candidate = new List<Network>();
+                    this.possible_place.Clear();
+
+
+
+
+
+
+                    List<int> ns = new List<int>();
+                    Dictionary<Network, Int16> current_strength_network = new Dictionary<Network, Int16>();
+
+                    foreach (var network in networks)
                     {
 
-                    }
-                }
-                //CERCO TUTTI I POSTI CHE HANNO ALMENO UNA RETE DI QUELLE CHE STO SENTENDO
-                var place_candidate = db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c => c.Place.ID != null).GroupBy(c => c.Place).ToList();
-                int n_p = place_candidate.Count();
-                if (n_p > 0)
-                {
-                    //OTTENGO SOLO I NETWORK CHE SENTO 
-                    var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).ToList(); //Where(c => c.Count() < n_p).ToList();
-                    foreach (var ppps in network_candidate)
-                    {
-                        // TUTTI I NETWORKS CONDIVISI DA TUTTI I POSTI
-                        networks_candidate.Add(ppps.Key);
-                    }
-
-                    foreach (var pc in place_candidate)
-                    {
-                        Place place = pc.Key;
-                        double lp = 0;
-                        int i = 0;
-                        foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
-                        {
-                            //per ogni posto candidato considero le reti che costituiscono il posto
-                            //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
-                            if (networks_candidate.Contains(pnv.Network))
+                        string ssid = Helper.getSSIDName(network);
+                        string mac = Helper.getMacAddress(network);
+                       // try
+                       // {
+                            Network nn = db.Networks.Where(n => n.SSID == ssid && n.MAC == mac).FirstOrDefault();
+                            if (nn != null)
                             {
-                                i++;
-                                int impronta = current_strength_network[pnv.Network];
-                                int media = pnv.media;
-                                lp = lp + ((Math.Abs(impronta - media)) ^ 2);
+                                network_sniffed.Add(nn);
+                                ns.Add(nn.ID);
+                                current_strength_network.Add(nn, Convert.ToInt16(network.rssi.ToString()));
+                            }
+                       // }
+                       // catch
+                       // {
+
+                       // }
+                    }
+                    //CERCO TUTTI I POSTI CHE HANNO ALMENO UNA RETE DI QUELLE CHE STO SENTENDO
+                    var place_candidate = db.PlacesNetworsValues.Where(c => ns.Contains(c.Network.ID)).Where(c => c.Place.ID != null).GroupBy(c => c.Place).ToList();
+                    int n_p = place_candidate.Count();
+                    if (n_p > 0)
+                    {
+                        //OTTENGO SOLO I NETWORK CHE SENTO 
+                        var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).ToList(); //Where(c => c.Count() < n_p).ToList();
+                        foreach (var ppps in network_candidate)
+                        {
+                            // TUTTI I NETWORKS CONDIVISI DA TUTTI I POSTI
+                            networks_candidate.Add(ppps.Key);
+                        }
+
+                        foreach (var pc in place_candidate)
+                        {
+                            Place place = pc.Key;
+                            double lp = 0;
+                            int i = 0;
+                            foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
+                            {
+                                //per ogni posto candidato considero le reti che costituiscono il posto
+                                //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
+                                if (networks_candidate.Contains(pnv.Network))
+                                {
+                                    i++;
+                                    int impronta = current_strength_network[pnv.Network];
+                                    int media = pnv.media;
+                                    lp = lp + ((Math.Abs(impronta - media)) ^ 2);
+
+                                }
 
                             }
-
+                            lp = Math.Sqrt(lp) / i;
+                            if (lp < place_found_lp)
+                            {
+                                place_found_lp = lp;
+                                place_found = place;
+                            }
                         }
-                        lp = Math.Sqrt(lp) / i;
-                        if (lp < place_found_lp)
-                        {
-                            place_found_lp = lp;
-                            place_found = place;
-                        }
-                    }
-                    if (place_found!=null)
-                    {
-                        update_values(place_found);
-                    }
-                }
-                else
-                {
-                    //le reti che sto ascoltando non fanno parte di nessun posto a me conosciuto
-                    place_found = null;
-                }
 
+                    }
+
+                }
             }
-         //Log.trace("-------------------------------"+place_found.name);
-            current_place = place_found;
-            if (place_found == null) { precision = 0; }
-            else { precision = place_found_lp; }
-        return (place_found);
+                if (place_found != null && place_found.ID > 0)
+                {
+                    update_values(place_found);
+                }
+                //Log.trace("-------------------------------"+place_found.name);
+                current_place = place_found;
+                if (place_found == null) { precision = 0; }
+                else { precision = place_found_lp; }
+                return (place_found);
+            
         }
 
 
@@ -281,9 +281,12 @@ namespace ConsoleService
 
         public void update_values(Place place_found)
         {
-            List<PlacesNetworsValue> founded = new List<PlacesNetworsValue>();
-            Helper.saveAllCurrentNetworkInPlace(place_found);
-            List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
+            if (place_found != null && place_found.ID > 0)
+            {
+                List<PlacesNetworsValue> founded = new List<PlacesNetworsValue>();
+                Helper.saveAllCurrentNetworkInPlace(place_found);
+            }
+            /*List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
             foreach (var network in networks)
             {
                 string ssid = Helper.getSSIDName(network);
@@ -291,15 +294,15 @@ namespace ConsoleService
                 PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
                 if (pnv_up != null)
                 {
-                    /*place network value delle reti che fanno parte di place_found, che sono presenti nel DB e che attualmente sto ascoltando*/
+                    /*place network value delle reti che fanno parte di place_found, che sono presenti nel DB e che attualmente sto ascoltando* /
                     founded.Add(pnv_up);
                     pnv_up.rilevance=10;
                 }
                 else
                 {
-                    /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                    /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB* /
                 }
-            }
+            }*/
         }
 
         public void update_values_checkin(Place place_found)
