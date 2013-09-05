@@ -97,7 +97,7 @@ namespace FNWifiLocatorLibrary
                             pnv.Place = p;
                             pnv.media = Convert.ToInt16(network.rssi.ToString());
                             pnv.variance = (short)/*Properties.Settings.Default.delta_signal_value*/1;
-                            pnv.rilevance = 1; //Convert.ToInt16(network.linkQuality.ToString());
+                            pnv.rilevance = 10; //Convert.ToInt16(network.linkQuality.ToString());
 
                             db.PlacesNetworsValues.Add(pnv);
                             p.PlacesNetworsValues.Add(pnv);
