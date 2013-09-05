@@ -158,7 +158,7 @@ namespace ConsoleService
             this.SendCommand(new PipeMessage(){cmd="CONNESSO"});
 
             
-            this.CurrentPlace = this.cs.searchPlace();
+            //this.CurrentPlace = this.cs.searchPlace();
 
             //CREO IL SECONDO THREAD PER LA COMUNICAZIONE DEL SERVICE
             listener = new ListenThread(this, "FNPipeLocator");
@@ -233,19 +233,22 @@ namespace ConsoleService
         private void AddressChangedCallback(object sender, EventArgs e)
         {
             Log.trace("indirizzo ip cambiato");
-            StreamString ss = new StreamString(server);
-            ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "ip change" }));
+            //StreamString ss = new StreamString(server);
+            //ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "ip change" }));
+            this.CurrentPlace = this.cs.searchPlace();
         }
 
         private void SystemEvents_SessionEnded(object sender, SessionEndedEventArgs e)
         {
+            this.CurrentPlace = this.cs.searchPlace();
             Log.trace("user is trying to log off or shut down the system");
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             Log.trace("currently logged-in user has changed");
-            if (e.Reason == SessionSwitchReason.SessionLock)
+            this.CurrentPlace = this.cs.searchPlace();
+            /*if (e.Reason == SessionSwitchReason.SessionLock)
             {
                 Log.trace("locked at {0}");
                 Log.trace(DateTime.Now.ToString());
@@ -254,11 +257,12 @@ namespace ConsoleService
             {
                 Log.trace("unlocked at {0}");
                 Log.trace(DateTime.Now.ToString());
-            }
+            }*/
         }
 
         private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
+            this.CurrentPlace = this.cs.searchPlace();
             Log.trace("user suspends or resumes the system");
         }
 
