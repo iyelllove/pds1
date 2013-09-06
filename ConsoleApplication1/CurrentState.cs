@@ -194,13 +194,13 @@ namespace ConsoleService
                 List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
                 lock (networks)
                 {
-                    Dictionary<string, PlacesNetworsValue> used = new Dictionary<string, PlacesNetworsValue>();
-                    Dictionary<string, PlacesNetworsValue> used2remove = new Dictionary<string, PlacesNetworsValue>();
+                    //Dictionary<string, PlacesNetworsValue> used = new Dictionary<string, PlacesNetworsValue>();
+                    //Dictionary<string, PlacesNetworsValue> used2remove = new Dictionary<string, PlacesNetworsValue>();
 
 
 
                     Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
-                    List<Network> network_sniffed = new List<Network>();
+                        List<Network> network_sniffed = new List<Network>();
                     List<Network> networks_candidate = new List<Network>();
                     this.possible_place.Clear();
 
@@ -209,7 +209,7 @@ namespace ConsoleService
 
 
 
-                    List<int> ns = new List<int>();
+                        List<int> ns = new List<int>();
                     Dictionary<Network, Int16> current_strength_network = new Dictionary<Network, Int16>();
 
                     foreach (var network in networks)
@@ -279,7 +279,7 @@ namespace ConsoleService
             }
             if (place_found != null && place_found.ID > 0)
             {
-                update_values(place_found);
+                //update_values(place_found);
             }
             //Log.trace("-------------------------------"+place_found.name);
             current_place = place_found;
