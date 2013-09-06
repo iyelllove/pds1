@@ -59,7 +59,7 @@ namespace ConsoleService
                             value.Checkins.Add(currentCheckin);
                             db.SaveChanges();
                         }
-                     //   this.cs.update_values_checkin(value);
+                        //   this.cs.update_values_checkin(value);
                     }
 
                     StreamString ss = new StreamString(server);
@@ -151,7 +151,7 @@ namespace ConsoleService
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
 
             // Set the Interval to 2 seconds (2000 milliseconds).
-            aTimer.Interval = 30000;
+            aTimer.Interval = 60000;
             aTimer.Enabled = true;
 
             Console.WriteLine("Press the Enter key to exit the program.");
@@ -238,6 +238,20 @@ namespace ConsoleService
             {
                 switch (pm.cmd)
                 {
+                    case "newPlace":
+                        //this.WrongPlace();
+                        Place newplace  = null;
+                        using (var db = Helper.getDB())
+                        {
+                            newplace = db.Places.Where(c => c.ID == pm.place_id).FirstOrDefault();
+                        }
+                        if (newplace != null)
+                        {
+                            this.CurrentPlace = newplace;
+                            Helper.saveAllCurrentNetworkInPlace(newplace);
+                        }
+
+                        break;
                     case "wrong":
                         this.WrongPlace();
                         break;
