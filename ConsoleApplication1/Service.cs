@@ -22,14 +22,14 @@ using NativeWifi;
 namespace ConsoleService
 {
 
-    public  partial class Service
+    public partial class Service
     {
 
         public delegate void cmdReceived(PipeMessage p);
         public cmdReceived newCommand;
         public ListenThread listener;
 
-        
+
         const int TimeoutSeconds = 25;
 
         private Checkin currentCheckin;
@@ -40,26 +40,25 @@ namespace ConsoleService
             get { return currentPlace; }
             set
             {
-               
+
                 if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
                 {
                     //VUOL DIRE CHE IL LUOVO IN VALUE è DIVERSO DA QUELLO CHE HO MEMORIZZATO IO
                     this.currentPlace = value;
 
-                    using (var db = Helper.getDB())
+                    if (value != null)
                     {
-                        if (value != null)
+                        using (var db = Helper.getDB())
                         {
                             value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
                             currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
-                            
+
                             value.Checkins.Add(currentCheckin);
-
-                            this.cs.update_values_checkin(value);
+                            db.SaveChanges();
                         }
-
-                        db.SaveChanges();
+                        this.cs.update_values_checkin(value);
                     }
+
                     StreamString ss = new StreamString(server);
                     if (value != null)
                     {
@@ -70,7 +69,8 @@ namespace ConsoleService
                         this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
                     }
                 }
-                else {
+                else
+                {
                     if (currentCheckin != null)
                     {
                         //UPDATE DEL VALORE OUT DI CURRENT CHECKIN. SONO SICURO CHE FINO A QUESTO MOMENTO SONO STATO LI'
@@ -88,19 +88,19 @@ namespace ConsoleService
                 }
             }
         }
-        
+
         private static AutoResetEvent waitHandle = new AutoResetEvent(false);
         private NamedPipeServerStream server;
         private CurrentState cs = new CurrentState();
         private static System.Timers.Timer aTimer;
-        
+
         public Service()
         {
             OnStart();
             Service1();
-            
+
             waitHandle.WaitOne(); //MI SERVE PER NON FAR MORIRE IL SERVICE
-            
+
             OnShutdown();// when the CanShutdown property is true
             // the system is shutting down.
             //per simulare gestire evento SessionEndedEventHandler
@@ -109,7 +109,7 @@ namespace ConsoleService
 
         private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            
+
             CurrentPlace = cs.searchPlace();
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
         }
@@ -139,25 +139,26 @@ namespace ConsoleService
 
 
 
-             WlanClient client = new WlanClient();
-             try
-             {
-                 foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
-                 {
-                     wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
-                 }
-             }
-             catch (Exception ex) { 
-             }
+            WlanClient client = new WlanClient();
+            try
+            {
+                foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                {
+                    wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
 
-            
+
         }
         private void WrongPlace()
         {
             //DEVO DECREMENTARE  TUTTE LE IMPORTANZE DELLE RETI IN CURRENT PLACE
             Log.trace("WRONG PLACE");
             this.CurrentPlace = null;
-            
+
         }
 
         private void ForceCheckin(Place p)
@@ -168,24 +169,24 @@ namespace ConsoleService
             //DEVO INCREMENTARE  TUTTE LE IMPORTANZE DELLE RETI IN p
             this.CurrentPlace = p;
         }
-       
 
-       
+
+
         private void OnStart()//string[] args
         {
             Console.WriteLine("Service.Main:AVVIO SERVICE");
-            
-        
 
-            this.server = new NamedPipeServerStream("FNPipeService"); 
-           
+
+
+            this.server = new NamedPipeServerStream("FNPipeService");
+
             Console.WriteLine("Service: wait for client(form) connect");
             /*
             server.WaitForConnection();
             Console.WriteLine("Service: Form is connected");
             this.SendCommand(new PipeMessage(){cmd="CONNESSO"});
             */
-            
+
             //this.CurrentPlace = this.cs.searchPlace();
 
             //CREO IL SECONDO THREAD PER LA COMUNICAZIONE DEL SERVICE
@@ -211,8 +212,10 @@ namespace ConsoleService
 
 
 
-        public void newCommandEvent(PipeMessage pm) {
-            if (pm != null) {
+        public void newCommandEvent(PipeMessage pm)
+        {
+            if (pm != null)
+            {
                 switch (pm.cmd)
                 {
                     case "wrong":
@@ -224,10 +227,11 @@ namespace ConsoleService
                 }
                 Log.trace("RICEVUTO:" + pm.cmd);
             }
-            
+
         }
 
-        private bool SendCommand(PipeMessage pm) {
+        private bool SendCommand(PipeMessage pm)
+        {
 
             if (server != null && server.IsConnected)
             {
@@ -296,11 +300,11 @@ namespace ConsoleService
 
         private void wlanIfacenNotification(Wlan.WlanNotificationData notifyData)
         {
-            Log.trace("IL SERVICE HA SENTITO UN EVENTO:"+notifyData.NotificationCode.ToString());
-            
+            Log.trace("IL SERVICE HA SENTITO UN EVENTO:" + notifyData.NotificationCode.ToString());
+
             if (notifyData.NotificationCode.Equals(Wlan.WlanNotificationCodeMsm.SignalQualityChange))
             {
-               this.CurrentPlace = this.cs.searchPlace();
+                this.CurrentPlace = this.cs.searchPlace();
             }
             //Console.WriteLine("{0} to {1} with quality level {2}",connNotifyData.wlanConnectionMode, connNotifyData.profileName, "-");
         }
