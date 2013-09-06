@@ -17,6 +17,7 @@ namespace FNWifiLocatorLibrary
         static DateTime timestamp;
         static datapds1Entities2 dbistance = null;
         static FNDB fbndbistance = null;
+        private static object xmppLock = new object();
 
         static List<Wlan.WlanBssEntry> networks = new List<Wlan.WlanBssEntry>();
 
@@ -38,40 +39,49 @@ namespace FNWifiLocatorLibrary
 
         static public List<Wlan.WlanBssEntry> getCurrentNetworks()
         {
-
-            lock (networks)
+            if (Monitor.TryEnter(xmppLock, 15000))
             {
-                Log.trace((DateTime.Now - timestamp).TotalSeconds.ToString());
-                //  if ((DateTime.Now - timestamp).TotalSeconds > 5)
-                //  {
-                Log.trace("waiting for networks....");
-                networks.Clear();
-                WlanClient client = new WlanClient();
+                //Monitor.Enter(xmppLock);
                 try
                 {
-                    foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                    //Log.trace((DateTime.Now - timestamp).TotalSeconds.ToString());
+                    //  if ((DateTime.Now - timestamp).TotalSeconds > 5)
+                    //  {
+                    Log.trace("waiting for networks....");
+                    networks.Clear();
+                    WlanClient client = new WlanClient();
+                    try
                     {
-                        Log.trace(wlanIface.InterfaceState.ToString());
-                        wlanIface.Scan();
-
-                        waitHandle.Reset();
-                        wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
-                        waitHandle.WaitOne();
-                        Log.trace("Sbloccata: Scan Completed");
-                        foreach (Wlan.WlanBssEntry network in wlanIface.GetNetworkBssList())
+                        foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
                         {
-                            networks.Add(network);
-                        }
+                            Log.trace(wlanIface.InterfaceState.ToString());
+                            wlanIface.Scan();
 
+                            waitHandle.Reset();
+                            wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
+                            waitHandle.WaitOne();
+                            Log.trace("Sbloccata: Scan Completed");
+                            foreach (Wlan.WlanBssEntry network in wlanIface.GetNetworkBssList())
+                            {
+                                networks.Add(network);
+                            }
+
+                        }
+                        timestamp = DateTime.Now;
                     }
-                    timestamp = DateTime.Now;
+                    catch (Exception ex)
+                    {
+                        Log.error(ex);
+                    }
                 }
-                catch (Exception ex)
+                finally
                 {
-                    Log.error(ex);
+                    
+                    Monitor.Exit(xmppLock);
+                    
                 }
+                return networks;
             }
-            //       }
             return networks;
         }
         static public void saveAllCurrentNetworkInPlace(Place p)
@@ -81,7 +91,8 @@ namespace FNWifiLocatorLibrary
             {
                 lock (networks)
                 {
-                    foreach (Wlan.WlanBssEntry network in networks)
+                    List<Wlan.WlanBssEntry> currentnetworks = getCurrentNetworks();
+                    foreach (Wlan.WlanBssEntry network in currentnetworks)
                     {
                         if (network.linkQuality >= 0/*Properties.Settings.Default.delta_signal_value*/)
                         {
