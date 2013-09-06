@@ -301,7 +301,7 @@ namespace FNWifiLocator
             this.rlistdelegate += this.refreshPlaceTree;
             rlistdelegate();
             CurrentPlace = null;
-            Helper.printAllNetworks();
+            //Helper.printAllNetworks();
 
 
 
@@ -460,7 +460,7 @@ namespace FNWifiLocator
 
 
 
-
+        /*
         private void Delete_Place_Click(object sender, RoutedEventArgs e)
         {
             using (var db = Helper.getDB())
@@ -486,7 +486,7 @@ namespace FNWifiLocator
                 }
             }
 
-        }
+        }*/
 
 
 
@@ -533,8 +533,10 @@ namespace FNWifiLocator
                     //Place sp = this.selectedPlace;
                     //db.Places.Attach(this.selectedPlace);
                     Place sp = db.Places.Where(c => c.ID == this.selectedPlace.ID).FirstOrDefault();
+                    
                     if (sp != null)
                     {
+                        if (this.currentPlace.ID == sp.ID) currentPlace = null;
                         /*
                         try
                         {
@@ -629,11 +631,20 @@ namespace FNWifiLocator
                             //Aggiungo il nuovo posto. Unico punto.
                             db.Places.Add(p);
                             db.SaveChanges();
+
+                            SendCommand(new PipeMessage { place_id = p.ID, cmd = "newPlace", place = p.ID });
                         }
-                        Helper.saveAllCurrentNetworkInPlace(p);
-                        this.getSlw();
-                        this.slw.CurrentPlace = p;
-                        this.slw.Show();
+                        //Helper.saveAllCurrentNetworkInPlace(p);
+                        
+                        
+                        
+                        //this.getSlw();
+                        //this.slw.CurrentPlace = p;
+                        //this.slw.Show();
+                       
+                        
+                        
+                        
                         /*using (var db = Helper.getDB()) //Helper.getDB())
                         {
                             db.Places.Attach(p);
@@ -647,8 +658,8 @@ namespace FNWifiLocator
                         Log.error(ex.Message);
                     }
                                     }
-                this.rlistdelegate();
-                this.CurrentPlace = p;
+                //this.rlistdelegate();
+                //this.CurrentPlace = p;
 
             }
 
