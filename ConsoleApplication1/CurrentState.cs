@@ -27,14 +27,12 @@ namespace ConsoleService
         private Place forcePlace = null;
         double precision = 0;
 
-        private datapds1Entities2 db;
-
 
 
         //PRIVATE
 
 
-
+        /*
         private void doCheckin()
         {
 
@@ -51,21 +49,30 @@ namespace ConsoleService
             {
                 c.Place = this.forcePlace;
             }
-            this.db.Checkins.Add(c);
-            this.db.SaveChanges();
+            using (var db = Helper.getDB())
+            {
+                db.Checkins.Add(c);
+                db.SaveChanges();
+            }
             this.checkin = c;
 
         }
+         * */
 
+        /*
         private void doCheckout()
         {
             datapds1Entities2 db = Helper.getDB();
             Log.trace("CheckOut from " + this.checkin.Place.name);
-            this.db.Checkins.Find(this.checkin.ID).@out = DateTime.Now;
-            this.checkin = null;
-            this.db.SaveChanges();
+            using (var db = Helper.getDB())
+            {
+                this.db.Checkins.Find(this.checkin.ID).@out = DateTime.Now;
+                this.checkin = null;
+                this.db.SaveChanges();
+            }
 
         }
+         */ 
 
 
         //PUBLIC
@@ -91,7 +98,7 @@ namespace ConsoleService
         {
 
 
-            this.db = Helper.getDB();
+            //thisdb = Helper.getDB();
 
             try
             {
@@ -294,26 +301,32 @@ namespace ConsoleService
         {
             Helper.saveAllCurrentNetworkInPlace(place_found);
             List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
-            foreach (var network in networks)
+            lock (networks)
             {
-                string ssid = Helper.getSSIDName(network);
-                string mac = Helper.getMacAddress(network);
-                PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
-                if (pnv_up != null)
+                using (var db = Helper.getDB())
                 {
-                    /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
-                     per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
-                     pnv delle reti non presenti)*/
-                    if (pnv_up.rilevance < 10)
+                    foreach (var network in networks)
                     {
-                        Log.trace("updateRilev=10.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
+                        string ssid = Helper.getSSIDName(network);
+                        string mac = Helper.getMacAddress(network);
+                        PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
+                        if (pnv_up != null)
+                        {
+                            /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
+                             per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
+                             pnv delle reti non presenti)*/
+                            if (pnv_up.rilevance < 10)
+                            {
+                                Log.trace("updateRilev=10.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
+                            }
+                            pnv_up.rilevance = 10;
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                        }
                     }
-                    pnv_up.rilevance = 10;
-                    db.SaveChanges();
-                }
-                else
-                {
-                    /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
                 }
             }
 
@@ -797,18 +810,23 @@ Log.trace("Non sei in nessun posto conosciuto");
         {
             return Encoding.ASCII.GetString(ssid.SSID, 0, (int)ssid.SSIDLength);
         }
-
+        /*
         public void wrongPlace()
         {
             Log.trace("WRONG PLACE");
             //using  (var db = new datapds1Entities2()){
             if (this.backuppnv.Count > 0 && this.current_place != null)
             {
+               
                 if (this.forcePlace != null)
                 {
                     if (this.checkin != null)
                     {
-                        db.Checkins.Find(this.checkin.ID).Place = this.forcePlace;
+                        using (var db = Helper.getDB())
+                        {
+                            db.Checkins.Find(this.checkin.ID).Place = this.forcePlace;
+                            db.SaveChanges();
+                        }
                     }
                     else
                     {
@@ -819,25 +837,31 @@ Log.trace("Non sei in nessun posto conosciuto");
                 }
                 else
                 {
-                    db.Checkins.Remove(db.Checkins.Find(this.checkin.ID));
-                    this.checkin = null;
-                }
-
-                foreach (PlacesNetworsValue pnv in this.backuppnv)
-                {
-                    PlacesNetworsValue pnv2 = db.PlacesNetworsValues.Where(c => c.Network.ID == pnv.Network.ID).Where(c => c.Place.ID == pnv.Place.ID).First();
-                    if (pnv2 != null)
+                    using (var db = Helper.getDB())
                     {
-                        pnv2.rilevance = pnv.rilevance;
-                        pnv2.media = pnv.media;
-                        pnv2.variance = pnv.variance;
+                        db.Checkins.Remove(db.Checkins.Find(this.checkin.ID));
+                        this.checkin = null;
                     }
                 }
-                this.db.Places.Find(this.current_place.ID).m_num = this.backupc;
-                this.db.SaveChanges();
+                using (var db = Helper.getDB())
+                {
+
+                    foreach (PlacesNetworsValue pnv in this.backuppnv)
+                    {
+                        PlacesNetworsValue pnv2 = db.PlacesNetworsValues.Where(c => c.Network.ID == pnv.Network.ID).Where(c => c.Place.ID == pnv.Place.ID).First();
+                        if (pnv2 != null)
+                        {
+                            pnv2.rilevance = pnv.rilevance;
+                            pnv2.media = pnv.media;
+                            pnv2.variance = pnv.variance;
+                        }
+                    }
+                    db.Places.Find(this.current_place.ID).m_num = this.backupc;
+                    db.SaveChanges();
+                }
             }
         }
-        // }
+        // }*/
 
     }
 }
