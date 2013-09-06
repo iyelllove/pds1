@@ -25,6 +25,9 @@ namespace ConsoleService
     public partial class Service
     {
 
+        private bool searching = false;
+        private readonly object xmppLock = new object();
+
         public delegate void cmdReceived(PipeMessage p);
         public cmdReceived newCommand;
         public ListenThread listener;
@@ -114,8 +117,18 @@ namespace ConsoleService
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
         }
 
-        private void searchPlace(){
-            CurrentPlace = cs.searchPlace();
+        private void searchPlace()
+        {
+            Monitor.TryEnter(xmppLock, 100);
+            //Monitor.Enter(xmppLock);
+            try
+            {
+                CurrentPlace = cs.searchPlace();
+            }
+            finally
+            {
+                Monitor.Exit(xmppLock);
+            }
         }
 
         private void Service1()
@@ -185,11 +198,11 @@ namespace ConsoleService
             this.server = new NamedPipeServerStream("FNPipeService");
 
             Console.WriteLine("Service: wait for client(form) connect");
-            
+
             server.WaitForConnection();
             Console.WriteLine("Service: Form is connected");
-            this.SendCommand(new PipeMessage(){cmd="CONNESSO"});
-            
+            this.SendCommand(new PipeMessage() { cmd = "CONNESSO" });
+
 
             //this.CurrentPlace = this.cs.searchPlace();
 
