@@ -59,7 +59,7 @@ namespace ConsoleService
                             value.Checkins.Add(currentCheckin);
                             db.SaveChanges();
                         }
-                        this.cs.update_values_checkin(value);
+                     //   this.cs.update_values_checkin(value);
                     }
 
                     StreamString ss = new StreamString(server);
@@ -119,15 +119,18 @@ namespace ConsoleService
 
         private void searchPlace()
         {
-            Monitor.TryEnter(xmppLock, 100);
-            //Monitor.Enter(xmppLock);
-            try
+            if (Monitor.TryEnter(xmppLock, 100))
             {
-                CurrentPlace = cs.searchPlace();
-            }
-            finally
-            {
-                Monitor.Exit(xmppLock);
+                //Monitor.Enter(xmppLock);
+                try
+                {
+                    CurrentPlace = cs.searchPlace();
+                }
+                finally
+                {
+
+                    Monitor.Exit(xmppLock);
+                }
             }
         }
 
