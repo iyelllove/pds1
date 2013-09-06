@@ -59,9 +59,9 @@ namespace ConsoleService
                             value.Checkins.Add(currentCheckin);
                             db.SaveChanges();
                         }
-                        //   this.cs.update_values_checkin(value);
+                        //   
                     }
-
+                    this.cs.update_values_checkin(value);
                     StreamString ss = new StreamString(server);
                     if (value != null)
                     {
@@ -119,12 +119,14 @@ namespace ConsoleService
 
         private void searchPlace()
         {
-            if (Monitor.TryEnter(xmppLock, 100))
+            if (Monitor.TryEnter(xmppLock, 1))
             {
                 //Monitor.Enter(xmppLock);
                 try
                 {
+                    aTimer.Stop();
                     CurrentPlace = cs.searchPlace();
+                    aTimer.Start();
                 }
                 finally
                 {
@@ -151,8 +153,10 @@ namespace ConsoleService
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
 
             // Set the Interval to 2 seconds (2000 milliseconds).
-            aTimer.Interval = 60000;
+            aTimer.Interval = Constant.SearchPlaceTimeout;
             aTimer.Enabled = true;
+            
+           
 
             Console.WriteLine("Press the Enter key to exit the program.");
             Console.ReadLine();

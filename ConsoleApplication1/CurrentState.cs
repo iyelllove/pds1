@@ -315,11 +315,11 @@ namespace ConsoleService
                             /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
                              per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
                              pnv delle reti non presenti)*/
-                            if (pnv_up.rilevance < 10)
+                            if (pnv_up.rilevance < Constant.DefaultRilevance)
                             {
                                 Log.trace("updateRilev=10.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
                             }
-                            pnv_up.rilevance = 10;
+                            pnv_up.rilevance = Constant.DefaultRilevance;
                             db.SaveChanges();
                         }
                         else
@@ -336,11 +336,16 @@ namespace ConsoleService
 
         public void update_values_checkin(Place place_found)
         {
-            List<Int32> founded = new List<Int32>();
-            Helper.saveAllCurrentNetworkInPlace(place_found);
+            
+            
+            if (place_found == null) return;
+            List<Network> founded = new List<Network>();
+            //Helper.saveAllCurrentNetworkInPlace(place_found);
             List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
             using (var db = Helper.getDB())
             {
+
+                /*
                 lock (networks)
                 {
                     foreach (var network in networks)
@@ -352,21 +357,41 @@ namespace ConsoleService
                         {
                             /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
                              per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
-                             pnv delle reti non presenti) salvo i pnv nella lista founded */
+                             pnv delle reti non presenti) salvo i pnv nella lista founded * /
                             Log.trace("rete presente.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
                             founded.Add(pnv_up.ID);
                             pnv_up.rilevance = 10;
                         }
                         else
                         {
-                            /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                            /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB* /
                         }
                     }
                 }
-                foreach (PlacesNetworsValue pnv in place_found.PlacesNetworsValues)
+    */
+
+                lock (networks)
                 {
-                    if (!founded.Contains(pnv.ID))
+                    founded.Clear();
+                    foreach (var network in networks)
                     {
+                        string ssid = Helper.getSSIDName(network);
+                        string mac = Helper.getMacAddress(network);
+                        var n = db.Networks.Where(c => c.SSID == ssid && c.MAC == mac).FirstOrDefault();
+                        if (n != null)
+                        {
+                            founded.Add(n);
+                        }
+                    }
+                }
+
+                var pnvs = db.PlacesNetworsValues.Where(c => c.Place.ID == place_found.ID).ToList();
+                foreach (PlacesNetworsValue pnv in pnvs)
+                {
+                    if (pnv.ID != 0 && !founded.Contains(pnv.Network))
+                    {
+                        pnv.rilevance--;
+                       /*
                         if (pnv.ID != 0)
                         {
                             PlacesNetworsValue p = db.PlacesNetworsValues.Where(c => c.ID == pnv.ID).FirstOrDefault();
@@ -381,7 +406,7 @@ namespace ConsoleService
                                 }
                                 db.SaveChanges();
                             }
-                        }
+                        }*/
                     }
                 }
                 db.SaveChanges();
