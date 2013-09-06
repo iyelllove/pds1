@@ -11,32 +11,33 @@ using System.IO;
 
 namespace FNWifiLocatorLibrary
 {
-    
+
     public class Helper
     {
         static DateTime timestamp;
         static datapds1Entities2 dbistance = null;
         static FNDB fbndbistance = null;
-        
+
         static List<Wlan.WlanBssEntry> networks = new List<Wlan.WlanBssEntry>();
 
         private static AutoResetEvent waitHandle = new AutoResetEvent(false);
 
         static void wlanIfacenNotification(Wlan.WlanNotificationData notifyData)
         {
-            
+
             Log.trace(notifyData.NotificationCode.ToString());
 
             if (notifyData.NotificationCode.Equals(Wlan.WlanNotificationCodeAcm.ScanComplete))
             {
                 Log.trace("Sblocco Scan Completed");
-                
+
                 waitHandle.Set();
             }
             //Console.WriteLine("{0} to {1} with quality level {2}",connNotifyData.wlanConnectionMode, connNotifyData.profileName, "-");
         }
 
-        static public  List<Wlan.WlanBssEntry> getCurrentNetworks() {
+        static public List<Wlan.WlanBssEntry> getCurrentNetworks()
+        {
 
             lock (networks)
             {
@@ -70,10 +71,11 @@ namespace FNWifiLocatorLibrary
                     Log.error(ex);
                 }
             }
-     //       }
+            //       }
             return networks;
         }
-        static public void saveAllCurrentNetworkInPlace(Place p) {
+        static public void saveAllCurrentNetworkInPlace(Place p)
+        {
             if (p == null) return;
             using (var db = Helper.getDB())
             {
@@ -83,55 +85,60 @@ namespace FNWifiLocatorLibrary
                     {
                         string thename = Helper.getSSIDName(network);
                         string themac = Helper.getMacAddress(network);
-                       
-                            var m = db.Networks.Where(c => c.SSID == thename && c.MAC == themac).FirstOrDefault();
-                            if (m == null)
-                            {
-                                m = new Network { SSID = thename, MAC = themac };
-                                db.Networks.Add(m);
-                            }
 
-                            var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == p.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
-                            if (already_exist == null)
-                            {
-                                Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
-                                PlacesNetworsValue pnv = new PlacesNetworsValue{Network=m,Place=p,media=Convert.ToInt16(network.rssi.ToString()),variance=(short)1,rilevance=10};
-                                db.PlacesNetworsValues.Add(pnv);
-                                p.PlacesNetworsValues.Add(pnv);
-                                
-                            
-                            
+                        //var m = db.Networks.Where(c => c.SSID == thename && c.MAC == themac).FirstOrDefault();
+                        var m = (from a in db.Networks where a.SSID == thename && a.MAC == themac select a).FirstOrDefault();
+                        
+
+
+                        if (m == null)
+                        {
+                            m = new Network { SSID = thename, MAC = themac };
+                            db.Networks.Add(m);
+                        }
+
+                        var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == p.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
+                        if (already_exist == null)
+                        {
+                            Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
+                            PlacesNetworsValue pnv = new PlacesNetworsValue { Network = m, Place = p, media = Convert.ToInt16(network.rssi.ToString()), variance = (short)1, rilevance = 10 };
+                            db.PlacesNetworsValues.Add(pnv);
+                            p.PlacesNetworsValues.Add(pnv);
                         }
                     }
                 }
                 db.SaveChanges();
             }
-           
-            
-        }
-        
 
-        static public List<Place> getAllPlaces() {
+
+        }
+
+
+        static public List<Place> getAllPlaces()
+        {
             List<Place> allplaces = null;
-            using (var db = getDB()) {
+            using (var db = getDB())
+            {
                 allplaces = db.Places.ToList();
             }
             return allplaces;
         }
 
-        static public void printAllNetworks() {
-            
-            using (var db = getNewDB()){
-            if (db.Networks.ToList() != null && db.Networks.Any())
+        static public void printAllNetworks()
+        {
+
+            using (var db = getNewDB())
             {
-                Log.trace("All Networks in the database:");
-                foreach (var item in db.Networks.ToList())
+                if (db.Networks.ToList() != null && db.Networks.Any())
                 {
-                    Log.trace("Networks: \t" + item.SSID + ",\t" + item.MAC);
+                    Log.trace("All Networks in the database:");
+                    foreach (var item in db.Networks.ToList())
+                    {
+                        Log.trace("Networks: \t" + item.SSID + ",\t" + item.MAC);
+                    }
                 }
             }
-            }
-        
+
         }
         static public void updateMeasures()
         {
@@ -149,7 +156,8 @@ namespace FNWifiLocatorLibrary
 
         }
 
-        static public string getMacAddress(Wlan.WlanBssEntry network) {
+        static public string getMacAddress(Wlan.WlanBssEntry network)
+        {
             byte[] macAddr = network.dot11Bssid;
             string tMac = "";
             for (int i = 0; i < macAddr.Length; i++)
@@ -171,8 +179,9 @@ namespace FNWifiLocatorLibrary
         {
             return new datapds1Entities2();
         }
-        
-        static public datapds1Entities2 getDB(){
+
+        static public datapds1Entities2 getDB()
+        {
             return new datapds1Entities2();
             //fbndbistance = new datapds1Entities2();
             //return fbndbistance;
@@ -183,7 +192,7 @@ namespace FNWifiLocatorLibrary
         {
             if (fbndbistance != null)
             {
-                              
+
             }
         }
 
