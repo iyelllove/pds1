@@ -76,9 +76,9 @@ namespace FNWifiLocatorLibrary
                 }
                 finally
                 {
-                    
+
                     Monitor.Exit(xmppLock);
-                    
+
                 }
                 return networks;
             }
@@ -86,37 +86,41 @@ namespace FNWifiLocatorLibrary
         }
         static public void saveAllCurrentNetworkInPlace(Place p)
         {
-            if (p == null) return;
+            if (p == null || p.ID == 0) return;
             using (var db = Helper.getDB())
             {
                 lock (networks)
                 {
-                    List<Wlan.WlanBssEntry> currentnetworks = getCurrentNetworks();
-                    foreach (Wlan.WlanBssEntry network in currentnetworks)
+                    Place dbplace = db.Places.Where(c => c.ID == p.ID).FirstOrDefault();
+                    if (dbplace != null && dbplace.ID > 0)
                     {
-                        if (network.linkQuality >= 0/*Properties.Settings.Default.delta_signal_value*/)
+                        List<Wlan.WlanBssEntry> currentnetworks = getCurrentNetworks();
+                        foreach (Wlan.WlanBssEntry network in currentnetworks)
                         {
-                            string thename = Helper.getSSIDName(network);
-                            string themac = Helper.getMacAddress(network);
-
-                            //var m = db.Networks.Where(c => c.SSID == thename && c.MAC == themac).FirstOrDefault();
-                            var m = (from a in db.Networks where a.SSID == thename && a.MAC == themac select a).FirstOrDefault();
-
-
-
-                            if (m == null)
+                            if (network.linkQuality >= 0/*Properties.Settings.Default.delta_signal_value*/)
                             {
-                                m = new Network { SSID = thename, MAC = themac };
-                                db.Networks.Add(m);
-                            }
+                                string thename = Helper.getSSIDName(network);
+                                string themac = Helper.getMacAddress(network);
 
-                            var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == p.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
-                            if (already_exist == null)
-                            {
-                                Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
-                                PlacesNetworsValue pnv = new PlacesNetworsValue { Network = m, Place = p, media = Convert.ToInt16(network.rssi.ToString()), variance = (short)1, rilevance = 10 };
-                                db.PlacesNetworsValues.Add(pnv);
-                                p.PlacesNetworsValues.Add(pnv);
+                                //var m = db.Networks.Where(c => c.SSID == thename && c.MAC == themac).FirstOrDefault();
+                                var m = (from a in db.Networks where a.SSID == thename && a.MAC == themac select a).FirstOrDefault();
+
+
+
+                                if (m == null)
+                                {
+                                    m = new Network { SSID = thename, MAC = themac };
+                                    db.Networks.Add(m);
+                                }
+
+                                var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == dbplace.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
+                                if (already_exist == null)
+                                {
+                                    Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
+                                    PlacesNetworsValue pnv = new PlacesNetworsValue { Network = m, Place = dbplace, media = Convert.ToInt16(network.rssi.ToString()), variance = (short)1, rilevance = 10 };
+                                    db.PlacesNetworsValues.Add(pnv);
+                                    //p.PlacesNetworsValues.Add(pnv);
+                                }
                             }
                         }
                     }
