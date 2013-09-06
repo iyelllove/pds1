@@ -341,23 +341,26 @@ namespace ConsoleService
             List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
             using (var db = Helper.getDB())
             {
-                foreach (var network in networks)
+                lock (networks)
                 {
-                    string ssid = Helper.getSSIDName(network);
-                    string mac = Helper.getMacAddress(network);
-                    PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
-                    if (pnv_up != null)
+                    foreach (var network in networks)
                     {
-                        /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
-                         per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
-                         pnv delle reti non presenti) salvo i pnv nella lista founded */
-                        Log.trace("rete presente.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
-                        founded.Add(pnv_up.ID);
-                        pnv_up.rilevance = 10;
-                    }
-                    else
-                    {
-                        /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                        string ssid = Helper.getSSIDName(network);
+                        string mac = Helper.getMacAddress(network);
+                        PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
+                        if (pnv_up != null)
+                        {
+                            /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
+                             per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
+                             pnv delle reti non presenti) salvo i pnv nella lista founded */
+                            Log.trace("rete presente.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
+                            founded.Add(pnv_up.ID);
+                            pnv_up.rilevance = 10;
+                        }
+                        else
+                        {
+                            /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                        }
                     }
                 }
                 foreach (PlacesNetworsValue pnv in place_found.PlacesNetworsValues)
