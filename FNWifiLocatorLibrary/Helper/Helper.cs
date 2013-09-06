@@ -79,31 +79,34 @@ namespace FNWifiLocatorLibrary
             if (p == null) return;
             using (var db = Helper.getDB())
             {
-                foreach (Wlan.WlanBssEntry network in Helper.getCurrentNetworks())
+                lock (networks)
                 {
-                    if (network.linkQuality >= 0/*Properties.Settings.Default.delta_signal_value*/)
+                    foreach (Wlan.WlanBssEntry network in networks)
                     {
-                        string thename = Helper.getSSIDName(network);
-                        string themac = Helper.getMacAddress(network);
-
-                        //var m = db.Networks.Where(c => c.SSID == thename && c.MAC == themac).FirstOrDefault();
-                        var m = (from a in db.Networks where a.SSID == thename && a.MAC == themac select a).FirstOrDefault();
-                        
-
-
-                        if (m == null)
+                        if (network.linkQuality >= 0/*Properties.Settings.Default.delta_signal_value*/)
                         {
-                            m = new Network { SSID = thename, MAC = themac };
-                            db.Networks.Add(m);
-                        }
+                            string thename = Helper.getSSIDName(network);
+                            string themac = Helper.getMacAddress(network);
 
-                        var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == p.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
-                        if (already_exist == null)
-                        {
-                            Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
-                            PlacesNetworsValue pnv = new PlacesNetworsValue { Network = m, Place = p, media = Convert.ToInt16(network.rssi.ToString()), variance = (short)1, rilevance = 10 };
-                            db.PlacesNetworsValues.Add(pnv);
-                            p.PlacesNetworsValues.Add(pnv);
+                            //var m = db.Networks.Where(c => c.SSID == thename && c.MAC == themac).FirstOrDefault();
+                            var m = (from a in db.Networks where a.SSID == thename && a.MAC == themac select a).FirstOrDefault();
+
+
+
+                            if (m == null)
+                            {
+                                m = new Network { SSID = thename, MAC = themac };
+                                db.Networks.Add(m);
+                            }
+
+                            var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == p.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
+                            if (already_exist == null)
+                            {
+                                Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
+                                PlacesNetworsValue pnv = new PlacesNetworsValue { Network = m, Place = p, media = Convert.ToInt16(network.rssi.ToString()), variance = (short)1, rilevance = 10 };
+                                db.PlacesNetworsValues.Add(pnv);
+                                p.PlacesNetworsValues.Add(pnv);
+                            }
                         }
                     }
                 }
