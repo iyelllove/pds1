@@ -52,12 +52,13 @@ namespace ConsoleService
                         {
                             value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
                             currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                            
                             value.Checkins.Add(currentCheckin);
                         }
 
                         db.SaveChanges();
                     }
-
+                    // update_value_checkin(value);
                     StreamString ss = new StreamString(server);
                     if (value != null)
                     {

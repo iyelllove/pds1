@@ -263,15 +263,20 @@ namespace ConsoleService
                     }
 
                 }
-            }
                 if (place_found != null && place_found.ID > 0)
                 {
-                    update_values(place_found);
+                    update_values_checkin(place_found);
                 }
+            }
                 //Log.trace("-------------------------------"+place_found.name);
                 current_place = place_found;
-                if (place_found == null) { precision = 0; }
-                else { precision = place_found_lp; }
+                if (place_found == null) 
+                { precision = 0; }
+                else 
+                { 
+                    precision = place_found_lp;
+                    Log.trace("TROVATO POSTO:"+place_found.name+"-precisione"+precision); 
+                }
                 return (place_found);
             
         }
@@ -280,13 +285,9 @@ namespace ConsoleService
 
 
         public void update_values(Place place_found)
-        {
-            if (place_found != null && place_found.ID > 0)
-            {
-                List<PlacesNetworsValue> founded = new List<PlacesNetworsValue>();
+        {             
                 Helper.saveAllCurrentNetworkInPlace(place_found);
-            }
-            /*List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
+                List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
             foreach (var network in networks)
             {
                 string ssid = Helper.getSSIDName(network);
@@ -294,49 +295,68 @@ namespace ConsoleService
                 PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
                 if (pnv_up != null)
                 {
-                    /*place network value delle reti che fanno parte di place_found, che sono presenti nel DB e che attualmente sto ascoltando* /
-                    founded.Add(pnv_up);
+                    /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
+                     per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
+                     pnv delle reti non presenti)*/
                     pnv_up.rilevance=10;
-                }
-                else
-                {
-                    /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB* /
-                }
-            }*/
-        }
-
-        public void update_values_checkin(Place place_found)
-        {
-            List<PlacesNetworsValue> founded = new List<PlacesNetworsValue>();
-            Helper.saveAllCurrentNetworkInPlace(place_found);
-            List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
-            foreach (var network in networks)
-            {
-                string ssid = Helper.getSSIDName(network);
-                string mac = Helper.getMacAddress(network);
-                PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
-                if (pnv_up != null)
-                {
-                    /*place network value delle reti che fanno parte di place_found, che sono presenti nel DB e che attualmente sto ascoltando*/
-                    founded.Add(pnv_up);
-                    pnv_up.rilevance = 10;
                 }
                 else
                 {
                     /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
                 }
             }
+            db.SaveChanges();
+        }
 
-            foreach (PlacesNetworsValue pnv in place_found.PlacesNetworsValues)
+        public void update_values_checkin(Place place_found)
+        {
+            List<Int32> founded = new List<Int32>();
+            Helper.saveAllCurrentNetworkInPlace(place_found);
+            List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
+            using (var db = Helper.getDB())
             {
-
-                if (!founded.Contains(pnv))
+                foreach (var network in networks)
                 {
-                    /*reti appartenenti al posto attuale ma che non sto ascotando*/
-                    pnv.rilevance--;
+                    string ssid = Helper.getSSIDName(network);
+                    string mac = Helper.getMacAddress(network);
+                    PlacesNetworsValue pnv_up = db.PlacesNetworsValues.Where(c => c.Network.SSID == ssid).Where(c => c.Network.MAC == mac).Where(c => c.Place.ID == place_found.ID).FirstOrDefault();
+                    if (pnv_up != null)
+                           {
+                                /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
+                                 per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
+                                 pnv delle reti non presenti) salvo i pnv nella lista founded */
+                               Log.trace("rete presente.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
+                                founded.Add(pnv_up.ID);
+                                pnv_up.rilevance = 10;
+                            }
+                            else
+                            {
+                                /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
+                            }
+                 }
+                foreach(PlacesNetworsValue pnv in place_found.PlacesNetworsValues)
+                { 
+                    if (!founded.Contains(pnv.ID))
+                    {
+                        if (pnv.ID != 0)
+                        {
+                            PlacesNetworsValue p = db.PlacesNetworsValues.Where(c => c.ID == pnv.ID).FirstOrDefault();
+                            if (p != null)
+                            {
+                                p.rilevance--;
+                                Log.trace("reteNONpresente.pnvID:" + pnv.ID + "networkID:" + pnv.Network.ID + "-postoID:" + pnv.Place.ID);
+                                if (p.rilevance <= 0)
+                                {
+                                    db.PlacesNetworsValues.Remove(p);
+                                    Log.trace("rilevanza=0: rete eliminata dal DB");
+                                }
+                                db.SaveChanges();
+                            }
+                        }        
+                    }
                 }
+                db.SaveChanges();
             }
-
         }
 
            
