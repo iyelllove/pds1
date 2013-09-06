@@ -71,7 +71,8 @@ namespace FNWifiLocator
                     var totaltime = 0;
                     
                     foreach (Checkin ck in cks) {
-                        totaltime += ((DateTime)(ck.@out)).Subtract(ck.@in).Seconds;
+                        var temp = ((DateTime)(ck.@out)).Subtract(ck.@in);
+                        totaltime += ((temp.Days*24 +((temp.Hours) * 60) + temp.Minutes)*60)+temp.Seconds;
                          //mediatime = mediatime+totaltime; 
                     }
                     var qurey = from ad in dddb.Checkins
