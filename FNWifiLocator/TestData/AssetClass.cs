@@ -80,7 +80,7 @@ namespace FNWifiLocator
 
 
 
-                    assetClasses.Add(new AssetClass() { PlaceName = place.name, Media = totaltime / Math.Min(i, 1), Total = totaltime.ToString(), Times = i });
+                    assetClasses.Add(new AssetClass() { PlaceName = place.name, Media = totaltime / Math.Max(i, 1), Total = totaltime.ToString(), Times = i });
                 }
                
             }

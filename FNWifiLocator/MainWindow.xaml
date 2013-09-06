@@ -43,8 +43,9 @@
                     <TextBlock Text="{Binding Path=Title}" />
                 </HierarchicalDataTemplate>
             </StackPanel.Resources>
-            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView"  HorizontalAlignment="Left" Width="200"  SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True"/>
+            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView"  HorizontalAlignment="Left" Width="200"  Height="140" SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
             <Button x:Name="placeDetail" Content="Dettaglio"  Click="placeDetail_click" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>
+            <Button x:Name="delete" Content="Elimina" Click="delete_ClickList" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>
 
             <Button         x:Name="toggleWindow_Copy"   Content="Statistiche"           VerticalAlignment="Bottom" RenderTransformOrigin="2.187,-2.083"  Click="stats_click" Height="24" Margin="10, 0,10,0"/>
             <Button x:Name="update_Copy" Content="Aggiorna lista&#xD;&#xA;" Click="update_ClickList" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>

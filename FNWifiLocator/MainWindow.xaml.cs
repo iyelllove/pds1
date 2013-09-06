@@ -49,7 +49,7 @@ namespace FNWifiLocator
 
         public slideWindow slw = new slideWindow();
         public notifyWindow ntfw = new notifyWindow("AVVIO");
-        
+
 
 
         private bool _slideOpen;
@@ -71,7 +71,7 @@ namespace FNWifiLocator
                 }
             }
         }
-        
+
         private Place selectedPlace;
         public Place SelectedPlace
         {
@@ -82,9 +82,12 @@ namespace FNWifiLocator
                 if (value != null)
                 {
                     this.placeDetail.IsEnabled = true;
+                    this.delete.IsEnabled = true;
                 }
-                else {
+                else
+                {
                     this.placeDetail.IsEnabled = false;
+                    this.delete.IsEnabled = false;
                 }
             }
         }
@@ -92,49 +95,51 @@ namespace FNWifiLocator
         private Checkin currentCheckin;
         public PlaceTV CurrentPlaceTV    // the Name property
         {
-            set {
+            set
+            {
                 this.comboplace.SelectedValue = value;
-                this.CurrentPlace = value.pl; 
+                this.CurrentPlace = value.pl;
             }
         }
 
         public Place CurrentPlace    // the Name property
         {
             get { return currentPlace; }
-            set{
+            set
+            {
 
-               
-                    //if (currentCheckin != null)
-                    //{
-                    //    using (var db = Helper.getDB())
-                    //    {
-                    //        currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
-                    //        currentCheckin.@out = DateTime.Now;
-                    //        //db.Checkins.Attach(currentCheckin);
-                    //        db.SaveChanges();
-                    //    }
-                    //}   
 
-                    if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
+                //if (currentCheckin != null)
+                //{
+                //    using (var db = Helper.getDB())
+                //    {
+                //        currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
+                //        currentCheckin.@out = DateTime.Now;
+                //        //db.Checkins.Attach(currentCheckin);
+                //        db.SaveChanges();
+                //    }
+                //}   
+
+                if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
                 {
                     this.currentPlace = value;
-                    
+
                     // using (var db = Helper.getDB())
                     //{
-                        //if(value != null){
-                            //value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
-                        //    currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
-                        //    value.Checkins.Add(currentCheckin);
-                        //}
-                        
-                        //db.SaveChanges();
+                    //if(value != null){
+                    //value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
+                    //    currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                    //    value.Checkins.Add(currentCheckin);
+                    //}
+
+                    //db.SaveChanges();
                     //} 
-                    
-                    
+
+
                     if (value != null)
                     {
                         currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
-                            value.Checkins.Add(currentCheckin);
+                        value.Checkins.Add(currentCheckin);
                         Log.trace("ma da qui?");
                         this.positionName.Content = value.name;
                         this.wrongPosition.IsEnabled = true;
@@ -160,12 +165,12 @@ namespace FNWifiLocator
                         new_place_name.IsEnabled = true;
                     }
                 }
-                
-                 
+
+
             }
         }
 
-        
+
         private int? _MyFoo;
         public int? MyFoo
         {
@@ -216,33 +221,33 @@ namespace FNWifiLocator
             {
                 ServiceController sc = new ServiceController("Power");
 
-            if (sc.Status == ServiceControllerStatus.Stopped)
-            {
-                // Start the service if the current status is stopped.
-
-                Log.trace("Starting the WifiLocator service...");
-                try
+                if (sc.Status == ServiceControllerStatus.Stopped)
                 {
-                    // Start the service, and wait until its status is "Running".
-                    sc.Start();
-                    sc.WaitForStatus(ServiceControllerStatus.Running);
+                    // Start the service if the current status is stopped.
 
-                    // Display the current service status.
-                    Log.trace("The WifiLocator service status is now set to " + sc.Status.ToString());
+                    Log.trace("Starting the WifiLocator service...");
+                    try
+                    {
+                        // Start the service, and wait until its status is "Running".
+                        sc.Start();
+                        sc.WaitForStatus(ServiceControllerStatus.Running);
+
+                        // Display the current service status.
+                        Log.trace("The WifiLocator service status is now set to " + sc.Status.ToString());
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        Log.trace("Could not start the WifiLocator service.");
+                    }
                 }
-                catch (InvalidOperationException)
-                {
-                    Log.trace("Could not start the WifiLocator service.");
-                }
-            }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            
 
-            
+
+
             newPlace = new changePlace(ChangePlaceMethod);
             //notify = new notifyText(NotifyTextMethod);
             InitializeComponent();
@@ -250,7 +255,7 @@ namespace FNWifiLocator
             Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
             InstanceCaller.Start();
 
-             
+
             /*using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
                 var asyncResult = server.BeginWaitForConnection(null, null);
@@ -269,13 +274,13 @@ namespace FNWifiLocator
             }*/
 
             this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out);
-      
+
             Console.WriteLine("FN.Main: Waiting for client connect...\n");
-           
+
             this.server.WaitForConnection();
             Console.WriteLine("FN.Main:connection with client...\n");
 
-            
+
             //Console.WriteLine("FN.Main:connection with client...\n");
             //StreamString ss = new StreamString(server);
             //FNMain_ss = ss;
@@ -284,11 +289,11 @@ namespace FNWifiLocator
             //Console.WriteLine("FN.Main:message send...\n");
             //Thread.Sleep(2000);
             //server.Close();
-            
-           
+
+
             this.SlideOpen = false;
 
-            
+
             this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
             comboplace.DataContext = placesList;
@@ -298,15 +303,15 @@ namespace FNWifiLocator
             CurrentPlace = null;
             Helper.printAllNetworks();
 
-            
-            
+
+
 
         }
 
 
         private void NotifyTextMethod(String str)
         {
-           new notifyWindow(str);
+            new notifyWindow(str);
 
 
         }
@@ -315,32 +320,35 @@ namespace FNWifiLocator
         {
             //if ((this.CurrentPlace != null && p == null) || (this.CurrentPlace == null && p != null)  || this.CurrentPlace.ID != p.ID)
             //{
-                this.CurrentPlace = p;
+            this.CurrentPlace = p;
             //}
-            
-            
+
+
         }
 
-        private bool SendCommand(PipeMessage pm){
-             if (server != null) {
+        private bool SendCommand(PipeMessage pm)
+        {
+            if (server != null)
+            {
                 StreamString ss = new StreamString(server);
                 ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
                 return true;
             }
-             return false;
+            return false;
         }
 
         private void refreshPlaceTree()
         {
             Log.trace("Refresho la lista");
-            if (server != null) {
+            if (server != null)
+            {
                 StreamString ss = new StreamString(server);
                 this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
             }
             placesList.Clear();
             ParentList.Clear();
-            
-           // var gar = Helper.getAllRootPlaces();
+
+            // var gar = Helper.getAllRootPlaces();
 
             try
             {
@@ -348,18 +356,18 @@ namespace FNWifiLocator
 
                 using (var db = Helper.getDB())
                 {
-                    IEnumerable<Place>  places = db.Places.Where(c => c.Parent.Equals(null));
+                    IEnumerable<Place> places = db.Places.Where(c => c.Parent.Equals(null));
 
                     if (places.Any() != false)
                     {
                         foreach (Place p in places.ToList())
                         {
                             PlaceTV pp = new PlaceTV(p);
-                            ParentList.Add(pp,pp.pl);
-                            
+                            ParentList.Add(pp, pp.pl);
+
                             placesList.Add(pp);
                         }
-                       
+
                     }
                 }
 
@@ -371,7 +379,8 @@ namespace FNWifiLocator
             }
 
             this.SelectedPlace = null;
-            foreach (PlaceTV ptv in this.placeTreView.Items) {
+            foreach (PlaceTV ptv in this.placeTreView.Items)
+            {
                 Log.trace(ptv.pl.name);
             }
             //if (gar != null)
@@ -379,7 +388,7 @@ namespace FNWifiLocator
             //    foreach (Place p in gar)
             //    {
             //        Log.trace(p.name);
-                    
+
             //        PlaceTV pp = new PlaceTV(p);
             //        ParentList.Add(pp);
             //        placesList.Add(pp);
@@ -390,33 +399,33 @@ namespace FNWifiLocator
 
 
 
-      /*  private String selectFile()
-        {
-            OpenFileDialog openDialog = new OpenFileDialog();
-            try
-            {
-                openDialog.Title = "Seleziona il file da eseguire";
-                openDialog.Filter = "Bat|*.bat|Tutti i file|*.*";
+        /*  private String selectFile()
+          {
+              OpenFileDialog openDialog = new OpenFileDialog();
+              try
+              {
+                  openDialog.Title = "Seleziona il file da eseguire";
+                  openDialog.Filter = "Bat|*.bat|Tutti i file|*.*";
 
-                if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    if (String.IsNullOrEmpty(openDialog.FileName) == false)
-                    {
-                        Log.trace(openDialog.FileName);
-                    }
-                }
+                  if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                  {
+                      if (String.IsNullOrEmpty(openDialog.FileName) == false)
+                      {
+                          Log.trace(openDialog.FileName);
+                      }
+                  }
 
 
-            }
-            catch (Exception ex)
-            {
-                Log.error(ex);
-                System.Windows.Forms.MessageBox.Show(ex.ToString());
-            }
-            if (openDialog != null && openDialog.FileName != null) return openDialog.FileName;
-            else return "";
-        }
-        */
+              }
+              catch (Exception ex)
+              {
+                  Log.error(ex);
+                  System.Windows.Forms.MessageBox.Show(ex.ToString());
+              }
+              if (openDialog != null && openDialog.FileName != null) return openDialog.FileName;
+              else return "";
+          }
+          */
 
         private void execFunction(string filename)
         {
@@ -440,24 +449,25 @@ namespace FNWifiLocator
         //Selezionao un luogo nella visuala ad albero.
         private void placeTreView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            
+
             PlaceTV p = (PlaceTV)e.NewValue;
             if (p != null)
             {
                 //PROVVISORIO
-                 this.SelectedPlace = p.pl;
+                this.SelectedPlace = p.pl;
             }
         }
 
-       
 
-        
+
+
         private void Delete_Place_Click(object sender, RoutedEventArgs e)
         {
-            using (var db = Helper.getDB()) {
+            using (var db = Helper.getDB())
+            {
                 PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
-                
-                
+
+
                 if (p != null && p.pl != null)
                 {
                     Place pp = db.Places.First(c => c.ID == p.pl.ID);
@@ -475,10 +485,10 @@ namespace FNWifiLocator
                     this.rlistdelegate();
                 }
             }
-            
+
         }
 
-        
+
 
         private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
         {
@@ -489,14 +499,15 @@ namespace FNWifiLocator
         private void update_Click(object sender, RoutedEventArgs e)
         {
             this.rlistdelegate();
-           
+
             if (server != null)
             {
                 Log.trace("hei service.... perchè non ti aggiorni un pò?");
                 StreamString ss = new StreamString(server);
                 ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "update" }));
             }
-            else {
+            else
+            {
                 Log.error("Service è null... qualcosa non va con la pipe");
             }
         }
@@ -507,9 +518,67 @@ namespace FNWifiLocator
             if (p != null)
             {
                 Helper.saveAllCurrentNetworkInPlace(p.pl);
-                Helper.saveChanges();
                 this.rlistdelegate();
             }
+
+        }
+
+        private void delete_ClickList(object sender, RoutedEventArgs e)
+        {
+            if (this.selectedPlace != null)
+            {
+
+                using (var db = Helper.getDB())
+                {
+                    //Place sp = this.selectedPlace;
+                    //db.Places.Attach(this.selectedPlace);
+                    Place sp = db.Places.Where(c => c.ID == this.selectedPlace.ID).FirstOrDefault();
+                    if (sp != null)
+                    {
+                        /*
+                        try
+                        {
+                            foreach (PlacesNetworsValue pnv in sp.PlacesNetworsValues)
+                            {
+                                db.PlacesNetworsValues.Remove(pnv);
+                            }
+
+                        }
+                        catch { }
+                        try
+                        {
+                            foreach (Checkin ck in sp.Checkins)
+                            {
+                                db.Checkins.Remove(ck);
+                            }
+
+                        }
+                        catch { }
+                         * */
+
+                        //  sp.Checkins.Clear();
+                        //  sp.PlacesNetworsValues.Clear();
+
+                        var cks = db.Checkins.Where(c => c.Place.ID == sp.ID).ToList();
+                        foreach (Checkin ck in cks)
+                        {
+                            db.Checkins.Remove(ck);
+                        }
+
+
+                        var pnvs = db.PlacesNetworsValues.Where(c => c.Place.ID == sp.ID).ToList();
+                        foreach (PlacesNetworsValue pnv in pnvs)
+                        {
+                            db.PlacesNetworsValues.Remove(pnv);
+                        }
+
+                        db.Places.Remove(sp);
+                        db.SaveChanges();
+                    }
+                }
+            }
+
+            this.rlistdelegate();
 
         }
 
@@ -536,15 +605,19 @@ namespace FNWifiLocator
 
         private void submitPlace_Click_1(object sender, RoutedEventArgs e)
         {
-            if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false)
+            if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false && this.radiob2.IsChecked == false)
             {
                 PlaceTV ptv = (PlaceTV)this.comboplace.SelectedItem;
                 PipeMessage pm = new PipeMessage() { cmd = "force", place = ptv.pl.ID };
                 //posto esistente
             }
-            else {
+            else
+            {
                 //posto nuovo
                 Place p = null;
+
+                if (this.radiob1.IsChecked == false && this.radiob.IsChecked == true && this.radiob2.IsChecked == false)
+                {
                     try
                     {
                         using (var db = Helper.getDB()) //Helper.getDB())
@@ -553,15 +626,19 @@ namespace FNWifiLocator
                             p = new Place();
                             p.name = this.new_place_name.Text;
                             p.m_num = 1;
+                            //Aggiungo il nuovo posto. Unico punto.
                             db.Places.Add(p);
                             db.SaveChanges();
                         }
                         Helper.saveAllCurrentNetworkInPlace(p);
-                        using (var db = Helper.getDB()) //Helper.getDB())
+                        this.getSlw();
+                        this.slw.CurrentPlace = p;
+                        this.slw.Show();
+                        /*using (var db = Helper.getDB()) //Helper.getDB())
                         {
                             db.Places.Attach(p);
                             db.SaveChanges();
-                        }
+                        }*/
 
 
                     }
@@ -569,14 +646,10 @@ namespace FNWifiLocator
                     {
                         Log.error(ex.Message);
                     }
-                
-               
+                                    }
                 this.rlistdelegate();
                 this.CurrentPlace = p;
-              
-                this.getSlw();
-                this.slw.CurrentPlace = p;
-                this.slw.Show();
+
             }
 
         }
@@ -590,7 +663,7 @@ namespace FNWifiLocator
 
         void slw_Closed(object sender, EventArgs e)
         {
-            this.slw = new slideWindow(); 
+            this.slw = new slideWindow();
         }
 
         private void placeDetail_click(object sender, RoutedEventArgs e)
@@ -610,7 +683,8 @@ namespace FNWifiLocator
             stw.ShowDialog();
         }
 
-        private slideWindow getSlw() {
+        private slideWindow getSlw()
+        {
             if (this.slw == null) { this.slw = new slideWindow(); }
             return this.slw;
         }
@@ -630,7 +704,7 @@ namespace FNWifiLocator
 
         }
 
-       
-        
+
+
     }
 }
