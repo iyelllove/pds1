@@ -50,6 +50,7 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Class1.cs" />
+    <Compile Include="Helper\Constant.cs" />
     <Compile Include="Helper\FNDB.cs" />
     <Compile Include="Helper\Helper.cs" />
     <Compile Include="Helper\Log.cs" />
