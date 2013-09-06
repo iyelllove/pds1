@@ -265,7 +265,7 @@ namespace ConsoleService
                 }
                 if (place_found != null && place_found.ID > 0)
                 {
-                    update_values_checkin(place_found);
+                    update_values(place_found);
                 }
             }
                 //Log.trace("-------------------------------"+place_found.name);
@@ -298,6 +298,7 @@ namespace ConsoleService
                     /*prendo tutte le reti che sto ascoltando e che quindi fanno parte del posto,
                      per ogni rete vado a prendere il suo placeNetworkValue (rimangono fuori i 
                      pnv delle reti non presenti)*/
+                    Log.trace("rete presente.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
                     pnv_up.rilevance=10;
                 }
                 else
@@ -307,6 +308,8 @@ namespace ConsoleService
             }
             db.SaveChanges();
         }
+
+
 
         public void update_values_checkin(Place place_found)
         {
