@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Timers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +29,6 @@ namespace ConsoleService
         public cmdReceived newCommand;
         public ListenThread listener;
 
-        Timer TimeoutTimer;
         
         const int TimeoutSeconds = 25;
 
@@ -77,9 +77,12 @@ namespace ConsoleService
                         using (var db = Helper.getDB())
                         {
                             currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
-                            currentCheckin.@out = DateTime.Now;
-                            //db.Checkins.Attach(currentCheckin);
-                            db.SaveChanges();
+                            if (currentCheckin != null)
+                            {
+                                currentCheckin.@out = DateTime.Now;
+                                //db.Checkins.Attach(currentCheckin);
+                                db.SaveChanges();
+                            }
                         }
                     }
                 }
@@ -89,6 +92,7 @@ namespace ConsoleService
         private static AutoResetEvent waitHandle = new AutoResetEvent(false);
         private NamedPipeServerStream server;
         private CurrentState cs = new CurrentState();
+        private static System.Timers.Timer aTimer;
         
         public Service()
         {
@@ -102,7 +106,14 @@ namespace ConsoleService
             //per simulare gestire evento SessionEndedEventHandler
             OnStop();
         }
-       
+
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
+        {
+            
+            CurrentPlace = cs.searchPlace();
+            Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
+        }
+
         private void Service1()
         {
             newCommand += newCommandEvent;
@@ -111,6 +122,20 @@ namespace ConsoleService
             SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
             SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
+
+
+            // Create a timer with a ten second interval.
+            aTimer = new System.Timers.Timer(10000);
+
+            // Hook up the Elapsed event for the timer.
+            aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+
+            // Set the Interval to 2 seconds (2000 milliseconds).
+            aTimer.Interval = 30000;
+            aTimer.Enabled = true;
+
+            Console.WriteLine("Press the Enter key to exit the program.");
+            Console.ReadLine();
 
 
 
@@ -155,10 +180,11 @@ namespace ConsoleService
             this.server = new NamedPipeServerStream("FNPipeService"); 
            
             Console.WriteLine("Service: wait for client(form) connect");
+            /*
             server.WaitForConnection();
             Console.WriteLine("Service: Form is connected");
             this.SendCommand(new PipeMessage(){cmd="CONNESSO"});
-
+            */
             
             //this.CurrentPlace = this.cs.searchPlace();
 
@@ -202,8 +228,8 @@ namespace ConsoleService
         }
 
         private bool SendCommand(PipeMessage pm) {
-           
-            if (server != null)
+
+            if (server != null && server.IsConnected)
             {
                 Log.trace("SEND:" + pm.cmd);
                 StreamString ss = new StreamString(server);

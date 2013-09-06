@@ -263,10 +263,11 @@ namespace ConsoleService
                     }
 
                 }
-                if (place_found != null && place_found.ID > 0)
-                {
-                    update_values(place_found);
-                }
+               
+            }
+            if (place_found != null && place_found.ID > 0)
+            {
+                update_values(place_found);
             }
                 //Log.trace("-------------------------------"+place_found.name);
                 current_place = place_found;
