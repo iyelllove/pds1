@@ -110,8 +110,12 @@ namespace ConsoleService
         private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
 
-            CurrentPlace = cs.searchPlace();
+            this.searchPlace();
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
+        }
+
+        private void searchPlace(){
+            CurrentPlace = cs.searchPlace();
         }
 
         private void Service1()
@@ -181,11 +185,11 @@ namespace ConsoleService
             this.server = new NamedPipeServerStream("FNPipeService");
 
             Console.WriteLine("Service: wait for client(form) connect");
-            /*
+            
             server.WaitForConnection();
             Console.WriteLine("Service: Form is connected");
             this.SendCommand(new PipeMessage(){cmd="CONNESSO"});
-            */
+            
 
             //this.CurrentPlace = this.cs.searchPlace();
 
@@ -222,7 +226,7 @@ namespace ConsoleService
                         this.WrongPlace();
                         break;
                     case "refresh":
-                        this.CurrentPlace = this.cs.searchPlace();
+                        this.searchPlace();
                         break;
                 }
                 Log.trace("RICEVUTO:" + pm.cmd);
@@ -267,19 +271,19 @@ namespace ConsoleService
             Log.trace("indirizzo ip cambiato");
             //StreamString ss = new StreamString(server);
             //ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "ip change" }));
-            this.CurrentPlace = this.cs.searchPlace();
+            this.searchPlace();
         }
 
         private void SystemEvents_SessionEnded(object sender, SessionEndedEventArgs e)
         {
-            this.CurrentPlace = this.cs.searchPlace();
+            this.searchPlace();
             Log.trace("user is trying to log off or shut down the system");
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             Log.trace("currently logged-in user has changed");
-            this.CurrentPlace = this.cs.searchPlace();
+            this.searchPlace();
             /*if (e.Reason == SessionSwitchReason.SessionLock)
             {
                 Log.trace("locked at {0}");
@@ -294,7 +298,7 @@ namespace ConsoleService
 
         private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
-            this.CurrentPlace = this.cs.searchPlace();
+            this.searchPlace();
             Log.trace("user suspends or resumes the system");
         }
 
@@ -304,7 +308,7 @@ namespace ConsoleService
 
             if (notifyData.NotificationCode.Equals(Wlan.WlanNotificationCodeMsm.SignalQualityChange))
             {
-                this.CurrentPlace = this.cs.searchPlace();
+                this.searchPlace();
             }
             //Console.WriteLine("{0} to {1} with quality level {2}",connNotifyData.wlanConnectionMode, connNotifyData.profileName, "-");
         }
