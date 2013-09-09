@@ -117,7 +117,7 @@ namespace FNWifiLocator
         {
             if (this.CurrentPlace != null)
             {
-                Helper.saveAllCurrentNetworkInPlace(this.CurrentPlace);
+                Helper.saveAllCurrentNetworkInPlace(this.CurrentPlace,true);
                 Helper.saveChanges();
             }
 
