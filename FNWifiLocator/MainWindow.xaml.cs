@@ -609,7 +609,7 @@ namespace FNWifiLocator
             if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false && this.radiob2.IsChecked == false)
             {
                 PlaceTV ptv = (PlaceTV)this.comboplace.SelectedItem;
-                PipeMessage pm = new PipeMessage() { cmd = "force", place = ptv.pl.ID };
+                SendCommand(new PipeMessage { cmd = "force", place = ptv.pl.ID });
                 //posto esistente
             }
             else
