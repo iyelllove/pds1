@@ -47,6 +47,7 @@ namespace FNWifiLocatorLibrary
             {
                 len = (int)UInt16.MaxValue;
             }
+            
             ioStream.WriteByte((byte)(len / 256));
             ioStream.WriteByte((byte)(len & 255));
             ioStream.Write(outBuffer, 0, len);

@@ -86,7 +86,7 @@ namespace FNWifiLocatorLibrary
             }
             return networks;
         }
-        static public void saveAllCurrentNetworkInPlace(Place p)
+        static public void saveAllCurrentNetworkInPlace(Place p, bool force)
         {
             if (p == null || p.ID == 0) return;
             using (var db = Helper.getDB())
@@ -202,6 +202,9 @@ namespace FNWifiLocatorLibrary
 
         static public datapds1Entities2 getDB()
         {
+      var      db = new datapds1Entities2();
+      db.Database.Connection.ConnectionString = Constant.getConnectionString();
+      Log.trace(db.Database.Connection.ConnectionString);
             return new datapds1Entities2();
             //fbndbistance = new datapds1Entities2();
             //return fbndbistance;
