@@ -116,6 +116,11 @@ namespace FNWifiLocatorLibrary
                                 }
 
                                 var already_exist = db.PlacesNetworsValues.Where(c => c.Place.ID == dbplace.ID).Where(c => c.Network.ID == m.ID).FirstOrDefault();
+                                if (force == true && already_exist!=null)
+                                {
+                                    already_exist.media = Convert.ToInt16(network.rssi.ToString());
+                                    Log.trace("Sovrascrivo media a causa del comando force");
+                                }
                                 if (already_exist == null)
                                 {
                                     Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
