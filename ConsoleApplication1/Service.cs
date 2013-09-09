@@ -276,16 +276,15 @@ namespace ConsoleService
 
         public void newCommandEvent(PipeMessage pm)
         {
-            
             if (pm != null)
             {
-                bool force = false;
                 switch (pm.cmd)
                 {
                     case "force":
-                        force = true;
+
                         //Deve aggioranre tutti i valori della media
                     case "newPlace":
+                        
                         //this.WrongPlace();
                         Place newplace  = null;
                         using (var db = Helper.getDB())
@@ -295,8 +294,9 @@ namespace ConsoleService
                         if (newplace != null)
                         {
                             this.CurrentPlace = newplace;
-                            Helper.saveAllCurrentNetworkInPlace(newplace, force);
+                            Helper.saveAllCurrentNetworkInPlace(newplace, pm.cmd.Equals("force"));
                         }
+
                         break;
                     case "wrong":
                         this.WrongPlace();
