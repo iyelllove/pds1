@@ -16,13 +16,11 @@ namespace ConsoleService
         public String pipeName;
         public volatile bool _shouldStop;
 
-        public ListenThread(Service s, String pipeName) {
+        public ListenThread(Service s, String pipeName, NamedPipeServerStream server) {
             this.pipeName = pipeName;
             this.s = s;
         }
       
-      
-
          public void InstanceMethod()
         {
             
