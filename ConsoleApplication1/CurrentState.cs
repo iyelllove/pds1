@@ -237,14 +237,12 @@ namespace ConsoleService
                     int n_p = place_candidate.Count();
                     if (n_p > 0)
                     {
-                        //OTTENGO SOLO I NETWORK CHE SENTO 
-                        var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).ToList(); //Where(c => c.Count() < n_p).ToList();
+                        //OTTENGO SOLO I  NETWORK  CHE SENTO e che conosco
+                        var network_candidate = db.PlacesNetworsValues.Where(c => c.Place.ID != null).Where(c => ns.Contains(c.Network.ID)).GroupBy(c => c.Network).ToList(); //Where(c => c.Count() < n_p).ToList();                       
                         foreach (var ppps in network_candidate)
                         {
-                            // TUTTI I NETWORKS CONDIVISI DA TUTTI I POSTI
                             networks_candidate.Add(ppps.Key);
                         }
-
                         foreach (var pc in place_candidate)
                         {
                             Place place = pc.Key;
@@ -299,7 +297,7 @@ namespace ConsoleService
 
         public void update_values(Place place_found)
         {
-            Helper.saveAllCurrentNetworkInPlace(place_found);
+            Helper.saveAllCurrentNetworkInPlace(place_found,false);
             List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
             lock (networks)
             {
@@ -320,6 +318,9 @@ namespace ConsoleService
                                 Log.trace("updateRilev=10.pnvID:" + pnv_up.ID + "networkID:" + pnv_up.Network.ID + "-postoID:" + pnv_up.Place.ID);
                             }
                             pnv_up.rilevance = Constant.DefaultRilevance;
+                            //Int16 app=pnv_up.media;
+                            pnv_up.media = Convert.ToInt16(  (pnv_up.media + Convert.ToInt16(network.rssi.ToString()))/2  );
+                            //Log.trace("updateMEDIA.pnvID:" + pnv_up.ID + "MEDIA-B:" + app + "-MEDIA-A:" + pnv_up.media);
                             db.SaveChanges();
                         }
                         else
