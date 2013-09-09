@@ -41,7 +41,8 @@ namespace FNWifiLocator
             Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
             //var client = new NamedPipeClientStream(".", "FNPipeService", PipeDirection.In, PipeOptions.Asynchronous);
-            var client = new NamedPipeClientStream("FNPipeService");
+
+            var client = new NamedPipeClientStream(Constant.ServicePipeName);
             try
             {
                 client.Connect();//avvio service
@@ -49,22 +50,22 @@ namespace FNWifiLocator
                 StreamString ss = new StreamString(client);
                 while (!_shouldStop)
                 {
-                    
+
                     String text = ss.ReadString();
                     if (text != null)
                     {
                         CurrentState cs = new CurrentState();
                         PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
-                        Log.trace("command receveid "+pm.cmd);
+                        Log.trace("command receveid " + pm.cmd);
                         Log.trace("---------------------------------notifyWPF");
                         //mw.ntfw.label.Dispatcher.Invoke(new UpdateTextCallback(this.UpdateText),"PROVA STRINGA");
-                        
+
                         switch (pm.cmd)
-                        {                           
+                        {
                             case "refresh":
                                 if (pm.getPlace() != null)
                                 {
-                                    
+
                                     Place place = pm.getPlace();
                                     Log.trace("Place is not null" + place.ID + place.name);
                                     mw.Dispatcher.Invoke(mw.newPlace, place);
@@ -79,21 +80,25 @@ namespace FNWifiLocator
                                 Console.WriteLine(pm.cmd);
                                 break;
                         }
-                        
+
                         Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
                         //Notification notifForm = new Notification();
                         //notifForm.Show(pm.cmd);  
-                       
+
                     }
                     else
                     {
                         break;
                     }
+
+                    if (_shouldStop)
+                    {
+                        Log.trace("_shouldStop is set to true");
+                        break;
+                    }
+                    
                 }
-                if (_shouldStop)
-                {
-                    Log.trace("_shouldStop is set to true");
-                }
+                
             }
             catch (TimeoutException e)
             {

@@ -180,8 +180,6 @@ namespace FNWifiLocator
 
         public RoutedEvent RoutedEvent { get; set; }
 
-        public volatile bool _shouldStop;
-
         public MainWindow()
         {
             /* stati in cui può trovarsi il service
@@ -244,7 +242,7 @@ namespace FNWifiLocator
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }
+           } 
 
 
 
@@ -273,7 +271,7 @@ namespace FNWifiLocator
                 }
             }*/
 
-            this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out);
+            this.server = new NamedPipeServerStream(Constant.LocatorPipeName,PipeDirection.Out);
 
             Console.WriteLine("FN.Main: Waiting for client connect...\n");
 
@@ -328,9 +326,10 @@ namespace FNWifiLocator
 
         private bool SendCommand(PipeMessage pm)
         {
-            if (server != null)
+            if (server != null && server.IsConnected && server.CanWrite)
             {
                 StreamString ss = new StreamString(server);
+               
                 ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
                 return true;
             }
@@ -517,7 +516,7 @@ namespace FNWifiLocator
             PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
             if (p != null)
             {
-                Helper.saveAllCurrentNetworkInPlace(p.pl);
+                Helper.saveAllCurrentNetworkInPlace(p.pl,false);
                 this.rlistdelegate();
             }
 
