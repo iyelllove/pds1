@@ -19,17 +19,22 @@ using NativeWifi;
 
 
 
-namespace ConsoleService
+namespace ConsoleService 
 {
 
     public partial class Service
     {
 
+        
         private bool searching = false;
         private readonly object xmppLock = new object();
+        private readonly object serverLock = new object();
 
         public delegate void cmdReceived(PipeMessage p);
+        public delegate void clientConnect(PipeMessage p, NamedPipeServerStream s);
+
         public cmdReceived newCommand;
+        public clientConnect clientConnectDelegate;
         public ListenThread listener;
 
 
@@ -99,6 +104,7 @@ namespace ConsoleService
 
         public Service()
         {
+
             OnStart();
             Service1();
 
@@ -138,41 +144,37 @@ namespace ConsoleService
 
         private void Service1()
         {
-            newCommand += newCommandEvent;
-            //ricezione eventi di sistema
-            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
-            SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
-            SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
-            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
-
-
-            // Create a timer with a ten second interval.
-            aTimer = new System.Timers.Timer(10000);
-
-            // Hook up the Elapsed event for the timer.
-            aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-
-            // Set the Interval to 2 seconds (2000 milliseconds).
-            aTimer.Interval = Constant.SearchPlaceTimeout;
-            aTimer.Enabled = true;
-            
            
 
-            Console.WriteLine("Press the Enter key to exit the program.");
-            Console.ReadLine();
 
+        }
 
-
-            WlanClient client = new WlanClient();
-            try
+        private void waitClientConnect(PipeMessage pm, NamedPipeServerStream s)
+        {
+            if (Monitor.TryEnter(serverLock, 1))
             {
-                foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                //Monitor.Enter(xmppLock);
+                try
                 {
-                    wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
+                    if (this.server == null)
+                    {
+                        this.server = new NamedPipeServerStream(Constant.ServicePipeName);
+                    }
+
+                    if (this.server != null && !this.server.IsConnected)
+                    {
+                        Console.WriteLine("Service: wait for client(form) connect");
+                        this.server.WaitForConnection();
+                        Console.WriteLine("Service: Form is connected");
+                        //this.SendCommand(new PipeMessage() { cmd = "CONNESSO" });
+                        this.SendCommand(pm);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
+                finally
+                {
+
+                    Monitor.Exit(serverLock);
+                }
             }
 
 
@@ -200,21 +202,57 @@ namespace ConsoleService
         {
             Console.WriteLine("Service.Main:AVVIO SERVICE");
 
+            newCommand += newCommandEvent;
+            this.clientConnectDelegate += this.waitClientConnect;
+            //ricezione eventi di sistema
+            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
+            SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
+            SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
+            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
 
 
-            this.server = new NamedPipeServerStream("FNPipeService");
+            // Create a timer with a ten second interval.
+            aTimer = new System.Timers.Timer(10000);
 
-            Console.WriteLine("Service: wait for client(form) connect");
+            // Hook up the Elapsed event for the timer.
+            aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
 
-            server.WaitForConnection();
-            Console.WriteLine("Service: Form is connected");
-            this.SendCommand(new PipeMessage() { cmd = "CONNESSO" });
+            // Set the Interval to 2 seconds (2000 milliseconds).
+            aTimer.Interval = Constant.SearchPlaceTimeout;
+            aTimer.Enabled = true;
+
+
+
+            Console.WriteLine("Press the Enter key to exit the program.");
+            //  Console.ReadLine();
+
+
+
+            WlanClient client = new WlanClient();
+            try
+            {
+                foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
+                {
+                    wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            
+
+            //Console.WriteLine("Service: wait for client(form) connect");
+            
+          
+          //  Console.WriteLine("Service: Form is connected");
+          //  this.SendCommand(new PipeMessage() { cmd = "CONNESSO" });
 
 
             //this.CurrentPlace = this.cs.searchPlace();
 
             //CREO IL SECONDO THREAD PER LA COMUNICAZIONE DEL SERVICE
-            listener = new ListenThread(this, "FNPipeLocator");
+            listener = new ListenThread(this, Constant.LocatorPipeName, server);
             Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
             InstanceCaller.Start();
 
@@ -238,10 +276,15 @@ namespace ConsoleService
 
         public void newCommandEvent(PipeMessage pm)
         {
+            
             if (pm != null)
             {
+                bool force = false;
                 switch (pm.cmd)
                 {
+                    case "force":
+                        force = true;
+                        //Deve aggioranre tutti i valori della media
                     case "newPlace":
                         //this.WrongPlace();
                         Place newplace  = null;
@@ -252,9 +295,8 @@ namespace ConsoleService
                         if (newplace != null)
                         {
                             this.CurrentPlace = newplace;
-                            Helper.saveAllCurrentNetworkInPlace(newplace);
+                            Helper.saveAllCurrentNetworkInPlace(newplace, force);
                         }
-
                         break;
                     case "wrong":
                         this.WrongPlace();
@@ -268,7 +310,7 @@ namespace ConsoleService
 
         }
 
-        private bool SendCommand(PipeMessage pm)
+        public bool SendCommand(PipeMessage pm)
         {
 
             if (server != null && server.IsConnected)
@@ -277,6 +319,9 @@ namespace ConsoleService
                 StreamString ss = new StreamString(server);
                 ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
                 return true;
+            }
+            else {
+                this.clientConnectDelegate(pm, this.server);
             }
             return false;
         }
@@ -346,6 +391,8 @@ namespace ConsoleService
             }
             //Console.WriteLine("{0} to {1} with quality level {2}",connNotifyData.wlanConnectionMode, connNotifyData.profileName, "-");
         }
+
+        
     }
 
 
