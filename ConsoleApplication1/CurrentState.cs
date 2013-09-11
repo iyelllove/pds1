@@ -72,7 +72,7 @@ namespace ConsoleService
             }
 
         }
-         */ 
+         */
 
 
         //PUBLIC
@@ -254,10 +254,13 @@ namespace ConsoleService
                                 //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
                                 if (networks_candidate.Contains(pnv.Network))
                                 {
+                                    if ((current_strength_network[pnv.Network] < pnv.media - Math.Sqrt(pnv.variance)) || (current_strength_network[pnv.Network] > pnv.media + Math.Sqrt(pnv.variance)))
+                                    {
                                     i++;
                                     int impronta = current_strength_network[pnv.Network];
                                     int media = pnv.media;
                                     lp = lp + ((Math.Abs(impronta - media)) ^ 2);
+                                    }
 
                                 }
 
@@ -297,7 +300,7 @@ namespace ConsoleService
 
         public void update_values(Place place_found)
         {
-            Helper.saveAllCurrentNetworkInPlace(place_found,false);
+            Helper.saveAllCurrentNetworkInPlace(place_found, false);
             List<Wlan.WlanBssEntry> networks = Helper.getCurrentNetworks();
             lock (networks)
             {
@@ -319,7 +322,12 @@ namespace ConsoleService
                             }
                             pnv_up.rilevance = Constant.DefaultRilevance;
                             //Int16 app=pnv_up.media;
-                            pnv_up.media = Convert.ToInt16(  (pnv_up.media + Convert.ToInt16(network.rssi.ToString()))/2  );
+                            pnv_up.media = Convert.ToInt16((pnv_up.media + Convert.ToInt16(network.rssi.ToString())) / 2);
+
+                            //pnv_up.media = Convert.ToInt16((pnv_up.media*pnv_up.N+Convert.ToInt16(network.rssi.ToString()))/(pnv_up.N+1));
+                            //pnv_up.variance = Convert.ToInt16((pnv_up.variance * pnv_up.N + (Convert.ToInt16(network.rssi.ToString()) - pnv_up.media) ^ 2) / (pnv_up.N+1));
+                            //pnv_up.N++;
+
                             //Log.trace("updateMEDIA.pnvID:" + pnv_up.ID + "MEDIA-B:" + app + "-MEDIA-A:" + pnv_up.media);
                             db.SaveChanges();
                         }
@@ -337,8 +345,8 @@ namespace ConsoleService
 
         public void update_values_checkin(Place place_found)
         {
-            
-            
+
+
             if (place_found == null) return;
             List<Network> founded = new List<Network>();
             //Helper.saveAllCurrentNetworkInPlace(place_found);
@@ -392,22 +400,22 @@ namespace ConsoleService
                     if (pnv.ID != 0 && !founded.Contains(pnv.Network))
                     {
                         pnv.rilevance--;
-                       /*
-                        if (pnv.ID != 0)
-                        {
-                            PlacesNetworsValue p = db.PlacesNetworsValues.Where(c => c.ID == pnv.ID).FirstOrDefault();
-                            if (p != null)
-                            {
-                                p.rilevance--;
-                                Log.trace("reteNONpresente.pnvID:" + pnv.ID + "networkID:" + pnv.Network.ID + "-postoID:" + pnv.Place.ID);
-                                if (p.rilevance <= 0)
-                                {
-                                    db.PlacesNetworsValues.Remove(p);
-                                    Log.trace("rilevanza=0: rete eliminata dal DB");
-                                }
-                                db.SaveChanges();
-                            }
-                        }*/
+                        /*
+                         if (pnv.ID != 0)
+                         {
+                             PlacesNetworsValue p = db.PlacesNetworsValues.Where(c => c.ID == pnv.ID).FirstOrDefault();
+                             if (p != null)
+                             {
+                                 p.rilevance--;
+                                 Log.trace("reteNONpresente.pnvID:" + pnv.ID + "networkID:" + pnv.Network.ID + "-postoID:" + pnv.Place.ID);
+                                 if (p.rilevance <= 0)
+                                 {
+                                     db.PlacesNetworsValues.Remove(p);
+                                     Log.trace("rilevanza=0: rete eliminata dal DB");
+                                 }
+                                 db.SaveChanges();
+                             }
+                         }*/
                     }
                 }
                 db.SaveChanges();
