@@ -119,7 +119,7 @@ namespace FNWifiLocatorLibrary
                                 if (already_exist == null)
                                 {
                                     Log.trace("Aggiungo nuova rete ( ID:" + m.ID + " SSID:" + m.SSID + " MAC:" + m.MAC + ") al posto " + p.name);
-                                    PlacesNetworsValue pnv = new PlacesNetworsValue { Network = m, Place = dbplace, media = Convert.ToInt16(network.rssi.ToString()), variance = (short)1, rilevance = Constant.DefaultRilevance };
+                                    PlacesNetworsValue pnv = new PlacesNetworsValue { Network = m, Place = dbplace, media = Convert.ToInt16(network.rssi.ToString()), variance = 1, rilevance = Constant.DefaultRilevance };
                                     db.PlacesNetworsValues.Add(pnv);
                                     //p.PlacesNetworsValues.Add(pnv);
                                 }else if(force == true){
