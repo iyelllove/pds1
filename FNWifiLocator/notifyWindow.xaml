@@ -4,9 +4,9 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
     x:Class="FNWifiLocator.notifyWindow"
   Title="Notification Popup" Width="300"
-  WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="Manual" ShowInTaskbar="False" Top="5" Left="5" Height="auto">
+  WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="Manual" ShowActivated="False" ShowInTaskbar="false" Top="5" Left="5" Height="90">
 
-    <Grid RenderTransformOrigin="0,1" >
+    <Grid RenderTransformOrigin="0,1" Background="White" Width="auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="13*"/>
             <ColumnDefinition Width="47*"/>
@@ -21,27 +21,18 @@
         <Grid.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                 <BeginStoryboard>
-                    <Storyboard>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)">
-                            <SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)">
-                            <SplineDoubleKeyFrame KeyTime="0:0:2" Value="1"/>
-                            <SplineDoubleKeyFrame KeyTime="0:0:3" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-
+                    <Storyboard Name="FormFade">
+                        <DoubleAnimation Name="FormFadeAnimation"
+                                     Storyboard.TargetProperty="(Window.Opacity)"
+                                     From="0.0" To="1.0" Duration="0:0:1"
+                                     AutoReverse="True" RepeatBehavior="1x" />
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
         </Grid.Triggers>
 
-        <Grid.RenderTransform>
-            <ScaleTransform ScaleY="1" />
-        </Grid.RenderTransform>
-
         <!-- Notification area -->
-        <TextBlock Margin="30,5,3,165" RenderTransformOrigin="0.5,0.5" TextWrapping="Wrap" Grid.Column="1">
+        <TextBlock Margin="30,5,3,1" RenderTransformOrigin="0.5,0.5" TextWrapping="Wrap" Grid.Column="1" Grid.RowSpan="3">
             <TextBlock.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -50,13 +41,13 @@
                     <TranslateTransform/>
                 </TransformGroup>
             </TextBlock.RenderTransform><Bold><Run Text="FNWifiLocatore Service"/></Bold><LineBreak /><InlineUIContainer>
-    			<Label x:Name="label" Content="errore messaggio notifica" Height="auto" Width="auto" RenderTransformOrigin="0.493,2.603"/>
+    			<Label x:Name="label" Content="errore messaggio notifica" Height="auto"  RenderTransformOrigin="0.493,2.603"/>
     		</InlineUIContainer><LineBreak /></TextBlock>
 
         <!-- Notification area -->
-        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="10" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2" Margin="0,0,18,161">
+        <Border BorderThickness="1" BorderBrush="Black" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2" Margin="0,0,0,0" Height="91" VerticalAlignment="Top" Grid.RowSpan="3">
             <Border.Background>
-                <ImageBrush ImageSource="icon.ico" Stretch="Uniform" AlignmentX="Left"/>
+                <ImageBrush ImageSource="icon.ico" Stretch="Uniform" AlignmentX="Left" />
             </Border.Background>
             <Border.RenderTransform>
                 <TransformGroup>

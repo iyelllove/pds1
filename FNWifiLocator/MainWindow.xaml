@@ -6,6 +6,8 @@
         MinWidth="200"
         MaxWidth="500"
         ResizeMode="CanMinimize"
+        Icon="icon.png"
+        
        
         >
 

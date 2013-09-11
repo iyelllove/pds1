@@ -35,6 +35,7 @@ namespace FNWifiLocator
 
     public partial class MainWindow : Window
     {
+        private int tryconnect = Constant.DefaultTryToConnect;
 
         public delegate void changePlace(Place p);
         public delegate void notifyText(String str);
@@ -48,7 +49,11 @@ namespace FNWifiLocator
         static public Dictionary<PlaceTV, Place> ParentList = new Dictionary<PlaceTV, Place>();
         public refreshListDelegate rlistdelegate;
         private NamedPipeServerStream server;
+        System.Windows.Forms.NotifyIcon notifyIcon = new System.Windows.Forms.NotifyIcon();
 
+        private ListenThreadForm listener = null;
+        private Thread InstanceCaller = null;
+            
 
         public slideWindow slw = new slideWindow();
         public notifyWindow ntfw = new notifyWindow("AVVIO");
@@ -126,8 +131,14 @@ namespace FNWifiLocator
                 if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
                 {
                     this.currentPlace = value;
-                    if(this.currentPlace != null){
+                    if (this.currentPlace != null)
+                    {
+                        notifyIcon.Text = Constant.ApplicationName + " - " + this.currentPlace.name;
                         notify(this.currentPlace.name);
+                    }
+                    else {
+                        notifyIcon.Text = Constant.ApplicationName;
+                       
                     }
 
                     // using (var db = Helper.getDB())
@@ -146,7 +157,7 @@ namespace FNWifiLocator
                     {
                         currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
                         value.Checkins.Add(currentCheckin);
-                        
+
                         execFunction(value.file_in);
                         //Log.trace("ma da qui?");
                         this.positionName.Content = value.name;
@@ -254,11 +265,10 @@ namespace FNWifiLocator
             catch (Exception ex)
             {
                 Log.error(ex.Message);
-           }
+            }
 
-           /* this.clientConnectDelegate += this.waitClientConnect;
-            clientConnectDelegate(new PipeMessage { cmd = "Test Connessione", place_id = 0 }, this.server);
-            */
+            this.clientConnectDelegate += this.waitClientConnect;
+            //clientConnectDelegate(new PipeMessage { cmd = "Test Connessione", place_id = 0 }, this.server);
 
 
             newPlace = new changePlace(ChangePlaceMethod);
@@ -266,13 +276,13 @@ namespace FNWifiLocator
             InitializeComponent();
 
 
-           
 
-            System.Windows.Forms.NotifyIcon notifyIcon = new System.Windows.Forms.NotifyIcon();
+
             notifyIcon.Icon = new Icon(Constant.iconPath);
             notifyIcon.Text = Constant.ServiceName;
             notifyIcon.BalloonTipTitle = "Suggest";
             notifyIcon.Visible = true;
+            notifyIcon.Text = Constant.ApplicationName;
             notifyIcon.DoubleClick +=
                 delegate(object sender, EventArgs args)
                 {
@@ -280,10 +290,11 @@ namespace FNWifiLocator
                     this.WindowState = WindowState.Normal;
                 };
 
-            ListenThreadForm listener = new ListenThreadForm(this);
-            Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
-            InstanceCaller.Start();
 
+            listener = new ListenThreadForm(this);
+            InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
+            InstanceCaller.Start();
+            
 
             /*using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
@@ -302,12 +313,9 @@ namespace FNWifiLocator
                 }
             }*/
 
-            Log.trace("Creo"+ Constant.LocatorPipeName);
-            this.server = new NamedPipeServerStream(Constant.LocatorPipeName,PipeDirection.Out);
-            Log.trace("FN.Main: Waiting for client connect...\n");
-            this.server.WaitForConnection();
-            Log.trace("FN.Main:connection with client...\n");
-            this.SendCommand(new PipeMessage { cmd= "connected" });
+            Log.trace("Creo" + Constant.LocatorPipeName);
+
+            // this.SendCommand(new PipeMessage { cmd= "connected" });
 
             //Console.WriteLine("FN.Main:connection with client...\n");
             //StreamString ss = new StreamString(server);
@@ -344,19 +352,23 @@ namespace FNWifiLocator
                 try
                 {
                     if (this.server == null)
-                    {
-                        Log.trace("Constant.ServicePipeName");
                         this.server = new NamedPipeServerStream(Constant.LocatorPipeName, PipeDirection.Out);
-                    }
-
+                    
                     if (this.server != null && !this.server.IsConnected)
                     {
                         Log.trace("Wait for service connect");
                         this.server.WaitForConnection();
                         Log.trace("Service is connected");
-                        //this.SendCommand(new PipeMessage() { cmd = "CONNESSO" });
                         this.SendCommand(pm);
                     }
+                }
+                catch (Exception exc)
+                {
+                    this.tryconnect--;
+                    this.server.Close();
+                    this.server = new NamedPipeServerStream(Constant.LocatorPipeName);
+                    Log.error(exc);
+                    if (this.tryconnect > 0) this.SendCommand(new PipeMessage { cmd = "connected" });
                 }
                 finally
                 {
@@ -367,11 +379,11 @@ namespace FNWifiLocator
         }
 
 
+
+
         private void NotifyTextMethod(String str)
         {
             new notifyWindow(str);
-
-
         }
 
         private void ChangePlaceMethod(Place p)
@@ -384,20 +396,37 @@ namespace FNWifiLocator
 
         }
 
+
+
+
+
+
+
         private bool SendCommand(PipeMessage pm)
         {
-            Log.trace("Send: " + pm.cmd);
-            if (server != null && server.IsConnected)
+            try
             {
-                StreamString ss = new StreamString(server);
-               
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
-                return true;
+                Log.trace("Send: " + pm.cmd);
+                if (server != null && server.IsConnected)
+                {
+                    StreamString ss = new StreamString(server);
+
+                    ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
+                    this.tryconnect = Constant.DefaultTryToConnect;
+                    return true;
+                }
+                else
+                {
+                    Log.trace("Server Is null or disconnected" + pm.cmd);
+                    this.clientConnectDelegate(pm, this.server);
+                }
             }
-            else
+            catch (Exception exc)
             {
-                Log.trace("Server Is null or disconnected" + pm.cmd);
-                this.clientConnectDelegate(pm, this.server);
+                this.tryconnect--;
+                if (this.tryconnect > 0)
+                    this.SendCommand(pm);
+                Log.error(exc);
             }
             return false;
         }
@@ -405,11 +434,7 @@ namespace FNWifiLocator
         private void refreshPlaceTree()
         {
             Log.trace("Refresho la lista");
-            if (server != null)
-            {
-                StreamString ss = new StreamString(server);
-                this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
-            }
+            this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
             placesList.Clear();
             ParentList.Clear();
 
@@ -497,7 +522,7 @@ namespace FNWifiLocator
 
             if (File.Exists(filename))
             {
-              //  System.Diagnostics.Process.Start(@"C:\Windows\system32\cmd.exe", " /c " + "\"" + filename + "\"");
+                //  System.Diagnostics.Process.Start(@"C:\Windows\system32\cmd.exe", " /c " + "\"" + filename + "\"");
                 System.Diagnostics.Process.Start("cmd.exe", "/c " + filename);
 
             }
@@ -583,7 +608,7 @@ namespace FNWifiLocator
             PlaceTV p = (PlaceTV)this.placeTreView.SelectedValue;
             if (p != null)
             {
-                Helper.saveAllCurrentNetworkInPlace(p.pl,false);
+                Helper.saveAllCurrentNetworkInPlace(p.pl, false);
                 this.rlistdelegate();
             }
 
@@ -599,10 +624,10 @@ namespace FNWifiLocator
                     //Place sp = this.selectedPlace;
                     //db.Places.Attach(this.selectedPlace);
                     Place sp = db.Places.Where(c => c.ID == this.selectedPlace.ID).FirstOrDefault();
-                    
+
                     if (sp != null)
                     {
-                        if (this.currentPlace.ID == sp.ID) currentPlace = null;
+                        if (this.currentPlace != null && this.currentPlace.ID == sp.ID) currentPlace = null;
                         /*
                         try
                         {
@@ -659,11 +684,7 @@ namespace FNWifiLocator
         private void wrongPosition_Click_1(object sender, RoutedEventArgs e)
         {
             this.CurrentPlace = null;
-
-            if (!this.SendCommand(new PipeMessage() { place = 0, cmd = "wrong" }))
-            {
-                Log.error("Qualcosa non va con la pipe");
-            }
+            this.SendCommand(new PipeMessage() { place = 0, cmd = "wrong" });
         }
 
         private void positionName_Unloaded(object sender, RoutedEventArgs e)
@@ -701,16 +722,16 @@ namespace FNWifiLocator
                             SendCommand(new PipeMessage { place_id = p.ID, cmd = "newPlace", place = p.ID });
                         }
                         //Helper.saveAllCurrentNetworkInPlace(p);
-                        
-                        
-                        
+
+
+
                         //this.getSlw();
                         //this.slw.CurrentPlace = p;
                         //this.slw.Show();
-                       
-                        
-                        
-                        
+
+
+
+
                         /*using (var db = Helper.getDB()) //Helper.getDB())
                         {
                             db.Places.Attach(p);
@@ -723,8 +744,8 @@ namespace FNWifiLocator
                     {
                         Log.error(ex.Message);
                     }
-                                    }
-               
+                }
+
                 //this.CurrentPlace = p;
 
             }
@@ -790,7 +811,19 @@ namespace FNWifiLocator
             base.OnStateChanged(e);
         }
 
-
+        protected override void OnClosed(EventArgs e)
+        {
+            
+            base.OnClosed(e);
+            listener._shouldStop = true;
+            if (InstanceCaller.IsAlive)
+            {
+                InstanceCaller.Abort();
+                InstanceCaller.Join();
+            }
+            notifyIcon.Visible = false;
+            System.Windows.Application.Current.Shutdown();
+        }
 
     }
 }

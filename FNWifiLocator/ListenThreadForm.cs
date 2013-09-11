@@ -24,9 +24,7 @@ namespace FNWifiLocator
     
       
        public ListenThreadForm(MainWindow mw) {
-            this.mw = mw;
-
-            mw.notify = this.UpdateText;
+            this.mw = mw;   mw.notify = this.UpdateText;
             
              }
 
@@ -36,7 +34,7 @@ namespace FNWifiLocator
 
         
      public  void InstanceMethod()
-      {
+      {   
            int tryconnect = 10;
             Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
@@ -110,41 +108,21 @@ namespace FNWifiLocator
                     }
 
                 }
+                catch (ThreadAbortException abortException)
+                {
+                    client.Close();
+                   Log.trace((string)abortException.ExceptionState);
+                }
                 catch (Exception e)
                 {
                     Log.trace("FN.Thread: " + e.ToString());
-                    Thread.Sleep(Constant.SearchPlaceTimeout);
                     tryconnect--;
                     //check se il service è in esecuzione
                 }
+
             }
-            Log.trace("FN.Thread: The instance method (Form) called by the worker thread has ended.");
-            client.Close();
-
-            /*
-            Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
-
-            var client = new NamedPipeClientStream("FNPipeService");
-            client.Connect();
-
-
-            StreamString ss = new StreamString(client);
-
-            String text = ss.ReadString();
-            Console.WriteLine("FN.Thread: recived message:" + text);
-
-            Thread.Sleep(2000);
-            //Form1 frm = new Form1();
-            //delPassData del = new delPassData(frm.funData);
-            //del(text);
-            //frm.Show();
-
-            //Thread.Sleep(8000);
-
-            client.Close();*/
-
-            // Pause for a moment to provide a delay to make 
-            // threads more apparent.
+            if (client.IsConnected) client.Close();
+           
         }
 
      private void UpdateText(string message)
