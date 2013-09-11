@@ -31,19 +31,23 @@ namespace ConsoleService
             try
             {
                 
-                client.Connect();//avvio service
-
-                StreamString ss = new StreamString(client);
+               
                 while (!_shouldStop)
                 {
+                    client.Connect();//avvio service
 
-                    String text = ss.ReadString();
-                    if (text != null)
+                    StreamString ss = new StreamString(client);
+                    while (client.IsConnected)
                     {
-                        this.s.newCommand.Invoke(Helper.DeserializeFromString<PipeMessage>(text));
-                    }
-                    else {
-                        break;
+                        String text = ss.ReadString();
+                        if (text != null)
+                        {
+                            this.s.newCommand.Invoke(Helper.DeserializeFromString<PipeMessage>(text));
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
                 if (_shouldStop)
