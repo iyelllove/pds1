@@ -5,7 +5,7 @@
         Title="MainWindow" Height="350" Width="250"
         MinWidth="200"
         MaxWidth="500"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
        
         >
 
@@ -43,7 +43,7 @@
                     <TextBlock Text="{Binding Path=Title}" />
                 </HierarchicalDataTemplate>
             </StackPanel.Resources>
-            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView"  HorizontalAlignment="Left" Width="200"  Height="140" SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <TreeView  ItemsSource="{Binding}" ItemTemplate="{StaticResource PlaceTVTemplate}" x:Name="placeTreView"  HorizontalAlignment="Left" Width="200"  Height="120" SelectedItemChanged="placeTreView_SelectedItemChanged" IsManipulationEnabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
             <Button x:Name="placeDetail" Content="Dettaglio"  Click="placeDetail_click" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>
             <Button x:Name="delete" Content="Elimina" Click="delete_ClickList" RenderTransformOrigin="2.187,-2.083" Height="24" VerticalAlignment="Bottom"/>
 

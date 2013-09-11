@@ -37,73 +37,81 @@ namespace FNWifiLocator
         
      public  void InstanceMethod()
       {
-           
+           int tryconnect = 10;
             Console.WriteLine("FN.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
             //var client = new NamedPipeClientStream(".", "FNPipeService", PipeDirection.In, PipeOptions.Asynchronous);
-
-            var client = new NamedPipeClientStream(Constant.ServicePipeName);
-            try
+            Log.trace("Connetto" + Constant.ServicePipeName);
+            var client = new NamedPipeClientStream(".",Constant.ServicePipeName, PipeDirection.In);
+            while (tryconnect > 0)
             {
-                client.Connect();//avvio service
-
-                StreamString ss = new StreamString(client);
-                while (!_shouldStop)
+                Log.trace(Constant.ServicePipeName + "Connessione");
+                try
                 {
 
-                    String text = ss.ReadString();
-                    if (text != null)
+                    client.Connect();//avvio service
+                    tryconnect = 10;
+
+                    StreamString ss = new StreamString(client);
+                    while (!_shouldStop)
                     {
-                        CurrentState cs = new CurrentState();
-                        PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
-                        Log.trace("command receveid " + pm.cmd);
-                        Log.trace("---------------------------------notifyWPF");
-                        //mw.ntfw.label.Dispatcher.Invoke(new UpdateTextCallback(this.UpdateText),"PROVA STRINGA");
 
-                        switch (pm.cmd)
+                        String text = ss.ReadString();
+                        if (text != null)
                         {
-                            case "refresh":
-                                if (pm.getPlace() != null)
-                                {
+                            CurrentState cs = new CurrentState();
+                            PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
+                            Log.trace("command receveid " + pm.cmd);
+                            Log.trace("---------------------------------notifyWPF");
+                            //mw.ntfw.label.Dispatcher.Invoke(new UpdateTextCallback(this.UpdateText),"PROVA STRINGA");
 
-                                    Place place = pm.getPlace();
-                                    Log.trace("Place is not null" + place.ID + place.name);
-                                    mw.Dispatcher.Invoke(mw.newPlace, place);
-                                    mw.Dispatcher.Invoke(mw.notify, place.name);
-                                }
-                                else { Log.trace("Place is null"); }
-                                break;
-                            case "refresh2":
-                                Console.WriteLine("Case 2");
-                                break;
-                            default:
-                                Console.WriteLine(pm.cmd);
-                                break;
+                            switch (pm.cmd)
+                            {
+                                case "refresh":
+                                    if (pm.getPlace() != null)
+                                    {
+
+                                        Place place = pm.getPlace();
+                                        Log.trace("Place is not null" + place.ID + place.name);
+                                        mw.Dispatcher.Invoke(mw.newPlace, place);
+                                        mw.Dispatcher.Invoke(mw.notify, place.name);
+                                    }
+                                    else { Log.trace("Place is null"); }
+                                    break;
+                                case "refresh2":
+                                    Console.WriteLine("Case 2");
+                                    break;
+                                default:
+                                    Console.WriteLine(pm.cmd);
+                                    break;
+                            }
+
+                            Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
+                            //Notification notifForm = new Notification();
+                            //notifForm.Show(pm.cmd);  
+
+                        }
+                        else
+                        {
+                            break;
                         }
 
-                        Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
-                        //Notification notifForm = new Notification();
-                        //notifForm.Show(pm.cmd);  
+                        if (_shouldStop)
+                        {
+                            Log.trace("_shouldStop is set to true");
+                            break;
+                        }
 
                     }
-                    else
-                    {
-                        break;
-                    }
 
-                    if (_shouldStop)
-                    {
-                        Log.trace("_shouldStop is set to true");
-                        break;
-                    }
-                    
                 }
-                
-            }
-            catch (TimeoutException e)
-            {
-                Log.trace("FN.Thread: " + e.ToString());
-                //check se il service è in esecuzione
+                catch (Exception e)
+                {
+                    Log.trace("FN.Thread: " + e.ToString());
+                    Thread.Sleep(Constant.SearchPlaceTimeout);
+                    tryconnect--;
+                    //check se il service è in esecuzione
+                }
             }
              Console.WriteLine("FN.Thread: The instance method (Form) called by the worker thread has ended.");
             client.Close();

@@ -426,6 +426,7 @@ namespace BaseWPFHelpers
                         }
                         catch (Exception e)
                         {
+
                         }
                     }
                 }

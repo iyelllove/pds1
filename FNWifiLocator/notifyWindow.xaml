@@ -1,64 +1,21 @@
 ﻿<Window
-    x:Class="FNWifiLocator.notifyWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
+    x:Class="FNWifiLocator.notifyWindow"
   Title="Notification Popup" Width="300"
-  WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="Manual" ShowInTaskbar="False" Top="5" Left="5" Height="184">
+  WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="Manual" ShowInTaskbar="False" Top="5" Left="5" Height="80">
 
     <Grid RenderTransformOrigin="0,1" >
-
-        <!-- Notification area -->
-        <Border BorderThickness="1" Background="Beige" BorderBrush="Black" CornerRadius="10" RenderTransformOrigin="0.5,0.5">
-            <Border.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Border.RenderTransform>
-            <StackPanel Margin="20" RenderTransformOrigin="0.5,0.5">
-                <StackPanel.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </StackPanel.RenderTransform>
-                <TextBlock Margin="5" RenderTransformOrigin="0.5,0.5" TextWrapping="Wrap">
-                    <TextBlock.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </TextBlock.RenderTransform><Bold><Run Text="Notification data"/></Bold><LineBreak /><InlineUIContainer>
-                		<Label x:Name="label" Content="errore messaggio notifica" Height="49" Width="241" RenderTransformOrigin="0.493,2.603"/>
-                	</InlineUIContainer><LineBreak /></TextBlock>
-                <CheckBox Content="Checkable" Margin="5 5 0 5" RenderTransformOrigin="0.5,0.5" >
-                    <CheckBox.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </CheckBox.RenderTransform>
-                </CheckBox>
-                <Button Content="Clickable" HorizontalAlignment="Center" RenderTransformOrigin="0.439,1.307" Margin="102,0" >
-                    <Button.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </Button.RenderTransform>
-                </Button>
-            </StackPanel>
-        </Border>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="13*"/>
+            <ColumnDefinition Width="47*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
 
         <!-- Animation -->
         <Grid.Triggers>
@@ -73,15 +30,45 @@
                             <SplineDoubleKeyFrame KeyTime="0:0:2" Value="1"/>
                             <SplineDoubleKeyFrame KeyTime="0:0:3" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
-                        
+
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
-           </Grid.Triggers>
+        </Grid.Triggers>
 
         <Grid.RenderTransform>
             <ScaleTransform ScaleY="1" />
         </Grid.RenderTransform>
+
+        <!-- Notification area -->
+        <Image Grid.RowSpan="3" RenderTransformOrigin="1,1" HorizontalAlignment="Left" Width="90" Grid.ColumnSpan="2">
+            <Image.OpacityMask>
+                <ImageBrush ImageSource="icon.png"/>
+            </Image.OpacityMask>
+        </Image>
+
+        <!-- Notification area -->
+        <Border BorderThickness="1" Background="Beige" BorderBrush="Black" CornerRadius="10" RenderTransformOrigin="0.5,0.5" Grid.RowSpan="3" Grid.ColumnSpan="2">
+            <Border.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Border.RenderTransform>
+            <TextBlock Margin="94,4,4,4" RenderTransformOrigin="0.5,0.5" TextWrapping="Wrap">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </TextBlock.RenderTransform><Bold><Run Text="FNWifiLocatore Service"/></Bold><LineBreak /><InlineUIContainer>
+        			<Label x:Name="label" Content="errore messaggio notifica" Height="auto" Width="241" RenderTransformOrigin="0.493,2.603"/>
+        		</InlineUIContainer><LineBreak /></TextBlock>
+        </Border>
 
     </Grid>
 
