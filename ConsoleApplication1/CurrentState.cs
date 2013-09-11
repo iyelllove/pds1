@@ -199,7 +199,7 @@ namespace ConsoleService
 
 
 
-                    Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
+                    //Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
                         List<Network> network_sniffed = new List<Network>();
                     List<Network> networks_candidate = new List<Network>();
                     this.possible_place.Clear();
@@ -258,8 +258,8 @@ namespace ConsoleService
                                     {
                                     i++;
                                     int impronta = current_strength_network[pnv.Network];
-                                    int media = pnv.media;
-                                    lp = lp + ((Math.Abs(impronta - media)) ^ 2);
+                                    double media = pnv.media;
+                                    lp = lp + Math.Pow(Math.Abs(impronta - media), 2);
                                     }
 
                                 }
@@ -322,11 +322,11 @@ namespace ConsoleService
                             }
                             pnv_up.rilevance = Constant.DefaultRilevance;
                             //Int16 app=pnv_up.media;
-                            pnv_up.media = Convert.ToInt16((pnv_up.media + Convert.ToInt16(network.rssi.ToString())) / 2);
+                            //pnv_up.media = Convert.ToInt16((pnv_up.media + Convert.ToInt16(network.rssi.ToString())) / 2);
 
-                            //pnv_up.media = Convert.ToInt16((pnv_up.media*pnv_up.N+Convert.ToInt16(network.rssi.ToString()))/(pnv_up.N+1));
-                            //pnv_up.variance = Convert.ToInt16((pnv_up.variance * pnv_up.N + (Convert.ToInt16(network.rssi.ToString()) - pnv_up.media) ^ 2) / (pnv_up.N+1));
-                            //pnv_up.N++;
+                            pnv_up.media = (pnv_up.media*pnv_up.measures+Convert.ToInt16(network.rssi.ToString()))/(pnv_up.measures+1);
+                            pnv_up.variance = (pnv_up.variance * pnv_up.measures + Math.Pow((Convert.ToInt16(network.rssi.ToString()) - pnv_up.media),2) / (pnv_up.measures+1));
+                            pnv_up.measures++;
 
                             //Log.trace("updateMEDIA.pnvID:" + pnv_up.ID + "MEDIA-B:" + app + "-MEDIA-A:" + pnv_up.media);
                             db.SaveChanges();
