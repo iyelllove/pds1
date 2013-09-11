@@ -254,14 +254,17 @@ namespace ConsoleService
                                 //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
                                 if (networks_candidate.Contains(pnv.Network))
                                 {
-                                    if ((current_strength_network[pnv.Network] < pnv.media - Math.Sqrt(pnv.variance)) || (current_strength_network[pnv.Network] > pnv.media + Math.Sqrt(pnv.variance)))
+                                    Log.trace("**RETE** Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
+                                    Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
+                                    if ((current_strength_network[pnv.Network] >= (pnv.media-2.5*(Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media+2.5*(Math.Sqrt(pnv.variance)))))
                                     {
-                                    i++;
-                                    int impronta = current_strength_network[pnv.Network];
-                                    double media = pnv.media;
-                                    lp = lp + Math.Pow(Math.Abs(impronta - media), 2);
+                                        Log.trace("         Passata"); 
+                                        i++;
+                                        int impronta = current_strength_network[pnv.Network];
+                                        double media = pnv.media;
+                                        lp = lp + Math.Pow(Math.Abs(impronta - media), 2);
                                     }
-
+                                    else { Log.trace("----------NONpassata"); }
                                 }
 
                             }
@@ -325,9 +328,9 @@ namespace ConsoleService
                             //pnv_up.media = Convert.ToInt16((pnv_up.media + Convert.ToInt16(network.rssi.ToString())) / 2);
 
                             pnv_up.media = (pnv_up.media*pnv_up.measures+Convert.ToInt16(network.rssi.ToString()))/(pnv_up.measures+1);
-                            pnv_up.variance = (pnv_up.variance * pnv_up.measures + Math.Pow((Convert.ToInt16(network.rssi.ToString()) - pnv_up.media),2) / (pnv_up.measures+1));
+                            pnv_up.variance = ((pnv_up.variance * pnv_up.measures + Math.Pow((Convert.ToInt16(network.rssi.ToString()) - pnv_up.media),2)) / (pnv_up.measures+1));                        
+                            Log.trace("******UV***media:[" + pnv_up.media + "] varianza:[" + pnv_up.variance+"] N["+pnv_up.measures+"]");
                             pnv_up.measures++;
-
                             //Log.trace("updateMEDIA.pnvID:" + pnv_up.ID + "MEDIA-B:" + app + "-MEDIA-A:" + pnv_up.media);
                             db.SaveChanges();
                         }
@@ -400,6 +403,11 @@ namespace ConsoleService
                     if (pnv.ID != 0 && !founded.Contains(pnv.Network))
                     {
                         pnv.rilevance--;
+                        if (pnv.rilevance <= 0)
+                        {
+                            db.PlacesNetworsValues.Remove(pnv);
+                            Log.trace("rilevanza=0: rete eliminata dal DB");
+                        }
                         /*
                          if (pnv.ID != 0)
                          {
