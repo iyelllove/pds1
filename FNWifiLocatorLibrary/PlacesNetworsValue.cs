@@ -16,7 +16,6 @@ namespace FNWifiLocatorLibrary
     {
         public PlacesNetworsValue()
         {
-            this.variance = 0;
             this.measures = 1;
         }
     
