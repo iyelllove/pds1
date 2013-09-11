@@ -14,10 +14,17 @@ namespace FNWifiLocatorLibrary
 {
     public partial class PlacesNetworsValue
     {
+        public PlacesNetworsValue()
+        {
+            this.variance = 0m;
+            this.measures = 1;
+        }
+    
         public int ID { get; set; }
         public short rilevance { get; set; }
-        public short media { get; set; }
-        public short variance { get; set; }
+        public decimal media { get; set; }
+        public decimal variance { get; set; }
+        public short measures { get; set; }
     
         public virtual Place Place { get; set; }
         public virtual Network Network { get; set; }

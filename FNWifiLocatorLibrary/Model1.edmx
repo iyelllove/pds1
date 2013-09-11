@@ -204,10 +204,11 @@
           </Key>
           <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="rilevance" Type="Int16" Nullable="false" />
-          <Property Name="media" Type="Int16" Nullable="false" />
-          <Property Name="variance" Type="Int16" Nullable="false" />
+          <Property Name="media" Type="Decimal" Nullable="false" />
+          <Property Name="variance" Type="Decimal" Nullable="false" DefaultValue="0" />
           <NavigationProperty Name="Place" Relationship="datapds1Model.PlacesNetworsValuePlace" FromRole="PlacesNetworsValue" ToRole="Place" />
           <NavigationProperty Name="Network" Relationship="datapds1Model.PlacesNetworsValueNetwork" FromRole="PlacesNetworsValue" ToRole="Network" />
+          <Property Type="Int16" Name="measures" Nullable="false" DefaultValue="1" />
         </EntityType>
         <Association Name="CheckinPlace">
           <End Type="datapds1Model.Checkin" Role="Checkin" Multiplicity="*" />

@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace FNWifiLocatorLibrary
 {
-    public partial class Place 
+    public partial class Place
     {
         public Place()
         {
