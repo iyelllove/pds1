@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server Compact Edition
 -- --------------------------------------------------
--- Date Created: 05/31/2013 11:30:50
+-- Date Created: 09/11/2013 13:23:35
 -- Generated from EDMX file: C:\Users\Nico\documents\visual studio 2012\Projects\pds1\FNWifiLocatorLibrary\Model1.edmx
 -- --------------------------------------------------
 
@@ -85,8 +85,9 @@ GO
 CREATE TABLE [PlacesNetworsValues] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [rilevance] smallint  NOT NULL,
-    [media] smallint  NOT NULL,
-    [variance] smallint  NOT NULL,
+    [media] float  NOT NULL,
+    [variance] float  NOT NULL,
+    [measures] smallint  NOT NULL,
     [Place_ID] int  NULL,
     [Network_ID] int  NULL
 );
