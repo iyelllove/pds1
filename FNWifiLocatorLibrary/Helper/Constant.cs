@@ -14,9 +14,11 @@ namespace FNWifiLocatorLibrary
 
         public const String ServicePipeName = "FNPipeService1";
         public const String LocatorPipeName = "FNPipeLocator";
+        public const String ApplicationName = "FNWifiLocator";
 
         public const String ServiceName = "FNWifiLocator";
 
+        public const int DefaultTryToConnect = 10;
 
         public const bool startService = true;
         
