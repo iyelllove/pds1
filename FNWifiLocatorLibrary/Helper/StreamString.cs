@@ -47,12 +47,17 @@ namespace FNWifiLocatorLibrary
             {
                 len = (int)UInt16.MaxValue;
             }
-            
-            ioStream.WriteByte((byte)(len / 256));
-            ioStream.WriteByte((byte)(len & 255));
-            ioStream.Write(outBuffer, 0, len);
-            ioStream.Flush();
-
+            try
+            {
+                ioStream.WriteByte((byte)(len / 256));
+                ioStream.WriteByte((byte)(len & 255));
+                ioStream.Write(outBuffer, 0, len);
+                ioStream.Flush();
+            }
+            catch (Exception exc)
+            {
+                throw new Exception(exc.Message);
+            }
             return outBuffer.Length + 2;
         }
     } 
