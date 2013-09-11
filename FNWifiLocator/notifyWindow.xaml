@@ -4,7 +4,7 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
     x:Class="FNWifiLocator.notifyWindow"
   Title="Notification Popup" Width="300"
-  WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="Manual" ShowInTaskbar="False" Top="5" Left="5" Height="80">
+  WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="Manual" ShowInTaskbar="False" Top="5" Left="5" Height="auto">
 
     <Grid RenderTransformOrigin="0,1" >
         <Grid.ColumnDefinitions>
@@ -41,14 +41,23 @@
         </Grid.RenderTransform>
 
         <!-- Notification area -->
-        <Image Grid.RowSpan="3" RenderTransformOrigin="1,1" HorizontalAlignment="Left" Width="90" Grid.ColumnSpan="2">
-            <Image.OpacityMask>
-                <ImageBrush ImageSource="icon.png"/>
-            </Image.OpacityMask>
-        </Image>
+        <TextBlock Margin="30,5,3,165" RenderTransformOrigin="0.5,0.5" TextWrapping="Wrap" Grid.Column="1">
+            <TextBlock.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </TextBlock.RenderTransform><Bold><Run Text="FNWifiLocatore Service"/></Bold><LineBreak /><InlineUIContainer>
+    			<Label x:Name="label" Content="errore messaggio notifica" Height="auto" Width="auto" RenderTransformOrigin="0.493,2.603"/>
+    		</InlineUIContainer><LineBreak /></TextBlock>
 
         <!-- Notification area -->
-        <Border BorderThickness="1" Background="Beige" BorderBrush="Black" CornerRadius="10" RenderTransformOrigin="0.5,0.5" Grid.RowSpan="3" Grid.ColumnSpan="2">
+        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="10" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2" Margin="0,0,18,161">
+            <Border.Background>
+                <ImageBrush ImageSource="icon.ico" Stretch="Uniform" AlignmentX="Left"/>
+            </Border.Background>
             <Border.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -57,17 +66,6 @@
                     <TranslateTransform/>
                 </TransformGroup>
             </Border.RenderTransform>
-            <TextBlock Margin="94,4,4,4" RenderTransformOrigin="0.5,0.5" TextWrapping="Wrap">
-                <TextBlock.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </TextBlock.RenderTransform><Bold><Run Text="FNWifiLocatore Service"/></Bold><LineBreak /><InlineUIContainer>
-        			<Label x:Name="label" Content="errore messaggio notifica" Height="auto" Width="241" RenderTransformOrigin="0.493,2.603"/>
-        		</InlineUIContainer><LineBreak /></TextBlock>
         </Border>
 
     </Grid>

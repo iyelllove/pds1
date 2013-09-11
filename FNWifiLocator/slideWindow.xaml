@@ -1,28 +1,26 @@
 ﻿<Window x:Class="FNWifiLocator.slideWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="slideWindow" Height="300" Width="300">
+        Title="slideWindow" Height="301" Width="514">
     
-    <Grid>
-        <TextBox x:Name="placename" HorizontalAlignment="Left" Height="23" Margin="17,45,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="250"/>
-        <Label Content="Checkout" Margin="1,0,0,65" RenderTransformOrigin="1.921,-0.308" HorizontalAlignment="Left" Width="60" Height="26" VerticalAlignment="Bottom"/>
-        <Label Content="Checkin" Margin="7,0,0,113" RenderTransformOrigin="1.921,-0.308" Height="26" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="52"/>
+    <Grid Margin="0,0,0,0">
+        <TextBox x:Name="placename" HorizontalAlignment="Left" Height="23" Margin="17,45,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="343"/>
+        <Label Content="Checkout" Margin="1,115,0,125"  Width="60" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Label Content="Checkin" Margin="7,67,0,173" Width="52" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <TextBox x:Name="checkoutFile" 
-            	Background="Beige"  Height="22" VerticalAlignment="Bottom" Margin="0,0,0,45" />
+            	Background="Beige" Margin="15,139,0,105" />
         <TextBox x:Name="checkinFile" 
-        		Background="Beige" Height="22" VerticalAlignment="Bottom" Margin="0,0,0,90" />
+        		Background="Beige" Margin="15,94,0,150" />
         <Button x:Name="bOpenFileDialogIn" Content="Scegli File" 
-        		Click="bOpenFileDialogIn_Click" Margin="0,0,3,91" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />
+        		Click="bOpenFileDialogIn_Click" Margin="0,93,3,151" HorizontalAlignment="Right" Width="58" />
 
 
         <Button x:Name="bOpenFileDialogOut" Content="Scegli File" 
-            	Click="bOpenFileDialogOut_Click" Margin="0,0,5,45" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />
-        <Label Content="Nome Posto" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            	Click="bOpenFileDialogOut_Click" Margin="0,139,5,105" HorizontalAlignment="Right" Width="58" />
+        <Label Content="Nome Posto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,0,0"/>
         <Button x:Name="savePlace" Content="Salva" 
-        	Click="savePlace_Click" Margin="0,0,5,15" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />
-        <Button x:Name="deletePlace" Content="Elimina" 
-        	Click="deletePlace_Click" Margin="0,0,80,15" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />
+        	Click="savePlace_Click" Margin="0,41,11,203" HorizontalAlignment="Right" Width="58" />
         <Button x:Name="resetPlace" Content="Reset" 
-        	Click="resetPlace_Click" Margin="0,0,155,15" HorizontalAlignment="Right" Width="58" Height="22" VerticalAlignment="Bottom" />
+        	Click="resetPlace_Click" Margin="0,41,75,203" HorizontalAlignment="Right" Width="58" />
     </Grid>
 </Window>

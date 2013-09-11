@@ -62,19 +62,24 @@ namespace FNWifiLocator
                             CurrentState cs = new CurrentState();
                             PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
                             Log.trace("command receveid " + pm.cmd);
-                            Log.trace("---------------------------------notifyWPF");
+                            if (pm.getPlace() != null && pm.getPlace().ID > 0)
+                            {
+                                Log.trace("receveid: " + pm.getPlace().name);  
+                            }
                             //mw.ntfw.label.Dispatcher.Invoke(new UpdateTextCallback(this.UpdateText),"PROVA STRINGA");
 
                             switch (pm.cmd)
                             {
-                                case "refresh":
+                                case "connected":
+                                case "samecheckin":
+                                    mw.Dispatcher.Invoke(mw.newPlace, pm.getPlace());
+                                    break;
+                                case "newplace":
                                     if (pm.getPlace() != null)
                                     {
 
                                         Place place = pm.getPlace();
-                                        Log.trace("Place is not null" + place.ID + place.name);
                                         mw.Dispatcher.Invoke(mw.newPlace, place);
-                                        mw.Dispatcher.Invoke(mw.notify, place.name);
                                     }
                                     else { Log.trace("Place is null"); }
                                     break;
@@ -86,7 +91,7 @@ namespace FNWifiLocator
                                     break;
                             }
 
-                            Console.WriteLine("FN.Thread:: received message:" + pm.cmd);
+                            Log.trace("FN.Thread:: received message:" + pm.cmd);
                             //Notification notifForm = new Notification();
                             //notifForm.Show(pm.cmd);  
 
@@ -113,7 +118,7 @@ namespace FNWifiLocator
                     //check se il service è in esecuzione
                 }
             }
-             Console.WriteLine("FN.Thread: The instance method (Form) called by the worker thread has ended.");
+            Log.trace("FN.Thread: The instance method (Form) called by the worker thread has ended.");
             client.Close();
 
             /*

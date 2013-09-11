@@ -126,6 +126,9 @@ namespace FNWifiLocator
                 if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
                 {
                     this.currentPlace = value;
+                    if(this.currentPlace != null){
+                        notify(this.currentPlace.name);
+                    }
 
                     // using (var db = Helper.getDB())
                     //{
@@ -301,12 +304,10 @@ namespace FNWifiLocator
 
             Log.trace("Creo"+ Constant.LocatorPipeName);
             this.server = new NamedPipeServerStream(Constant.LocatorPipeName,PipeDirection.Out);
-
             Log.trace("FN.Main: Waiting for client connect...\n");
-
             this.server.WaitForConnection();
             Log.trace("FN.Main:connection with client...\n");
-
+            this.SendCommand(new PipeMessage { cmd= "connected" });
 
             //Console.WriteLine("FN.Main:connection with client...\n");
             //StreamString ss = new StreamString(server);
@@ -385,6 +386,7 @@ namespace FNWifiLocator
 
         private bool SendCommand(PipeMessage pm)
         {
+            Log.trace("Send: " + pm.cmd);
             if (server != null && server.IsConnected)
             {
                 StreamString ss = new StreamString(server);
