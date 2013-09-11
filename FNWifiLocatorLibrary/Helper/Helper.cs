@@ -18,7 +18,7 @@ namespace FNWifiLocatorLibrary
 
         static DateTime timestamp;
         static datapds1Entities2 dbistance = null;
-        static FNDB fbndbistance = null;
+       // static FNDB fbndbistance = null;
         private static object xmppLock = new object();
 
         static List<Wlan.WlanBssEntry> networks = new List<Wlan.WlanBssEntry>();
@@ -205,10 +205,19 @@ namespace FNWifiLocatorLibrary
 
         static public datapds1Entities2 getDB()
         {
-      var      db = new datapds1Entities2();
-      db.Database.Connection.ConnectionString = Constant.getConnectionString();
-      Log.trace(db.Database.Connection.ConnectionString);
-            return new datapds1Entities2();
+            try
+            {
+                var db = new datapds1Entities2();
+                db.Database.Connection.ConnectionString = Constant.getConnectionString();
+                //Log.trace(db.Database.Connection.ConnectionString);
+                return db;
+            }
+            catch (Exception e)
+            {
+                Log.trace(e.ToString());
+                return null;
+            }
+           
             //fbndbistance = new datapds1Entities2();
             //return fbndbistance;
             //return fbndbistance.getDBInstance();
@@ -216,10 +225,7 @@ namespace FNWifiLocatorLibrary
 
         static public void saveChanges()
         {
-            if (fbndbistance != null)
-            {
-
-            }
+           
         }
 
 

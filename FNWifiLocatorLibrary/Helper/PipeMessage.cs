@@ -19,7 +19,7 @@ namespace FNWifiLocatorLibrary{
             return place_id;
             } 
             
-            set { if(value == null) place_id = 0; else place_id=value; } }
+            set { place_id=value; } }
         public String cmd;
         public double precision = 0;
 
