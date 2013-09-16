@@ -12,15 +12,15 @@
         <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
         <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
 
-            Se si specifica il nodo requestedExecutionLevel, la virtualizzazione dei file system e del Registro di sistema verrà disabilitata.
-            Se si desidera utilizzare la virtualizzazione dei file e del Registro di sistema per la 
-            compatibilità con le versioni precedenti, eliminare il nodo requestedExecutionLevel.
+            Specificando il nodo requestedExecutionLevel verrà disabilitata la virtualizzazione dei file e del registro di sistema.
+            Se si desidera utilizzare la virtualizzazione dei file e del registro di sistema per la compatibilità con le versioni precedenti, 
+            eliminare il nodo requestedExecutionLevel.
         -->
-        <requestedExecutionLevel level="highestAvailable" uiAccess="false" />
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>
-  
+
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <!-- Elenco di tutte le versioni di Windows con cui è possibile utilizzare l'applicazione. 
@@ -29,16 +29,16 @@
       <!-- Se l'applicazione è progettata per l'uso con Windows Vista, rimuovere il commento dal seguente nodo supportedOS-->
       <!--<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"></supportedOS>-->
 
-      <!-- Se l'applicazione è progettata per l'uso con Windows 7, rimuovere il commento dal seguente nodo supportedOS-->
+      <!-- Se l'applicazione è progettata per funzionare con Windows 7, rimuovere il seguente nodo supportedOS-->
       <!--<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>-->
 
       <!-- Se l'applicazione è progettata per l'uso con Windows 8, rimuovere il commento dal seguente nodo supportedOS-->
       <!--<supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"></supportedOS>-->
-      
+
     </application>
   </compatibility>
-  
-  <!-- Abilita i temi per i controlli e le finestre di dialogo comuni di Windows (Windows XP e versioni successive) -->
+
+  <!-- Abilita i temi per finestre di dialogo e controlli comuni di Windows (Windows XP e versioni successive) -->
   <!-- <dependency>
     <dependentAssembly>
       <assemblyIdentity

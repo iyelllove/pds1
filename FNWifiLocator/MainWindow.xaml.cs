@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.ServiceProcess;
 
 
+
 public delegate void refreshListDelegate();
 
 namespace FNWifiLocator
@@ -337,6 +338,7 @@ namespace FNWifiLocator
                         }
                         catch (InvalidOperationException)
                         {
+                            MessageBoxResult result = System.Windows.MessageBox.Show(this, "Hello MessageBox"); 
                             Log.error("Could not start the  " + Constant.ServiceName + "  service.");
                         }
                     }
