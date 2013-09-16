@@ -247,6 +247,7 @@ namespace FNWifiLocatorService
                         {
                             Place place = pc.Key;
                             double lp = 0;
+                            Boolean inif = false;
                             int i = 0;
                             foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
                             {
@@ -259,6 +260,7 @@ namespace FNWifiLocatorService
                                     if ((current_strength_network[pnv.Network] >= (pnv.media - 2.5 * (Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media + 2.5 * (Math.Sqrt(pnv.variance)))))
                                     {
                                         Log.trace("         Passata");
+                                        inif = true;
                                         i++;
                                         int impronta = current_strength_network[pnv.Network];
                                         double media = pnv.media;
@@ -268,11 +270,14 @@ namespace FNWifiLocatorService
                                 }
 
                             }
-                            lp = Math.Sqrt(lp) / i;
-                            if (lp < place_found_lp)
+                            if (inif == true)
                             {
-                                place_found_lp = lp;
-                                place_found = place;
+                                lp = Math.Sqrt(lp) / i;
+                                if (lp < place_found_lp)
+                                {
+                                    place_found_lp = lp;
+                                    place_found = place;
+                                }
                             }
                         }
 

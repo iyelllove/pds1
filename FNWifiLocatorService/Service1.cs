@@ -25,6 +25,7 @@ namespace FNWifiLocatorService
     {
         public Service1()
         {
+            this.CanStop = true;
             InitializeComponent();
         }
 
