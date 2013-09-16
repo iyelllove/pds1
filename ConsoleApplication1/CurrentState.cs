@@ -347,11 +347,15 @@ namespace ConsoleService
                                 /*ERRORE avendo fatto saveAllCurrentNetworkInPlace il place net.value deve essere presente nel DB*/
                             }
                         }
-
-
-                        db.Places.Attach(place_found);
-                        place_found.m_num++;
-                        db.SaveChanges();
+                        if (place_found != null && place_found.ID > 0)
+                        {
+                            var pf = db.Places.Where(c => c.ID == place_found.ID).FirstOrDefault();
+                            if (pf != null)
+                            {
+                                pf.m_num++;
+                                db.SaveChanges();
+                            }
+                        }
                     }
                 }
             }
