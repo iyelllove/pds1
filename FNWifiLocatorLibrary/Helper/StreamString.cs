@@ -23,17 +23,26 @@ namespace FNWifiLocatorLibrary
         {
             int len;
             //ioStream.ReadTimeout=1000;
-            len = ioStream.ReadByte() * 256;
-            len += ioStream.ReadByte();
-            if (len > 0)
+            try
             {
-                byte[] inBuffer = new byte[len];
-                ioStream.Read(inBuffer, 0, len);
-                return streamEncoding.GetString(inBuffer);
+                len = ioStream.ReadByte() * 256;
+                len += ioStream.ReadByte();
+                if (len > 0)
+                {
+                    byte[] inBuffer = new byte[len];
+                    ioStream.Read(inBuffer, 0, len);
+                    return streamEncoding.GetString(inBuffer);
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else {
-                return null;
+            catch (Exception exc)
+            {
+                Log.trace("ReadString");
             }
+            return null;
             
             
             
@@ -49,6 +58,7 @@ namespace FNWifiLocatorLibrary
             }
             try
             {
+                //ioStream.WriteTimeout = 1000;
                 ioStream.WriteByte((byte)(len / 256));
                 ioStream.WriteByte((byte)(len & 255));
                 ioStream.Write(outBuffer, 0, len);

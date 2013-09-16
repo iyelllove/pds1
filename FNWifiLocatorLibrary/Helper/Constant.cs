@@ -23,8 +23,10 @@ namespace FNWifiLocatorLibrary
         public const bool startService = true;
         
         public const int DefaultRilevance = 10;
-        public const int SearchPlaceTimeout = 30000;
+        public const int SearchPlaceTimeout = 10000;
 
+        public const double FatDS = 3;
+        public const int DVSlimit = 3;
 
         public static string getConnectionString() {
             /*
