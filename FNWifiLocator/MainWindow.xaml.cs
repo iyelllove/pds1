@@ -235,38 +235,8 @@ namespace FNWifiLocator
                 Console.WriteLine(ex.Message);
 
             }*/
-            try
-            {
-                if (Constant.startService == true)
-                {
-                    ServiceController sc = new ServiceController(Constant.ServiceName);
 
-                    if (sc.Status == ServiceControllerStatus.Stopped)
-                    {
-                        // Start the service if the current status is stopped.
-
-                        Log.trace("Starting the " + Constant.ServiceName + " service...");
-                        try
-                        {
-                            // Start the service, and wait until its status is "Running".
-                            sc.Start();
-                            sc.WaitForStatus(ServiceControllerStatus.Running);
-
-                            // Display the current service status.
-                            Log.trace("The WifiLocator service status is now set to " + sc.Status.ToString());
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            Log.error("Could not start the  " + Constant.ServiceName + "  service.");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.error(ex.Message);
-            }
-
+            this.startService();
             this.clientConnectDelegate += this.waitClientConnect;
             //clientConnectDelegate(new PipeMessage { cmd = "Test Connessione", place_id = 0 }, this.server);
 
@@ -344,6 +314,40 @@ namespace FNWifiLocator
 
         }
 
+        private void startService() {
+            try
+            {
+                if (Constant.startService == true)
+                {
+                    ServiceController sc = new ServiceController(Constant.ServiceName);
+
+                    if (sc.Status == ServiceControllerStatus.Stopped)
+                    {
+                        // Start the service if the current status is stopped.
+
+                        Log.trace("Starting the " + Constant.ServiceName + " service...");
+                        try
+                        {
+                            // Start the service, and wait until its status is "Running".
+                            sc.Start();
+                            sc.WaitForStatus(ServiceControllerStatus.Running);
+
+                            // Display the current service status.
+                            Log.trace("The WifiLocator service status is now set to " + sc.Status.ToString());
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            Log.error("Could not start the  " + Constant.ServiceName + "  service.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.error(ex.Message);
+            }
+        }
+
         private void waitClientConnect(PipeMessage pm, NamedPipeServerStream s)
         {
             if (Monitor.TryEnter(serverLock, 1))
@@ -356,6 +360,8 @@ namespace FNWifiLocator
                     
                     if (this.server != null && !this.server.IsConnected)
                     {
+
+                        this.startService();
                         Log.trace("Wait for service connect");
                         this.server.WaitForConnection();
                         Log.trace("Service is connected");

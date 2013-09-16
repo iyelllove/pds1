@@ -8,19 +8,19 @@
         <Label Content="Checkout" Margin="1,115,0,125"  Width="60" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Label Content="Checkin" Margin="7,67,0,173" Width="52" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <TextBox x:Name="checkoutFile" 
-            	Background="Beige" Margin="15,139,0,105" />
+            	Background="Beige" Margin="15,139,0,0" Height="27" VerticalAlignment="Top" />
         <TextBox x:Name="checkinFile" 
         		Background="Beige" Margin="15,94,0,150" />
         <Button x:Name="bOpenFileDialogIn" Content="Scegli File" 
-        		Click="bOpenFileDialogIn_Click" Margin="0,93,3,151" HorizontalAlignment="Right" Width="58" />
+        		Click="bOpenFileDialogIn_Click" Margin="0,93,3,0" HorizontalAlignment="Right" Width="58" Height="27" VerticalAlignment="Top" />
 
 
         <Button x:Name="bOpenFileDialogOut" Content="Scegli File" 
-            	Click="bOpenFileDialogOut_Click" Margin="0,139,5,105" HorizontalAlignment="Right" Width="58" />
+            	Click="bOpenFileDialogOut_Click" Margin="0,139,5,0" HorizontalAlignment="Right" Width="58" Height="27" VerticalAlignment="Top" />
         <Label Content="Nome Posto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,0,0"/>
         <Button x:Name="savePlace" Content="Salva" 
-        	Click="savePlace_Click" Margin="0,41,11,203" HorizontalAlignment="Right" Width="58" />
+        	Click="savePlace_Click" Margin="0,41,11,0" HorizontalAlignment="Right" Width="58" Height="27" VerticalAlignment="Top" />
         <Button x:Name="resetPlace" Content="Reset" 
-        	Click="resetPlace_Click" Margin="0,41,75,203" HorizontalAlignment="Right" Width="58" />
+        	Click="resetPlace_Click" Margin="0,41,75,0" HorizontalAlignment="Right" Width="58" Height="27" VerticalAlignment="Top" />
     </Grid>
 </Window>
