@@ -128,6 +128,8 @@ namespace FNWifiLocatorLibrary
                                     else if (force == true)
                                     {
                                         already_exist.media = Convert.ToInt16(network.rssi.ToString());
+                                        already_exist.variance = 1;
+                                        already_exist.measures = 1;
                                         Log.trace("Sovrascrivo media a causa del comando force");
                                     }
                                 }
