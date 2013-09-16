@@ -257,7 +257,7 @@ namespace ConsoleService
                                 {
                                     Log.trace("**RETE** Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
                                     Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
-                                    if ((current_strength_network[pnv.Network] >= (pnv.media-2.5*(Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media+2.5*(Math.Sqrt(pnv.variance)))))
+                                    if ((current_strength_network[pnv.Network] >= (pnv.media-3*(Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media+3*(Math.Sqrt(pnv.variance)))))
                                     {
                                         Log.trace("         Passata");
                                         inif = true;
