@@ -22,6 +22,8 @@ using System.Threading;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
 using System.ServiceProcess;
+using System.Timers;
+using System.Security.Principal;
 
 
 
@@ -41,6 +43,7 @@ namespace FNWifiLocator
         public delegate void changePlace(Place p);
         public delegate void notifyText(String str);
         public delegate void clientConnect(PipeMessage p, NamedPipeServerStream s);
+
         public changePlace newPlace;
         public notifyText notify;
         public clientConnect clientConnectDelegate;
@@ -51,6 +54,7 @@ namespace FNWifiLocator
         public refreshListDelegate rlistdelegate;
         private NamedPipeServerStream server;
         System.Windows.Forms.NotifyIcon notifyIcon = new System.Windows.Forms.NotifyIcon();
+        private System.Timers.Timer aTimer = new System.Timers.Timer(Constant.SearchPlaceTimeout);
 
         private ListenThreadForm listener = null;
         private Thread InstanceCaller = null;
@@ -80,6 +84,9 @@ namespace FNWifiLocator
                 }
             }
         }
+
+
+
 
         private Place selectedPlace;
         public Place SelectedPlace
@@ -237,12 +244,13 @@ namespace FNWifiLocator
 
             }*/
 
-            this.startService();
+            this.startService(new PipeMessage { cmd="connected"});
             this.clientConnectDelegate += this.waitClientConnect;
             //clientConnectDelegate(new PipeMessage { cmd = "Test Connessione", place_id = 0 }, this.server);
 
 
             newPlace = new changePlace(ChangePlaceMethod);
+            
             //notify = new notifyText(NotifyTextMethod);
             InitializeComponent();
 
@@ -304,26 +312,40 @@ namespace FNWifiLocator
             this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
             comboplace.DataContext = placesList;
+            
 
             this.rlistdelegate += this.refreshPlaceTree;
             rlistdelegate();
             CurrentPlace = null;
             //Helper.printAllNetworks();
+            aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            aTimer.Interval = Constant.SearchPlaceTimeout;
+            aTimer.Enabled = true;
 
 
 
 
         }
 
-        private void startService() {
+     
+
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
+        {
+            this.SendCommand(new PipeMessage { cmd="refresh"});
+        }
+
+        private void startService(PipeMessage pm) {
             try
             {
                 if (Constant.startService == true)
                 {
+                    
                     ServiceController sc = new ServiceController(Constant.ServiceName);
-
                     if (sc.Status == ServiceControllerStatus.Stopped)
                     {
+                        WindowsIdentity user = WindowsIdentity.GetCurrent();
+                        WindowsPrincipal principal = new WindowsPrincipal(user);
+                        bool isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
                         // Start the service if the current status is stopped.
 
                         Log.trace("Starting the " + Constant.ServiceName + " service...");
@@ -338,10 +360,22 @@ namespace FNWifiLocator
                         }
                         catch (InvalidOperationException)
                         {
-                            MessageBoxResult result = System.Windows.MessageBox.Show(this, "Hello MessageBox"); 
+                            //System.Windows.Application.Current.Shutdown();
                             Log.error("Could not start the  " + Constant.ServiceName + "  service.");
                         }
                     }
+                    if (sc.Status == ServiceControllerStatus.Running)
+                    {
+                        if (this.server == null)
+                            this.server = new NamedPipeServerStream(Constant.LocatorPipeName, PipeDirection.Out);
+                        
+                        Log.trace("Wait for service connect");
+                        this.server.WaitForConnection();
+                        Log.trace("Service is connected");
+                        this.SendCommand(pm);
+
+                    }
+                    
                 }
             }
             catch (Exception ex)
@@ -363,11 +397,8 @@ namespace FNWifiLocator
                     if (this.server != null && !this.server.IsConnected)
                     {
 
-                        this.startService();
-                        Log.trace("Wait for service connect");
-                        this.server.WaitForConnection();
-                        Log.trace("Service is connected");
-                        this.SendCommand(pm);
+                        this.startService(pm);
+                       
                     }
                 }
                 catch (Exception exc)
@@ -705,7 +736,13 @@ namespace FNWifiLocator
             if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false && this.radiob2.IsChecked == false)
             {
                 PlaceTV ptv = (PlaceTV)this.comboplace.SelectedItem;
-                SendCommand(new PipeMessage { cmd = "force", place = ptv.pl.ID });
+                if (ptv != null && ptv.pl != null && ptv.pl.ID > 0)
+                {
+                    SendCommand(new PipeMessage { cmd = "force", place = ptv.pl.ID });
+                }
+                else {
+                    SendCommand(new PipeMessage { cmd = "force", place = 0 });
+                }
                 //posto esistente
             }
             else
@@ -821,16 +858,22 @@ namespace FNWifiLocator
 
         protected override void OnClosed(EventArgs e)
         {
-            
-            base.OnClosed(e);
-            listener._shouldStop = true;
-            if (InstanceCaller.IsAlive)
+            try
             {
-                InstanceCaller.Abort();
-                InstanceCaller.Join();
+                base.OnClosed(e);
+                if (listener != null) listener._shouldStop = true;
+                if (InstanceCaller != null && InstanceCaller.IsAlive)
+                {
+                    InstanceCaller.Abort();
+                    InstanceCaller.Join();
+                }
+                notifyIcon.Visible = false;
+
             }
-            notifyIcon.Visible = false;
-            System.Windows.Application.Current.Shutdown();
+            finally {
+                System.Windows.Application.Current.Shutdown();
+            }
+            
         }
 
     }

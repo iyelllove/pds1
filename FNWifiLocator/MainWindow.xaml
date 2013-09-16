@@ -65,13 +65,16 @@
                 <RadioButton    x:Name="radiob2"        Content="Nessun posto"      HorizontalAlignment="Left" GroupName="place" Margin="10,205,0,0" VerticalAlignment="Top" IsChecked="True" Height="25" Width="205"/>
                 <Button         x:Name="submitPlace"    Content="Invia"             HorizontalAlignment="Left" Margin="128,245,0,0" VerticalAlignment="Top" Width="90" Click="submitPlace_Click_1" Height="25"/>
                 <Button         x:Name="wrongPosition"  Content="Posizione Errata"  HorizontalAlignment="Left" Margin="10,245,0,0" VerticalAlignment="Top" Width="107" Click="wrongPosition_Click_1" Height="25" IsEnabled="False"/>
-                
+                <Label Content="Stato Servizio:" HorizontalAlignment="Left" Margin="14,285,0,0" VerticalAlignment="Top" Width="91"/>
+                <Label x:Name="serverStatus"  Content="{Binding}" HorizontalAlignment="Left" Margin="104,285,0,0" VerticalAlignment="Top" Height="34" Width="61">
+                 
+                </Label>
+
             </Grid>
 
 
         </Grid>
        
-
     </Grid>
 </Window>
 
