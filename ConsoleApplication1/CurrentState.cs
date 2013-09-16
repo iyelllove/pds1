@@ -246,6 +246,7 @@ namespace ConsoleService
                         foreach (var pc in place_candidate)
                         {
                             Place place = pc.Key;
+                            Boolean inif = false;
                             double lp = 0;
                             int i = 0;
                             foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
@@ -258,7 +259,8 @@ namespace ConsoleService
                                     Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
                                     if ((current_strength_network[pnv.Network] >= (pnv.media-2.5*(Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media+2.5*(Math.Sqrt(pnv.variance)))))
                                     {
-                                        Log.trace("         Passata"); 
+                                        Log.trace("         Passata");
+                                        inif = true;
                                         i++;
                                         int impronta = current_strength_network[pnv.Network];
                                         double media = pnv.media;
@@ -268,11 +270,14 @@ namespace ConsoleService
                                 }
 
                             }
-                            lp = Math.Sqrt(lp) / i;
-                            if (lp < place_found_lp)
+                            if (inif == true)
                             {
-                                place_found_lp = lp;
-                                place_found = place;
+                                lp = Math.Sqrt(lp) / i;
+                                if (lp < place_found_lp)
+                                {
+                                    place_found_lp = lp;
+                                    place_found = place;
+                                }
                             }
                         }
 
