@@ -17,8 +17,6 @@ namespace FNWifiLocatorLibrary
 
 
         static DateTime timestamp;
-        static datapds1Entities2 dbistance = null;
-       // static FNDB fbndbistance = null;
         private static object xmppLock = new object();
 
         static List<Wlan.WlanBssEntry> networks = new List<Wlan.WlanBssEntry>();
@@ -28,7 +26,7 @@ namespace FNWifiLocatorLibrary
         static void wlanIfacenNotification(Wlan.WlanNotificationData notifyData)
         {
 
-            Log.trace(notifyData.NotificationCode.ToString());
+            Log.trace("Helper:"+notifyData.NotificationCode.ToString());
 
             if (notifyData.NotificationCode.Equals(Wlan.WlanNotificationCodeAcm.ScanComplete))
             {
@@ -41,33 +39,43 @@ namespace FNWifiLocatorLibrary
 
         static public List<Wlan.WlanBssEntry> getCurrentNetworks()
         {
-            if (Monitor.TryEnter(xmppLock, 15000))
+            Log.trace("getCurrentNetworks");
+            List<Wlan.WlanBssEntry> newnetworks = new List<Wlan.WlanBssEntry>();
+            if (Monitor.TryEnter(xmppLock, Constant.SearchPlaceTimeout))
             {
+
                 //Monitor.Enter(xmppLock);
                 try
                 {
+
                     //Log.trace((DateTime.Now - timestamp).TotalSeconds.ToString());
                     //  if ((DateTime.Now - timestamp).TotalSeconds > 5)
                     //  {
                     Log.trace("waiting for networks....");
-                    networks.Clear();
+                    
                     WlanClient client = new WlanClient();
                     try
                     {
                         foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
                         {
-                            Log.trace(wlanIface.InterfaceState.ToString());
-                            wlanIface.Scan();
-
-                            waitHandle.Reset();
-                            wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
-                            waitHandle.WaitOne();
-                            Log.trace("Sbloccata: Scan Completed");
-                            foreach (Wlan.WlanBssEntry network in wlanIface.GetNetworkBssList())
+                            newnetworks.Clear();
+                            while (newnetworks.Count == 0)
                             {
-                                networks.Add(network);
-                            }
+                                Log.trace(wlanIface.InterfaceState.ToString());
+                                wlanIface.Scan();
 
+                                waitHandle.Reset();
+                                wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
+                                waitHandle.WaitOne();
+                                Log.trace("Sbloccata: Scan Completed");
+                                foreach (Wlan.WlanBssEntry network in wlanIface.GetNetworkBssList())
+                                {
+                                    if (network.rssi < -10)
+                                    {
+                                        newnetworks.Add(network);
+                                    }
+                                }
+                            }
                         }
                         timestamp = DateTime.Now;
                     }
@@ -82,9 +90,14 @@ namespace FNWifiLocatorLibrary
                     Monitor.Exit(xmppLock);
 
                 }
-                return networks;
+                networks.Clear();
+                networks.AddRange(newnetworks);
+                return newnetworks;
             }
-            return networks;
+            else {
+                newnetworks.AddRange(networks);
+            }
+            return newnetworks;
         }
         static public void saveAllCurrentNetworkInPlace(Place p, bool force)
         {
@@ -210,7 +223,19 @@ namespace FNWifiLocatorLibrary
 
         static public datapds1Entities2 getNewDB()
         {
-            return new datapds1Entities2();
+            try
+            {
+                var db = new datapds1Entities2();
+                db.Database.Connection.ConnectionString = Constant.getConnectionString();
+                //Log.trace(db.Database.Connection.ConnectionString);
+                return db;
+            }
+            catch (Exception e)
+            {
+                Log.trace(e.ToString());
+                return null;
+            }
+           
         }
 
         static public datapds1Entities2 getDB()
@@ -241,12 +266,18 @@ namespace FNWifiLocatorLibrary
 
         public static PipeMessage DeserializeFromString<PipeMessage>(string str)
         {
-            byte[] b = Convert.FromBase64String(str);
-            using (var stream = new MemoryStream(b))
+            try
             {
-                var formatter = new BinaryFormatter();
-                stream.Seek(0, SeekOrigin.Begin);
-                return (PipeMessage)formatter.Deserialize(stream);
+                byte[] b = Convert.FromBase64String(str);
+                using (var stream = new MemoryStream(b))
+                {
+                    var formatter = new BinaryFormatter();
+                    stream.Seek(0, SeekOrigin.Begin);
+                    return (PipeMessage)formatter.Deserialize(stream);
+                }
+            }
+            catch {
+                return default(PipeMessage);
             }
         }
 

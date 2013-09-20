@@ -31,6 +31,7 @@ namespace FNWifiLocatorLibrary
                 {
                     byte[] inBuffer = new byte[len];
                     ioStream.Read(inBuffer, 0, len);
+                    
                     return streamEncoding.GetString(inBuffer);
                 }
                 else
@@ -40,6 +41,7 @@ namespace FNWifiLocatorLibrary
             }
             catch (Exception exc)
             {
+                Log.error(exc);
                 Log.trace("ReadString");
             }
             return null;
@@ -59,6 +61,7 @@ namespace FNWifiLocatorLibrary
             try
             {
                 //ioStream.WriteTimeout = 1000;
+                ioStream.Flush();
                 ioStream.WriteByte((byte)(len / 256));
                 ioStream.WriteByte((byte)(len & 255));
                 ioStream.Write(outBuffer, 0, len);
