@@ -45,6 +45,8 @@ namespace ConsoleService
         const int TimeoutSeconds = 25;
 
         private Checkin currentCheckin;
+        private Place prev_place;
+        private int currentPlace_counter = 0;
 
         private Place currentPlace;
         public Place CurrentPlace
@@ -52,58 +54,125 @@ namespace ConsoleService
             get { return currentPlace; }
             set
             {
+                prev_place = currentPlace;
+                if (currentCheckin != null)
+                {
+                    //UPDATE DEL VALORE OUT DI CURRENT CHECKIN. SONO SICURO CHE FINO A QUESTO MOMENTO SONO STATO LI'
+                    using (var db = Helper.getDB())
+                    {
+                        currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
+                        if (currentCheckin != null)
+                        {
+                            currentCheckin.@out = DateTime.Now;
+                            db.SaveChanges();
+                        }
+                    }
 
-                if ((currentPlace != null && value == null) || (currentPlace == null && value != null) || (currentPlace != null && value != null && currentPlace.ID != value.ID))
+                }
+
+
+                if ((prev_place != null && value == null) || (prev_place == null && value != null) || (prev_place != null && value != null && currentPlace.ID != value.ID))
                 {
                     //VUOL DIRE CHE IL LUOVO IN VALUE è DIVERSO DA QUELLO CHE HO MEMORIZZATO IO
                     this.currentPlace = value;
-
-                    if (value != null)
-                    {
-                        using (var db = Helper.getDB())
-                        {
-                            value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
-                            if (value != null)
-                            {
-                                currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
-
-                                value.Checkins.Add(currentCheckin);
-                                db.SaveChanges();
-                            }
-                        }
-                        //   
-                    }
-                    this.cs.update_values_checkin(value);
-                    if (value != null)
-                    {
-                        this.SendCommand(new PipeMessage() { place = value.ID, cmd = "newplace" });
-                    }
-                    else
+                    if (this.currentPlace_counter == 1)
                     {
                         this.SendCommand(new PipeMessage() { place = 0, cmd = "newplace" });
                     }
+                    else
+                    {
+                        this.currentPlace_counter = 1;
+                        this.SendCommand(new PipeMessage() { place = 0, cmd = "please wait:" + currentPlace_counter });
+                    }
+
+                    /*                    if (value == null)
+                                        {
+                                            this.SendCommand(new PipeMessage() { place = 0, cmd = "newplace" });
+                                        }*/
                 }
                 else
                 {
-                    if (currentCheckin != null)
+
+                    if (currentPlace_counter == Constant.tryForCheckin)
                     {
-                        //UPDATE DEL VALORE OUT DI CURRENT CHECKIN. SONO SICURO CHE FINO A QUESTO MOMENTO SONO STATO LI'
-                        using (var db = Helper.getDB())
+                        if (value != null)
                         {
-                            currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
-                            if (currentCheckin != null)
+                            this.SendCommand(new PipeMessage() { place = value.ID, cmd = "newplace" });
+                            using (var db = Helper.getDB())
                             {
-                                this.SendCommand(new PipeMessage() { place = currentCheckin.Place.ID, cmd = "refresh" });
-                                currentCheckin.@out = DateTime.Now;
-                                //db.Checkins.Attach(currentCheckin);
-                                db.SaveChanges();
+                                value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
+                                if (value != null)
+                                {
+                                    currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+
+                                    value.Checkins.Add(currentCheckin);
+                                    db.SaveChanges();
+                                }
                             }
+                            //this.cs.update_values_checkin(value);
+                        }
+                        else
+                        {
+                            this.SendCommand(new PipeMessage() { place = 0, cmd = "newplace" });
+                        }
+                    }
+                    else if (currentPlace_counter >= Constant.tryForCheckin)
+                    {
+                        if (this.currentPlace_counter % Constant.CurrentPlaceCounter == 0 && value != null)
+                        {
+                            this.SendCommand(new PipeMessage() { place = value.ID, cmd = "updatevalue" + this.currentPlace_counter });
+                            //this.cs.update_values(value);
+                        }
+                        else if (value != null)
+                        {
+                            this.SendCommand(new PipeMessage() { place = value.ID, cmd = "refresh" });
                         }
                     }
                     else
                     {
-                        this.SendCommand(new PipeMessage() { place = 0, cmd = "nope" });
+                        this.SendCommand(new PipeMessage() { place = 0, cmd = "please wait:" + currentPlace_counter });
                     }
+
+                    currentPlace_counter++;
+
+                    /*
+                    String cmd = "refresh";
+                    
+                    if (value != null) {
+                        if (this.currentPlace_counter == Constant.tryForCheckin)
+                        {
+                            using (var db = Helper.getDB())
+                            {
+                                value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
+                                if (value != null)
+                                {
+                                    currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+
+                                    value.Checkins.Add(currentCheckin);
+                                    db.SaveChanges();
+                                }
+                            }
+                            this.SendCommand(new PipeMessage() { place = value.ID, cmd = "newplace" });
+                            this.cs.update_values_checkin(value);
+                        }
+                        else if (this.currentPlace_counter > Constant.tryForCheckin)
+                        {
+                            if (this.currentPlace_counter % Constant.CurrentPlaceCounter == 0)
+                            {
+                                cmd = "updatevalue";
+                                this.cs.update_values(value);
+                            }
+                            this.SendCommand(new PipeMessage() { place = value.ID, cmd = cmd });
+                        }
+                    }else{
+                        if (currentPlace_counter >= Constant.tryForCheckin) {
+                            this.SendCommand(new PipeMessage() { place = 0, cmd = "newplace" });
+                        }
+                        
+                    }
+                    currentPlace_counter++;
+                    */
+
                 }
             }
         }
