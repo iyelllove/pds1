@@ -241,24 +241,31 @@ namespace ConsoleService
                         }
                         foreach (var pc in place_candidate)
                         {
+                            
                             Place place = pc.Key;
+                            Log.trace("********************************************");
+                            Log.trace("***************POSTO   " + place.name + "******");
+                            Log.trace("********************************************");
                             Boolean inif = false;
 
                             double lp = 0;
                             int i = 0;
                             if (place != null)
                             {
+                                double nDV;
+                                if(place.m_num>100){nDV=Constant.FatDS;}
+                                        else {nDV=10;}
 
                                 foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
                                 {
+                                    
                                     //per ogni posto candidato considero le reti che costituiscono il posto
                                     //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
                                     if (networks_candidate.Contains(pnv.Network))
                                     {
-                                        Log.trace("**RETE** Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
-                                        Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
-
-                                        if ((current_strength_network[pnv.Network] >= (pnv.media - Constant.FatDS * (Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media + Constant.FatDS * (Math.Sqrt(pnv.variance)))))
+                                      //  Log.trace("---RETE Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
+                                        Log.trace("---dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]"); 
+                                        if ((current_strength_network[pnv.Network] >= (pnv.media - nDV * (Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media + nDV * (Math.Sqrt(pnv.variance)))))
                                         {
                                             Log.trace("         Passata");
                                             inif = true;
@@ -275,6 +282,8 @@ namespace ConsoleService
                             if (inif == true)
                             {
                                 lp = Math.Sqrt(lp) / i;
+                                Log.trace("***************DISTANZA EU   " + lp + "******");
+                                Log.trace("**                                   **");
                                 if (lp < place_found_lp)
                                 {
                                     place_found_lp = lp;
@@ -290,7 +299,7 @@ namespace ConsoleService
             }
             if (place_found != null && place_found.ID > 0)
             {
-                update_values(place_found);
+                //update_values(place_found);
             }
             //Log.trace("-------------------------------"+place_found.name);
             current_place = place_found;
