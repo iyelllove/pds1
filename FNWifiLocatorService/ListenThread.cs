@@ -16,6 +16,7 @@ namespace FNWifiLocatorService
         private NamedPipeServerStream service_server;
         public String pipeName;
         public volatile bool _shouldStop;
+        public AutoResetEvent waitHandle = new AutoResetEvent(false);
 
         public ListenThread(Service1 s, String pipeName, NamedPipeServerStream server)
         {
@@ -32,36 +33,33 @@ namespace FNWifiLocatorService
         public void InstanceMethod()
         {
 
+
+
             Console.WriteLine("Service.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
-
-            Log.trace("Ascolto" + pipeName);
-
-
-
 
             var client = new NamedPipeClientStream(".", pipeName, PipeDirection.In);
 
             try
             {
 
+
                 while (!_shouldStop)
                 {
-                    client.Connect();//avvio service
+                    if (!client.IsConnected) client.Connect();//avvio service
 
                     StreamString ss = new StreamString(client);
-                    while (client.IsConnected)
+                    String text = ss.ReadString();
+                    if (text != null)
                     {
-                        String text = ss.ReadString();
-                        if (text != null)
-                        {
-                            this.s.newCommand.Invoke(Helper.DeserializeFromString<PipeMessage>(text));
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
+                        this.s.newCommand.Invoke(pm);
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
+
                 if (_shouldStop)
                 {
                     Log.trace("_shouldStop is set to true");
@@ -77,7 +75,4 @@ namespace FNWifiLocatorService
         }
 
     }
-
-
-
 }

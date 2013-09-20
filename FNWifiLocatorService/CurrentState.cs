@@ -19,13 +19,12 @@ namespace FNWifiLocatorService
 
         private List<PlacesNetworsValue> backuppnv = new List<PlacesNetworsValue>();
         private List<Place> possible_place = new List<Place>();
-        private Wlan.WlanConnectionAttributes current_connections;
         private Place current_place;
-        private float current_place_value;
-        private Checkin checkin;
-        private Int16 backupc;
         private Place forcePlace = null;
-        double precision = 0;
+
+        private int reti_considerate = 0;
+        private int reti_totali = 0;
+        private double precision = 0;
 
 
 
@@ -99,12 +98,12 @@ namespace FNWifiLocatorService
 
 
             //thisdb = Helper.getDB();
-
+            /*
             try
             {
                 foreach (Wlan.WlanBssEntry network in Helper.getCurrentNetworks())
                 {
-                    if (network.linkQuality > 15/*Properties.Settings.Default.min_signal_value*/)
+                    if (network.linkQuality > 15/*Properties.Settings.Default.min_signal_value * /)
                     {
                         byte[] macAddr = network.dot11Bssid;
                         string tMac = Helper.getMacAddress(network);
@@ -115,7 +114,7 @@ namespace FNWifiLocatorService
             catch (Exception ex)
             {
                 Log.error(ex.Message);
-            }
+            }*/
         }
 
         /*
@@ -175,7 +174,12 @@ namespace FNWifiLocatorService
          */
 
 
-
+        public void printResult() {
+            if (this.current_place != null) {
+                Log.trace(this.current_place.name);
+            }
+            Log.trace("rc" + reti_considerate + ", precision" + precision);
+        }
 
         public Place searchPlace()
         {
@@ -214,18 +218,20 @@ namespace FNWifiLocatorService
 
                     foreach (var network in networks)
                     {
-
-                        string ssid = Helper.getSSIDName(network);
-                        string mac = Helper.getMacAddress(network);
-                        // try
-                        // {
-                        Network nn = db.Networks.Where(n => n.SSID == ssid && n.MAC == mac).FirstOrDefault();
-                        if (nn != null)
-                        {
-                            network_sniffed.Add(nn);
-                            ns.Add(nn.ID);
-                            current_strength_network.Add(nn, Convert.ToInt16(network.rssi.ToString()));
-                        }
+                        //if (network.linkQuality > 15)
+                        //{
+                            string ssid = Helper.getSSIDName(network);
+                            string mac = Helper.getMacAddress(network);
+                            // try
+                            // {
+                            Network nn = db.Networks.Where(n => n.SSID == ssid && n.MAC == mac).FirstOrDefault();
+                            if (nn != null)
+                            {
+                                network_sniffed.Add(nn);
+                                ns.Add(nn.ID);
+                                current_strength_network.Add(nn, Convert.ToInt16(network.rssi.ToString()));
+                            }
+                        //}
                         // }
                         // catch
                         // {
@@ -245,36 +251,44 @@ namespace FNWifiLocatorService
                         }
                         foreach (var pc in place_candidate)
                         {
-                            Place place = pc.Key;
+                           
                             double lp = 0;
                             Boolean inif = false;
                             int i = 0;
-                            foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
+                            Place place = pc.Key;
+                            int reti_considerate_2 = 0;
+                            if (place != null)
                             {
-                                //per ogni posto candidato considero le reti che costituiscono il posto
-                                //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
-                                if (networks_candidate.Contains(pnv.Network))
+                                reti_considerate_2 = 0;
+                                foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
                                 {
-                                    Log.trace("**RETE** Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
-                                    Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
-                                    if ((current_strength_network[pnv.Network] >= (pnv.media - Constant.FatDS * (Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media + Constant.FatDS * (Math.Sqrt(pnv.variance)))))
+                                    //per ogni posto candidato considero le reti che costituiscono il posto
+                                    //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
+                                    if (networks_candidate.Contains(pnv.Network))
                                     {
-                                        Log.trace("         Passata");
-                                        inif = true;
-                                        i++;
-                                        int impronta = current_strength_network[pnv.Network];
-                                        double media = pnv.media;
-                                        lp = lp + Math.Pow(Math.Abs(impronta - media), 2);
+                                        reti_considerate_2++;
+                                        Log.trace("**RETE** Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
+                                        Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
+                                        if ((current_strength_network[pnv.Network] >= (pnv.media - Constant.FatDS * (Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media + Constant.FatDS * (Math.Sqrt(pnv.variance)))))
+                                        {
+                                            Log.trace("         Passata");
+                                            inif = true;
+                                            i++;
+                                            int impronta = current_strength_network[pnv.Network];
+                                            double media = pnv.media;
+                                            lp = lp + Math.Pow(Math.Abs(impronta - media), 2);
+                                        }
+                                        else { Log.trace("----------NONpassata"); }
                                     }
-                                    else { Log.trace("----------NONpassata"); }
-                                }
 
+                                }
                             }
                             if (inif == true)
                             {
                                 lp = Math.Sqrt(lp) / i;
                                 if (lp < place_found_lp)
                                 {
+                                    reti_considerate = reti_considerate_2;
                                     place_found_lp = lp;
                                     place_found = place;
                                 }
@@ -286,10 +300,11 @@ namespace FNWifiLocatorService
                 }
 
             }
+            /*
             if (place_found != null && place_found.ID > 0)
             {
                 update_values(place_found);
-            }
+            }*/
             //Log.trace("-------------------------------"+place_found.name);
             current_place = place_found;
             if (place_found == null)
