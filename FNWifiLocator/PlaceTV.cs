@@ -43,13 +43,14 @@ namespace FNWifiLocator
             this.Level = level;
             this.pl = p;
             this.Title = p.name;
+            /*
             foreach (Place pc in p.Childs)
             {
                 PlaceTV ppc = new PlaceTV(pc, this.Level + 1) { parentTV = this };
                 ChildPlaces.Add(ppc);
                 childlist.Add(ppc);
                 childlist.AddRange(ppc.childlist);
-            }
+            }*/
         }
 
 
@@ -57,7 +58,7 @@ namespace FNWifiLocator
             this.Level = 0;
             this.pl = p;
             this.Title = p.name;
-           
+           /*
             if (p.Childs != null)
             {
                 foreach (Place pc in p.Childs)
@@ -67,7 +68,7 @@ namespace FNWifiLocator
                     ChildPlaces.Add(ppc);
                     childlist.AddRange(ppc.childlist);
                 }
-            }
+            }*/
         }
 
         public override string ToString()

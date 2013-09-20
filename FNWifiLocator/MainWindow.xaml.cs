@@ -41,29 +41,42 @@ namespace FNWifiLocator
         private int tryconnect = Constant.DefaultTryToConnect;
 
         public delegate void changePlace(Place p);
+        public delegate void cmd(PipeMessage p);
         public delegate void notifyText(String str);
         public delegate void clientConnect(PipeMessage p, NamedPipeServerStream s);
+        public delegate void writeString(PipeMessage p, NamedPipeServerStream s);
+        public delegate void SendCommandDelegate(PipeMessage p);
 
+        public SendCommandDelegate SendCommand;
         public changePlace newPlace;
+        public cmd cmdDelegate;
         public notifyText notify;
         public clientConnect clientConnectDelegate;
+        public writeString writeStringDelegate;
 
+
+        
 
         static public ObservableCollection<PlaceTV> placesList = new ObservableCollection<PlaceTV>();
         static public Dictionary<PlaceTV, Place> ParentList = new Dictionary<PlaceTV, Place>();
         public refreshListDelegate rlistdelegate;
-        private NamedPipeServerStream server;
+        public NamedPipeServerStream server;
         System.Windows.Forms.NotifyIcon notifyIcon = new System.Windows.Forms.NotifyIcon();
         private System.Timers.Timer aTimer = new System.Timers.Timer(Constant.SearchPlaceTimeout);
 
         private ListenThreadForm listener = null;
         private Thread InstanceCaller = null;
-            
+
 
         public slideWindow slw = new slideWindow();
         public notifyWindow ntfw = new notifyWindow("AVVIO");
 
         private readonly object serverLock = new object();
+        private readonly object streamLock = new object();
+
+        private static AutoResetEvent waitHandle = new AutoResetEvent(false);
+        private Thread th;
+        private PipeMessage lastmessage = new PipeMessage() { cmd = "hello" };
 
         private bool _slideOpen;
         public bool SlideOpen
@@ -144,9 +157,10 @@ namespace FNWifiLocator
                         notifyIcon.Text = Constant.ApplicationName + " - " + this.currentPlace.name;
                         notify(this.currentPlace.name);
                     }
-                    else {
+                    else
+                    {
                         notifyIcon.Text = Constant.ApplicationName;
-                       
+
                     }
 
                     // using (var db = Helper.getDB())
@@ -172,21 +186,23 @@ namespace FNWifiLocator
                         this.wrongPosition.IsEnabled = true;
                         this.radiob1.IsChecked = true;
                         this.radiob1.IsEnabled = false;
-                        this.radiob2.IsEnabled = false;
+                        //this.radiob2.IsEnabled = false;
                         new_place_name.IsEnabled = false;
                         this.radiob.IsEnabled = false;
                         this.comboplace.IsEnabled = false;
                         this.submitPlace.IsEnabled = false;
+                        notifyIcon.Icon = new Icon(Constant.iconPathGreen);
                     }
                     else
                     {
                         if (this.currentCheckin != null && currentCheckin.Place != null) execFunction(this.currentCheckin.Place.file_out);
                         currentCheckin = null;
                         this.positionName.Content = "Sconosciuta";
+                        notifyIcon.Icon = new Icon(Constant.iconPathYellow);
                         this.radiob.IsChecked = true;
                         this.radiob.IsEnabled = true;
                         this.radiob1.IsEnabled = true;
-                        this.radiob2.IsEnabled = true;
+                        //this.radiob2.IsEnabled = true;
                         this.wrongPosition.IsEnabled = false;
                         this.comboplace.IsEnabled = true;
                         this.submitPlace.IsEnabled = true;
@@ -244,20 +260,31 @@ namespace FNWifiLocator
 
             }*/
 
-            this.startService(new PipeMessage { cmd="connected"});
-            this.clientConnectDelegate += this.waitClientConnect;
+            this.SendCommand += this.SendCommandEvent;
+             this.clientConnectDelegate += this.waitClientConnect;
+            this.writeStringDelegate += this.WriteStingMethod;
             //clientConnectDelegate(new PipeMessage { cmd = "Test Connessione", place_id = 0 }, this.server);
 
 
             newPlace = new changePlace(ChangePlaceMethod);
-            
+            cmdDelegate = new cmd(cmdMethod);
+
+
             //notify = new notifyText(NotifyTextMethod);
             InitializeComponent();
+            listener = new ListenThreadForm(this);
 
+            th = new Thread(doWork);
+            th.Start();
 
+            Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
+            InstanceCaller.Start();
 
+            
+            Log.trace("Non parto in quanto non connesso");
+            SendCommand(new PipeMessage { cmd = "hello" });
 
-            notifyIcon.Icon = new Icon(Constant.iconPath);
+            notifyIcon.Icon = new Icon(Constant.iconPathYellow);
             notifyIcon.Text = Constant.ServiceName;
             notifyIcon.BalloonTipTitle = "Suggest";
             notifyIcon.Visible = true;
@@ -270,11 +297,7 @@ namespace FNWifiLocator
                 };
 
 
-            listener = new ListenThreadForm(this);
-            InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
-            InstanceCaller.Start();
-            
-
+           
             /*using (this.server = new NamedPipeServerStream("FNPipeLocator", PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
                 var asyncResult = server.BeginWaitForConnection(null, null);
@@ -312,49 +335,80 @@ namespace FNWifiLocator
             this.slw = new slideWindow();
             placeTreView.DataContext = placesList;
             comboplace.DataContext = placesList;
+
+
+
             
+            BitmapImage bi3 = new BitmapImage();
+            bi3.BeginInit();
+            bi3.UriSource = new Uri(Constant.serverIconDown);
+            bi3.EndInit();
+            serviceIcon.Source = bi3;
+            /*
+            System.Windows.Controls.Image myImage3 = new System.Windows.Controls.Image();
+            BitmapImage bi3 = new BitmapImage();
+            bi3.BeginInit();
+            bi3.UriSource = new Uri(Constant.serverIconUp);
+            bi3.EndInit();
+            YourImage = bi3;
+            */
+
 
             this.rlistdelegate += this.refreshPlaceTree;
             rlistdelegate();
             CurrentPlace = null;
             //Helper.printAllNetworks();
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-            aTimer.Interval = Constant.SearchPlaceTimeout;
+            aTimer.Interval = Constant.SearchPlaceTimeout * 2;
             aTimer.Enabled = true;
-
+            this.startService();
 
 
 
         }
 
-     
+        private void WriteStingMethod(PipeMessage p, NamedPipeServerStream s)
+        {
+            try
+            {
+                StreamString ss = new StreamString(server);
+                ss.WriteString(Helper.SerializeToString<PipeMessage>(p));
+            }
+            catch (Exception exc)
+            {
+                throw exc;
+            }
+
+
+
+        }
+
+
 
         private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            this.SendCommand(new PipeMessage { cmd="refresh"});
+            //this.SendCommand(new PipeMessage { cmd = "refresh" });
         }
 
-        private void startService(PipeMessage pm) {
+        private void startService()
+        {
             try
             {
-                if (Constant.startService == true)
-                {
-                    
                     ServiceController sc = new ServiceController(Constant.ServiceName);
                     if (sc.Status == ServiceControllerStatus.Stopped)
-                    {
-                        WindowsIdentity user = WindowsIdentity.GetCurrent();
-                        WindowsPrincipal principal = new WindowsPrincipal(user);
-                        bool isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-                        // Start the service if the current status is stopped.
-
-                        Log.trace("Starting the " + Constant.ServiceName + " service...");
+                    {   Log.trace("Starting the " + Constant.ServiceName + " service...");
                         try
                         {
+                            TimeSpan timeout= new TimeSpan(0, 0, 30);
                             // Start the service, and wait until its status is "Running".
                             sc.Start();
-                            sc.WaitForStatus(ServiceControllerStatus.Running);
-
+                            try
+                            {
+                                sc.WaitForStatus(ServiceControllerStatus.Running, timeout);
+                            }
+                            catch (System.TimeoutException tex) {
+                                Log.error("Inpossibile far partire il servizio" + tex);
+                            }
                             // Display the current service status.
                             Log.trace("The WifiLocator service status is now set to " + sc.Status.ToString());
                         }
@@ -367,17 +421,24 @@ namespace FNWifiLocator
                     if (sc.Status == ServiceControllerStatus.Running)
                     {
                         if (this.server == null)
-                            this.server = new NamedPipeServerStream(Constant.LocatorPipeName, PipeDirection.Out);
-                        
+                            this.server = new NamedPipeServerStream(Constant.LocatorPipeName, PipeDirection.Out,1,PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+
+
+
+                        if (InstanceCaller == null || !InstanceCaller.IsAlive)
+                        {
+                            InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
+                            InstanceCaller.Start();
+                        }
+
                         Log.trace("Wait for service connect");
                         this.server.WaitForConnection();
                         Log.trace("Service is connected");
-                        this.SendCommand(pm);
+                        this.SendCommand(new PipeMessage { cmd = "hello" });
 
                     }
-                    
+
                 }
-            }
             catch (Exception ex)
             {
                 Log.error(ex.Message);
@@ -386,26 +447,26 @@ namespace FNWifiLocator
 
         private void waitClientConnect(PipeMessage pm, NamedPipeServerStream s)
         {
+
             if (Monitor.TryEnter(serverLock, 1))
             {
                 //Monitor.Enter(xmppLock);
                 try
                 {
                     if (this.server == null)
-                        this.server = new NamedPipeServerStream(Constant.LocatorPipeName, PipeDirection.Out);
-                    
+                        this.server = new NamedPipeServerStream(Constant.LocatorPipeName, PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+
                     if (this.server != null && !this.server.IsConnected)
                     {
 
-                        this.startService(pm);
-                       
+                        
                     }
                 }
                 catch (Exception exc)
                 {
                     this.tryconnect--;
                     this.server.Close();
-                    this.server = new NamedPipeServerStream(Constant.LocatorPipeName);
+                    this.server = new NamedPipeServerStream(Constant.LocatorPipeName, PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                     Log.error(exc);
                     if (this.tryconnect > 0) this.SendCommand(new PipeMessage { cmd = "connected" });
                 }
@@ -435,49 +496,117 @@ namespace FNWifiLocator
 
         }
 
-
-
-
-
-
-
-        private bool SendCommand(PipeMessage pm)
+        private void cmdMethod(PipeMessage p)
         {
-            try
-            {
-                Log.trace("Send: " + pm.cmd);
-                if (server != null && server.IsConnected)
-                {
-                    StreamString ss = new StreamString(server);
+           
+            aTimer.Stop();
 
-                    ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
-                    this.tryconnect = Constant.DefaultTryToConnect;
-                    return true;
-                }
-                else
-                {
-                    Log.trace("Server Is null or disconnected" + pm.cmd);
-                    this.clientConnectDelegate(pm, this.server);
-                }
-            }
-            catch (Exception exc)
+            System.Windows.Controls.Image myImage3 = new System.Windows.Controls.Image();
+            BitmapImage bi3 = new BitmapImage();
+            bi3.BeginInit();
+            String url = Constant.serverIconDown;
+            if (p != null)
             {
-                this.tryconnect--;
-                if (this.tryconnect > 0)
-                    this.SendCommand(pm);
-                Log.error(exc);
+                this.cmdrec.Content = p.cmd+" "+p.place_id;
+                switch (p.cmd)
+                {
+                    case "disconnected":
+                        currentPlace = null;
+                        url = Constant.serverIconDown;
+                        break;
+                    default:
+                        url = Constant.serverIconUp;
+                        break;
+                }
             }
-            return false;
+
+            bi3.UriSource = new Uri(url);
+            bi3.EndInit();
+
+           
+            serviceIcon.Source = bi3;
+            aTimer.Start();
+        }
+
+
+        private void doWork() {
+            int tryagain = 1;
+            waitHandle.Reset();
+            while(tryagain >0){
+            try{
+                Log.trace("stop");
+
+                waitHandle.WaitOne();
+                    PipeMessage pm = new PipeMessage { cmd = "refresh" };
+                    StreamString ss = new StreamString(server);
+                    ss.WriteString(Helper.SerializeToString<PipeMessage>(lastmessage));
+                    Log.trace("ok");
+                waitHandle.Reset();
+            }catch(ThreadAbortException abe){
+                return;
+            }
+        }
+        }
+
+
+
+
+
+        private void SendCommandEvent(PipeMessage pm)
+        {
+            if (Monitor.TryEnter(streamLock))
+            {
+                
+                try
+                {
+                    Log.trace("Send: " + pm.cmd);
+                    if (server != null && server.IsConnected)
+                    {
+                        //.Abort();+
+                        lock (lastmessage)
+                        {
+                            lastmessage = pm;
+                        }
+                        waitHandle.Set();
+                       
+                        /*
+                        Log.trace("SEND:" + pm.cmd);
+                        StreamString ss = new StreamString(server);
+                        ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
+                        this.tryconnect = Constant.DefaultTryToConnect;
+                         */ 
+                        Log.trace("sended");
+                    }
+                    else
+                    {
+                        BitmapImage bi3 = new BitmapImage();
+                        bi3.BeginInit();
+                        bi3.UriSource = new Uri(Constant.serverIconDown);
+                        bi3.EndInit();
+                        serviceIcon.Source = bi3;
+                        Log.trace("Server Is null or disconnected" + pm.cmd);
+                        this.clientConnectDelegate(pm, this.server);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    this.tryconnect--;
+                    if (this.tryconnect > 0)
+                        this.SendCommand(pm);
+                    Log.error(exc);
+                }
+                finally {
+                    Log.trace("finally");
+                    Monitor.Exit(streamLock);
+                }
+            }
         }
 
         private void refreshPlaceTree()
         {
-            Log.trace("Refresho la lista");
-            this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
             placesList.Clear();
             ParentList.Clear();
-
-            // var gar = Helper.getAllRootPlaces();
+            SendCommand(new PipeMessage { cmd = "refresh" });
 
             try
             {
@@ -508,22 +637,7 @@ namespace FNWifiLocator
             }
 
             this.SelectedPlace = null;
-            foreach (PlaceTV ptv in this.placeTreView.Items)
-            {
-                Log.trace(ptv.pl.name);
-            }
-            //if (gar != null)
-            //{
-            //    foreach (Place p in gar)
-            //    {
-            //        Log.trace(p.name);
-
-            //        PlaceTV pp = new PlaceTV(p);
-            //        ParentList.Add(pp);
-            //        placesList.Add(pp);
-            //        ParentList.AddRange(pp.childlist);
-            //    }
-            //}
+            
         }
 
 
@@ -629,17 +743,7 @@ namespace FNWifiLocator
         private void update_Click(object sender, RoutedEventArgs e)
         {
             this.rlistdelegate();
-
-            if (server != null)
-            {
-                Log.trace("hei service.... perchè non ti aggiorni un pò?");
-                StreamString ss = new StreamString(server);
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "update" }));
-            }
-            else
-            {
-                Log.error("Service è null... qualcosa non va con la pipe");
-            }
+            SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
         }
 
         private void Save_Place_Copy1_Click(object sender, RoutedEventArgs e)
@@ -723,6 +827,7 @@ namespace FNWifiLocator
         private void wrongPosition_Click_1(object sender, RoutedEventArgs e)
         {
             this.CurrentPlace = null;
+            this.comboplace.SelectedValue = null;
             this.SendCommand(new PipeMessage() { place = 0, cmd = "wrong" });
         }
 
@@ -733,14 +838,15 @@ namespace FNWifiLocator
 
         private void submitPlace_Click_1(object sender, RoutedEventArgs e)
         {
-            if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false && this.radiob2.IsChecked == false)
+            if (this.radiob1.IsChecked == true && this.radiob.IsChecked == false)
             {
                 PlaceTV ptv = (PlaceTV)this.comboplace.SelectedItem;
                 if (ptv != null && ptv.pl != null && ptv.pl.ID > 0)
                 {
                     SendCommand(new PipeMessage { cmd = "force", place = ptv.pl.ID });
                 }
-                else {
+                else
+                {
                     SendCommand(new PipeMessage { cmd = "force", place = 0 });
                 }
                 //posto esistente
@@ -750,7 +856,7 @@ namespace FNWifiLocator
                 //posto nuovo
                 Place p = null;
 
-                if (this.radiob1.IsChecked == false && this.radiob.IsChecked == true && this.radiob2.IsChecked == false)
+                if (this.radiob1.IsChecked == false && this.radiob.IsChecked == true)
                 {
                     try
                     {
@@ -763,8 +869,9 @@ namespace FNWifiLocator
                             //Aggiungo il nuovo posto. Unico punto.
                             db.Places.Add(p);
                             db.SaveChanges();
-
+                            
                             SendCommand(new PipeMessage { place_id = p.ID, cmd = "newPlace", place = p.ID });
+                            this.rlistdelegate();
                         }
                         //Helper.saveAllCurrentNetworkInPlace(p);
 
@@ -794,7 +901,7 @@ namespace FNWifiLocator
                 //this.CurrentPlace = p;
 
             }
-            this.rlistdelegate();
+            //this.rlistdelegate();
 
         }
 
@@ -860,21 +967,27 @@ namespace FNWifiLocator
         {
             try
             {
-                base.OnClosed(e);
+                notifyIcon.Visible = false;
                 if (listener != null) listener._shouldStop = true;
                 if (InstanceCaller != null && InstanceCaller.IsAlive)
                 {
                     InstanceCaller.Abort();
-                    InstanceCaller.Join();
+                    InstanceCaller.Join(1000);
                 }
-                notifyIcon.Visible = false;
+                if(th != null && th.IsAlive){
+                    th.Abort();
+                }
+                base.OnClosed(e);
 
             }
-            finally {
+            finally
+            {
                 System.Windows.Application.Current.Shutdown();
             }
-            
+
         }
+
+        
 
     }
 }

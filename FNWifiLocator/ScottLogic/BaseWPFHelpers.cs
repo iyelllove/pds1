@@ -426,7 +426,7 @@ namespace BaseWPFHelpers
                         }
                         catch (Exception e)
                         {
-
+                            Console.WriteLine(e);
                         }
                     }
                 }
@@ -454,6 +454,7 @@ namespace BaseWPFHelpers
                     }
                     catch (Exception e)
                     {
+                        Console.WriteLine(e);
                     }
                 }
             }

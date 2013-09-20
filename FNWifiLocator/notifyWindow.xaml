@@ -25,7 +25,7 @@
                         <DoubleAnimation Name="FormFadeAnimation"
                                      Storyboard.TargetProperty="(Window.Opacity)"
                                      From="0.0" To="1.0" Duration="0:0:1"
-                                     AutoReverse="True" RepeatBehavior="1x" />
+                                     AutoReverse="True"  RepeatBehavior="1x" />
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
@@ -47,7 +47,7 @@
         <!-- Notification area -->
         <Border BorderThickness="1" BorderBrush="Black" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2" Margin="0,0,0,0" Height="91" VerticalAlignment="Top" Grid.RowSpan="3">
             <Border.Background>
-                <ImageBrush ImageSource="icon.ico" Stretch="Uniform" AlignmentX="Left" />
+                <ImageBrush ImageSource="images/logo.png" Stretch="Uniform" AlignmentX="Left" />
             </Border.Background>
             <Border.RenderTransform>
                 <TransformGroup>
