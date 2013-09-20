@@ -19,11 +19,7 @@ namespace ConsoleService
 
         private List<PlacesNetworsValue> backuppnv = new List<PlacesNetworsValue>();
         private List<Place> possible_place = new List<Place>();
-        private Wlan.WlanConnectionAttributes current_connections;
         private Place current_place;
-        private float current_place_value;
-        private Checkin checkin;
-        private Int16 backupc;
         private Place forcePlace = null;
         double precision = 0;
 
@@ -97,14 +93,14 @@ namespace ConsoleService
         public CurrentState()
         {
 
-
+            /*
             //thisdb = Helper.getDB();
 
             try
             {
                 foreach (Wlan.WlanBssEntry network in Helper.getCurrentNetworks())
                 {
-                    if (network.linkQuality > 15/*Properties.Settings.Default.min_signal_value*/)
+                    if (network.linkQuality > 15/*Properties.Settings.Default.min_signal_value* /)
                     {
                         byte[] macAddr = network.dot11Bssid;
                         string tMac = Helper.getMacAddress(network);
@@ -115,7 +111,7 @@ namespace ConsoleService
             catch (Exception ex)
             {
                 Log.error(ex.Message);
-            }
+            }*/
         }
 
         /*
@@ -200,7 +196,7 @@ namespace ConsoleService
 
 
                     //Dictionary<string, RightPlace> rightplaces = new Dictionary<string, RightPlace>();
-                        List<Network> network_sniffed = new List<Network>();
+                    List<Network> network_sniffed = new List<Network>();
                     List<Network> networks_candidate = new List<Network>();
                     this.possible_place.Clear();
 
@@ -209,7 +205,7 @@ namespace ConsoleService
 
 
 
-                        List<int> ns = new List<int>();
+                    List<int> ns = new List<int>();
                     Dictionary<Network, Int16> current_strength_network = new Dictionary<Network, Int16>();
 
                     foreach (var network in networks)
@@ -247,29 +243,34 @@ namespace ConsoleService
                         {
                             Place place = pc.Key;
                             Boolean inif = false;
+
                             double lp = 0;
                             int i = 0;
-                            foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
+                            if (place != null)
                             {
-                                //per ogni posto candidato considero le reti che costituiscono il posto
-                                //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
-                                if (networks_candidate.Contains(pnv.Network))
+
+                                foreach (PlacesNetworsValue pnv in place.PlacesNetworsValues)
                                 {
-                                    Log.trace("**RETE** Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
-                                    Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
-
-                                    if ((current_strength_network[pnv.Network] >= (pnv.media - Constant.FatDS * (Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media + Constant.FatDS * (Math.Sqrt(pnv.variance)))))
+                                    //per ogni posto candidato considero le reti che costituiscono il posto
+                                    //e che fanno parte delle reti candidate(quindi quelle di cui sono in ascolto)
+                                    if (networks_candidate.Contains(pnv.Network))
                                     {
-                                        Log.trace("         Passata");
-                                        inif = true;
-                                        i++;
-                                        int impronta = current_strength_network[pnv.Network];
-                                        double media = pnv.media;
-                                        lp = lp + Math.Pow(Math.Abs(impronta - media), 2);
-                                    }
-                                    else { Log.trace("----------NONpassata"); }
-                                }
+                                        Log.trace("**RETE** Val.Corr[" + current_strength_network[pnv.Network] + "]media:[" + pnv.media + "]");
+                                        Log.trace("         dev.stndrd:[" + Math.Sqrt(pnv.variance) + "]");
 
+                                        if ((current_strength_network[pnv.Network] >= (pnv.media - Constant.FatDS * (Math.Sqrt(pnv.variance)))) && (current_strength_network[pnv.Network] <= (pnv.media + Constant.FatDS * (Math.Sqrt(pnv.variance)))))
+                                        {
+                                            Log.trace("         Passata");
+                                            inif = true;
+                                            i++;
+                                            int impronta = current_strength_network[pnv.Network];
+                                            double media = pnv.media;
+                                            lp = lp + Math.Pow(Math.Abs(impronta - media), 2);
+                                        }
+                                        else { Log.trace("----------NONpassata"); }
+                                    }
+
+                                }
                             }
                             if (inif == true)
                             {
@@ -359,7 +360,8 @@ namespace ConsoleService
                     }
                 }
             }
-            catch(Exception exp) {
+            catch (Exception exp)
+            {
                 Log.error(exp);
             }
         }
@@ -450,7 +452,8 @@ namespace ConsoleService
                     db.SaveChanges();
                 }
             }
-            catch (Exception exp) {
+            catch (Exception exp)
+            {
                 Log.error(exp);
             }
         }

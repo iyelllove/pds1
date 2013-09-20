@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+
+using System;
 using System.Timers;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +15,8 @@ using Microsoft.Win32;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using NativeWifi;
-
-
+using System.ComponentModel;
+using System.Data;
 
 
 
@@ -25,8 +27,10 @@ namespace ConsoleService
     public partial class Service
     {
 
-        
-        private bool searching = false;
+
+
+
+
         private readonly object xmppLock = new object();
         private readonly object serverLock = new object();
 
@@ -59,22 +63,24 @@ namespace ConsoleService
                         using (var db = Helper.getDB())
                         {
                             value = db.Places.Where(c => c.ID == value.ID).FirstOrDefault();
-                            currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
+                            if (value != null)
+                            {
+                                currentCheckin = new Checkin() { Place = value, @in = DateTime.Now, @out = DateTime.Now };
 
-                            value.Checkins.Add(currentCheckin);
-                            db.SaveChanges();
+                                value.Checkins.Add(currentCheckin);
+                                db.SaveChanges();
+                            }
                         }
                         //   
                     }
                     this.cs.update_values_checkin(value);
-                    StreamString ss = new StreamString(server);
                     if (value != null)
                     {
-                        this.SendCommand(new PipeMessage() { place = value.ID, cmd = "refresh" });
+                        this.SendCommand(new PipeMessage() { place = value.ID, cmd = "newplace" });
                     }
                     else
                     {
-                        this.SendCommand(new PipeMessage() { place = 0, cmd = "refresh" });
+                        this.SendCommand(new PipeMessage() { place = 0, cmd = "newplace" });
                     }
                 }
                 else
@@ -87,11 +93,16 @@ namespace ConsoleService
                             currentCheckin = db.Checkins.Where(c => c.ID == currentCheckin.ID).FirstOrDefault();
                             if (currentCheckin != null)
                             {
+                                this.SendCommand(new PipeMessage() { place = currentCheckin.Place.ID, cmd = "refresh" });
                                 currentCheckin.@out = DateTime.Now;
                                 //db.Checkins.Attach(currentCheckin);
                                 db.SaveChanges();
                             }
                         }
+                    }
+                    else
+                    {
+                        this.SendCommand(new PipeMessage() { place = 0, cmd = "nope" });
                     }
                 }
             }
@@ -100,9 +111,14 @@ namespace ConsoleService
         private static AutoResetEvent waitHandle = new AutoResetEvent(false);
         private NamedPipeServerStream server;
         private CurrentState cs = new CurrentState();
-        private static System.Timers.Timer aTimer;
+        private System.Timers.Timer aTimer = new System.Timers.Timer(Constant.SearchPlaceTimeout);
 
-        public Service()
+
+        private int tryconnect = Constant.DefaultTryToConnect;
+
+        public Thread InstanceCaller = null;
+
+ public Service()
         {
 
             OnStart();
@@ -116,22 +132,95 @@ namespace ConsoleService
             OnStop();
         }
 
-        private void OnTimedEvent(object source, ElapsedEventArgs e)
+         public void Service1()
+        {
+           
+        }
+
+        protected  void OnStart()
         {
 
-            this.searchPlace();
+            
+            
+            
+            newCommand += newCommandEvent;
+            //this.clientConnectDelegate += this.waitClientConnect;
+            //Log.trace("waitClientConnectDelegate setted");
+            
+            //clientConnectDelegate(new PipeMessage { cmd = "Test Connessione", place_id = 0 }, this.server);
+            //Log.trace("waitClientConnectDelegate triggered");
+            //ricezione eventi di sistema
+            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
+            SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
+            SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
+            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
+
+            // Create a timer with a ten second interval.
+            //aTimer = new System.Timers.Timer(10000);
+            aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            aTimer.Interval = Constant.SearchPlaceTimeout;
+            aTimer.Enabled = true;
+            searchPlace();
+            
+        }
+
+        protected  void OnStop()
+        {
+            listener._shouldStop = true;
+        }
+
+
+
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
+        {
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
+            this.searchPlace();
         }
 
         private void searchPlace()
         {
             if (Monitor.TryEnter(xmppLock, 1))
             {
+                if (this.server == null)
+                    this.server = new NamedPipeServerStream(Constant.ServicePipeName, PipeDirection.Out);
+               
+                if (!this.server.IsConnected)
+                {
+                    Log.trace("Service: wait for client(form) connect");
+                    Log.trace("Il mio servizio non parte se non ho ricevuto una connessione");
+                    try
+                    {
+                        if (InstanceCaller != null)
+                        {
+                            InstanceCaller.Abort();
+                            InstanceCaller.Join(1000);
+                        }
+                        this.server.WaitForConnection();
+                    }
+                    catch(IOException ioe)
+                    {
+                        Log.error(ioe);
+                        this.server.Disconnect();
+                        this.server.Close();
+                        InstanceCaller.Abort();
+                        InstanceCaller.Join(1000);
+                        this.server = new NamedPipeServerStream(Constant.ServicePipeName, PipeDirection.Out);
+                        this.server.WaitForConnection();
+
+                    }
+                    SendCommand(new PipeMessage { cmd = "hello" });
+                    
+                    listener = new ListenThread(this, Constant.LocatorPipeName, server);
+                    InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
+                    InstanceCaller.Start();
+                    Log.trace("Service.Main:AVVIO SERVICE");
+                }
+                
                 //Monitor.Enter(xmppLock);
                 try
                 {
                     aTimer.Stop();
-                    CurrentPlace = cs.searchPlace();
+                   CurrentPlace = cs.searchPlace();
                     aTimer.Start();
                 }
                 finally
@@ -142,43 +231,10 @@ namespace ConsoleService
             }
         }
 
-        private void Service1()
-        {
-           
 
 
-        }
-
-        private void waitClientConnect(PipeMessage pm, NamedPipeServerStream s)
-        {
-            if (Monitor.TryEnter(serverLock, 1))
-            {
-                //Monitor.Enter(xmppLock);
-                try
-                {
-                    if (this.server == null)
-                    {
-                        this.server = new NamedPipeServerStream(Constant.ServicePipeName);
-                    }
-
-                    if (this.server != null && !this.server.IsConnected)
-                    {
-                        Console.WriteLine("Service: wait for client(form) connect");
-                        this.server.WaitForConnection();
-                        Console.WriteLine("Service: Form is connected");
-                        //this.SendCommand(new PipeMessage() { cmd = "CONNESSO" });
-                        this.SendCommand(pm);
-                    }
-                }
-                finally
-                {
-
-                    Monitor.Exit(serverLock);
-                }
-            }
 
 
-        }
         private void WrongPlace()
         {
             //DEVO DECREMENTARE  TUTTE LE IMPORTANZE DELLE RETI IN CURRENT PLACE
@@ -197,96 +253,18 @@ namespace ConsoleService
         }
 
 
-
-        private void OnStart()//string[] args
-        {
-            Console.WriteLine("Service.Main:AVVIO SERVICE");
-
-            newCommand += newCommandEvent;
-            this.clientConnectDelegate += this.waitClientConnect;
-            //ricezione eventi di sistema
-            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
-            SystemEvents.SessionEnded += new SessionEndedEventHandler(SystemEvents_SessionEnded);
-            SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
-            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
-
-
-            // Create a timer with a ten second interval.
-            aTimer = new System.Timers.Timer(10000);
-
-            // Hook up the Elapsed event for the timer.
-            aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-
-            // Set the Interval to 2 seconds (2000 milliseconds).
-            aTimer.Interval = Constant.SearchPlaceTimeout;
-            aTimer.Enabled = true;
-
-
-
-            Console.WriteLine("Press the Enter key to exit the program.");
-            //  Console.ReadLine();
-
-
-
-            WlanClient client = new WlanClient();
-            try
-            {
-                foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
-                {
-                    wlanIface.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(wlanIfacenNotification);
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-
-            
-
-            //Console.WriteLine("Service: wait for client(form) connect");
-            
-          
-          //  Console.WriteLine("Service: Form is connected");
-          //  this.SendCommand(new PipeMessage() { cmd = "CONNESSO" });
-
-
-            //this.CurrentPlace = this.cs.searchPlace();
-
-            //CREO IL SECONDO THREAD PER LA COMUNICAZIONE DEL SERVICE
-            listener = new ListenThread(this, Constant.LocatorPipeName, server);
-            Thread InstanceCaller = new Thread(new ThreadStart(listener.InstanceMethod));
-            InstanceCaller.Start();
-
-            //ATTENZIONE!! il service si blocca sulla wait?Elo scheduler?
-
-        }
-
-
-        private void OnStop()
-        {
-
-        }
-
-        private void OnShutdown()
-        {
-            listener._shouldStop = true;
-
-        }
-
-
-
         public void newCommandEvent(PipeMessage pm)
         {
             if (pm != null)
             {
+                Place newplace = null;
+                Log.trace("riceved:" + pm.cmd);
+                SendCommand(new PipeMessage { cmd = "ack" });
                 switch (pm.cmd)
                 {
+                    
                     case "force":
-
-                        //Deve aggioranre tutti i valori della media
-                    case "newPlace":
-                        
-                        //this.WrongPlace();
-                        Place newplace  = null;
+                       
                         using (var db = Helper.getDB())
                         {
                             newplace = db.Places.Where(c => c.ID == pm.place_id).FirstOrDefault();
@@ -294,18 +272,35 @@ namespace ConsoleService
                         if (newplace != null)
                         {
                             this.CurrentPlace = newplace;
-                            Helper.saveAllCurrentNetworkInPlace(newplace, pm.cmd.Equals("force"));
+                            Helper.saveAllCurrentNetworkInPlace(newplace, true);
+                            SendCommand(new PipeMessage { cmd = "refresh", place_id=newplace.ID,place=newplace.ID });
+                        }
+                        
+                        break;
+                    //Deve aggioranre tutti i valori della media
+                    case "newPlace":
+                        //this.WrongPlace();
+                        
+                        using (var db = Helper.getDB())
+                        {
+                            newplace = db.Places.Where(c => c.ID == pm.place_id).FirstOrDefault();
+                        }
+                        if (newplace != null)
+                        {
+                            this.CurrentPlace = newplace;
+                            Helper.saveAllCurrentNetworkInPlace(newplace, false);
                         }
 
                         break;
                     case "wrong":
                         this.WrongPlace();
                         break;
+                    case "connected":
                     case "refresh":
                         this.searchPlace();
                         break;
                 }
-                Log.trace("RICEVUTO:" + pm.cmd);
+                
             }
 
         }
@@ -315,68 +310,52 @@ namespace ConsoleService
 
             if (server != null && server.IsConnected)
             {
-                Log.trace("SEND:" + pm.cmd);
-                StreamString ss = new StreamString(server);
-                ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
-                return true;
+                try
+                {
+                    Log.trace("SEND:" + pm.cmd);
+                    StreamString ss = new StreamString(server);
+                    ss.WriteString(Helper.SerializeToString<PipeMessage>(pm));
+                    this.tryconnect = Constant.DefaultTryToConnect;
+                    //this.listener.waitHandle.Set();
+                    return true;
+                }
+                catch(Exception exc) {
+                    this.tryconnect--;
+                    if(this.tryconnect>0)
+                     this.SendCommand(pm);
+                    Log.error(exc);
+                }
             }
-            else {
-                this.clientConnectDelegate(pm, this.server);
+            else
+            {
+                Log.trace("Server Is null or disconnected");
+               // this.clientConnectDelegate(pm, this.server);
             }
             return false;
         }
 
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        //          Gestione event handler                   ///
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////
-
         private void AddressChangedCallback(object sender, EventArgs e)
         {
             Log.trace("indirizzo ip cambiato");
-            //StreamString ss = new StreamString(server);
-            //ss.WriteString(Helper.SerializeToString<PipeMessage>(new PipeMessage() { place = 0, cmd = "ip change" }));
             this.searchPlace();
         }
 
         private void SystemEvents_SessionEnded(object sender, SessionEndedEventArgs e)
         {
-            this.searchPlace();
             Log.trace("user is trying to log off or shut down the system");
+            this.searchPlace();
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             Log.trace("currently logged-in user has changed");
             this.searchPlace();
-            /*if (e.Reason == SessionSwitchReason.SessionLock)
-            {
-                Log.trace("locked at {0}");
-                Log.trace(DateTime.Now.ToString());
-            }
-            if (e.Reason == SessionSwitchReason.SessionUnlock)
-            {
-                Log.trace("unlocked at {0}");
-                Log.trace(DateTime.Now.ToString());
-            }*/
         }
 
         private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
+            this.searchPlace();
+
             this.searchPlace();
             Log.trace("user suspends or resumes the system");
         }
@@ -391,8 +370,58 @@ namespace ConsoleService
             }
             //Console.WriteLine("{0} to {1} with quality level {2}",connNotifyData.wlanConnectionMode, connNotifyData.profileName, "-");
         }
+        protected  void OnShutdown()
+        {
+            try
+            {
+                Log.trace("OnShutdown");
+                Monitor.Enter(xmppLock);
+                aTimer.Stop();
+            }
+            finally
+            {
 
-        
+                Monitor.Exit(xmppLock);
+            }
+            
+         //   base.OnShutdown();
+        }
+
+
+        protected  void OnPause()
+        {
+            try
+            {
+                Log.trace("OnPause");
+                Monitor.Enter(xmppLock);
+                aTimer.Stop();
+            }
+            finally
+            {
+
+                Monitor.Exit(xmppLock);
+            }
+
+            //base.OnPause();
+        }
+
+        protected  void OnContinue()
+        {
+            try
+            {
+                Log.trace("OnContinue");
+                Monitor.Enter(xmppLock);
+                aTimer.Start();
+            }
+            finally
+            {
+
+                Monitor.Exit(xmppLock);
+            }
+
+           // base.OnContinue();
+        }
+
     }
 
 

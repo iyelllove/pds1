@@ -16,40 +16,40 @@ namespace ConsoleService
         public String pipeName;
         public volatile bool _shouldStop;
 
-        public ListenThread(Service s, String pipeName, NamedPipeServerStream server) {
+        public ListenThread(Service s, String pipeName, NamedPipeServerStream server)
+        {
             this.pipeName = pipeName;
             this.s = s;
         }
-      
-         public void InstanceMethod()
+
+        public void InstanceMethod()
         {
-            
+
             Console.WriteLine("Service.Thread: ListenThreadForm.InstanceMethod is running on another thread.");
 
             var client = new NamedPipeClientStream(".", pipeName, PipeDirection.In);
-             
+
             try
             {
-                
-               
+
+
                 while (!_shouldStop)
                 {
-                    client.Connect();//avvio service
+                    if(!client.IsConnected)client.Connect();//avvio service
 
                     StreamString ss = new StreamString(client);
-                    while (client.IsConnected)
+                    String text = ss.ReadString();
+                    if (text != null)
                     {
-                        String text = ss.ReadString();
-                        if (text != null)
-                        {
-                            this.s.newCommand.Invoke(Helper.DeserializeFromString<PipeMessage>(text));
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        PipeMessage pm = Helper.DeserializeFromString<PipeMessage>(text);
+                        this.s.newCommand.Invoke(pm);
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
+
                 if (_shouldStop)
                 {
                     Log.trace("_shouldStop is set to true");
@@ -63,9 +63,9 @@ namespace ConsoleService
             Console.WriteLine("FN.Thread: The instance method (Form) called by the worker thread has ended.");
             client.Close();
         }
-        
+
     }
 
 
-   
+
 }
